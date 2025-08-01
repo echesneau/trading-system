@@ -1,0 +1,9 @@
+# requirements.txt
+numpy
+pandas
+scikit-learn
+yfinance
+ta
+matplotlib
+pytest
+pytest-cov
