@@ -1,0 +1,51 @@
+name: CI Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.10
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    - name: Run unit tests
+      run: |
+        pytest tests/unit/
+    - name: Run integration tests
+      run: |
+        pytest tests/integration/
+
+  train-model:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+    - name: Train model
+      run: |
+        python scripts/train_model.py
+      env:
+        ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
+    - name: Upload model
+      uses: actions/upload-artifact@v3
+      with:
+        name: ml-models
+        path: models/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, train-model]
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+    - name: Deploy to cloud
+      run: |
+        python scripts/deploy.py
