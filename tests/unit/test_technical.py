@@ -4,7 +4,7 @@ from platform import machine
 import pytest
 import pandas as pd
 import numpy as np
-from src.features.technical import calculate_indicators
+from src.features.technical import calculate_indicators, calculate_price_volume_trend
 
 
 def test_calculate_indicators_basic():
@@ -116,13 +116,13 @@ def test_custom_indicators():
         'Volume': [1000, 2000, 3000, 2000, 1000]
     })
 
-    result = calculate_indicators(data)
+    result = calculate_price_volume_trend(data)
 
     # Price_Volume_Trend devrait être positif quand prix et volume montent
-    assert result['Price_Volume_Trend'].iloc[2] > result['Price_Volume_Trend'].iloc[1]
+    assert result.iloc[2] > result.iloc[1]
 
     # Et négatif quand ils baissent
-    assert result['Price_Volume_Trend'].iloc[4] < result['Price_Volume_Trend'].iloc[3]
+    assert result.iloc[4] < result.iloc[3]
 
 
 def test_bollinger_bands():
