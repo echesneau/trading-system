@@ -17,12 +17,16 @@ class HybridStrategy(BaseStrategy):
 
     def generate_signals(self, data: pd.DataFrame) -> pd.Series:
         # Calcul des indicateurs
-        data = calculate_indicators(data)
+        required_cols = {'RSI', 'MACD', 'Signal', 'Close', 'BB_Lower',
+                         'BB_Upper', 'EMA_50', 'EMA_200', 'VolMA20'}
+        if not required_cols.issubset(data.columns):
+            missing = required_cols - set(data.columns)
+            raise ValueError(f"Colonnes manquantes: {missing}")
 
         # Préparation des features
         features = data[[
-            'RSI', 'MACD', 'Signal', 'UpperBand', 'LowerBand',
-            'ATR', 'EMA50', 'EMA200', 'VolMA20'
+            'RSI', 'MACD', 'Signal', 'BB_Upper', 'BB_Lower',
+            'ATR', 'EMA_50', 'EMA_200', 'VolMA20'
         ]].iloc[[-1]]
 
         # Normalisation
@@ -32,12 +36,28 @@ class HybridStrategy(BaseStrategy):
         proba = self.model.predict_proba(features_scaled)[0][1]
         prediction = 1 if proba > 0.65 else 0
 
-        # Règles de décision
-        if data['RSI'].iloc[-1] < 30 and prediction == 1:
-            return 'BUY'
-        elif data['RSI'].iloc[-1] > 70 or prediction == 0:
-            return 'SELL'
-        return 'HOLD'
+        # Dernières valeurs des indicateurs
+        last = data.iloc[-1]
+
+        buy_condition = (
+                (last['RSI'] < self.rsi_buy) and
+                (last['MACD'] > last['Signal']) and
+                (last['Close'] < last['BB_Lower']) and
+                (prediction == 1)
+        )
+
+        # Conditions de vente
+        sell_condition = (
+                (last['RSI'] > self.rsi_sell) or
+                (prediction == 0)
+        )
+        # Génération du signal
+        if buy_condition:
+            return pd.Series(['BUY'], index=[data.index[-1]])
+        elif sell_condition:
+            return pd.Series(['SELL'], index=[data.index[-1]])
+        else:
+            return pd.Series(['HOLD'], index=[data.index[-1]])
 
     def get_parameters(self) -> dict:
         return {

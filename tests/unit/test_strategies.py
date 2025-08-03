@@ -8,22 +8,37 @@ def test_hybrid_strategy_buy_signal():
     """Teste un signal d'achat avec la stratégie hybride."""
     # Créer un mock pour le modèle ML
     mock_model = MagicMock()
-    mock_model.predict_proba.return_value = np.array([[0.2, 0.8]])  # 80% de probabilité de hausse
-    
-    strategy = HybridStrategy(model=mock_model)
-    strategy.scaler = MagicMock()
-    strategy.scaler.transform.return_value = np.array([[30, 1, 0.5, 100, 90, 5, 105, 100, 1500]])
-    
+    mock_scaler = MagicMock()
+
+    # Configurer les valeurs de retour
+    mock_model.predict_proba.return_value = np.array([[0.1, 0.9]])  # 80% de probabilité de hausse
+    mock_scaler.transform.return_value = np.array([
+        [25,  # RSI bas
+         1.5,  # MACD > Signal (positif)
+         1.0,  # Signal
+         90,  # Prix
+         92,  # Bande inférieure (prix < bande)
+         3,  # ATR
+         95,  # EMA50
+         100,  # EMA200 (EMA50 > EMA200 = tendance haussière)
+         1500  # Volume
+         ]
+    ])
+
+    # Initialiser la stratégie avec les mocks
+    strategy = HybridStrategy(model=mock_model, scaler=mock_scaler, rsi_buy=30)
+
     # Données avec conditions techniques d'achat
     data = pd.DataFrame({
-        'RSI': [35, 34, 33, 32, 31],
-        'MACD': [0.5, 0.4, 0.3, 0.2, 0.1],
-        'Signal': [0.6, 0.5, 0.4, 0.3, 0.2],
+        'RSI': [25, 26, 27, 28, 29],
+        'MACD': [1.5, 1.4, 1.3, 1.2, 1.1],
+        'Signal': [1.0, 1.0, 1.0, 1.0, 1.0],
         'Close': [95, 94, 93, 92, 91],
-        'LowerBand': [96, 95, 94, 93, 92],
+        'BB_Upper': [96, 95, 94, 93, 92],
+        'BB_Lower': [96, 95, 94, 93, 92],
         'ATR': [3, 3, 3, 3, 3],
-        'EMA50': [100, 99, 98, 97, 96],
-        'EMA200': [105, 104, 103, 102, 101],
+        'EMA_50': [100, 99, 98, 97, 96],
+        'EMA_200': [105, 104, 103, 102, 101],
         'VolMA20': [1000, 1100, 1200, 1300, 1400]
     })
     
@@ -31,8 +46,14 @@ def test_hybrid_strategy_buy_signal():
     signals = strategy.generate_signals(data)
     
     # Vérifier le signal d'achat
-    assert signals.iloc[-1] == 'BUY'
+    assert signals.iloc[-1] == 'BUY', (
+        f"Attendu 'BUY' mais obtenu '{signals.iloc[-1]}'. "
+        f"Dernières valeurs:\n{data.iloc[-1]}\n"
+        f"Proba modèle: {mock_model.predict_proba.return_value}"
+    )
     mock_model.predict_proba.assert_called_once()
+    mock_scaler.transform.assert_called_once()
+
 
 def test_hybrid_strategy_no_buy_with_low_ml_confidence():
     """Vérifie qu'aucun achat n'est déclenché avec une faible confiance ML."""
