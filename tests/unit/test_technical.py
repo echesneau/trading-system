@@ -44,20 +44,28 @@ def test_rsi_calculation():
     """Teste spécifiquement le calcul du RSI."""
     # Cas simple: 14 périodes de hausse
     data = pd.DataFrame({
-        'Close': [100 + i for i in range(15)]
-    })
+        'Open': [100 + i for i in range(30)],
+        'High': [105 + i for i in range(30)],
+        'Low': [95 + i for i in range(30)],
+        'Close': [100 + i for i in range(30)],
+        'Volume': [1000 + i * 100 for i in range(30)]
+    }, index=pd.date_range('2023-01-01', periods=30))
 
-    result = calculate_indicators(data)
+    result = calculate_indicators(data, ema_windows=[])
 
     # Après 14 périodes de hausse, RSI devrait être proche de 100
     assert result['RSI'].iloc[-1] > 90
 
     # Cas simple: 14 périodes de baisse
     data = pd.DataFrame({
-        'Close': [100 - i for i in range(15)]
-    })
+        'Open': [100 + i for i in range(30)],
+        'High': [105 + i for i in range(30)],
+        'Low': [95 + i for i in range(30)],
+        'Close': [100 - i for i in range(30)],
+        'Volume': [1000 + i * 100 for i in range(30)]
+    }, index=pd.date_range('2023-01-01', periods=30))
 
-    result = calculate_indicators(data)
+    result = calculate_indicators(data,ema_windows=[])
     # Après 14 périodes de baisse, RSI devrait être proche de 0
     assert result['RSI'].iloc[-1] < 10
 
@@ -78,14 +86,14 @@ def test_indicator_calculation():
     """Teste des calculs spécifiques d'indicateurs."""
     # Données avec tendance haussière constante
     data = pd.DataFrame({
-        'Open': [100 + i for i in range(20)],
-        'High': [105 + i for i in range(20)],
-        'Low': [95 + i for i in range(20)],
-        'Close': [100 + i for i in range(20)],
-        'Volume': [1000] * 20
+        'Open': [100 + i for i in range(30)],
+        'High': [105 + i for i in range(30)],
+        'Low': [95 + i for i in range(30)],
+        'Close': [100 + i for i in range(30)],
+        'Volume': [1000] * 30
     })
 
-    result = calculate_indicators(data)
+    result = calculate_indicators(data, ema_windows=[5, 10, 20], adx_window=7)
 
     # RSI devrait être élevé pour une tendance haussière
     assert result['RSI'].iloc[-1] > 70
@@ -94,8 +102,8 @@ def test_indicator_calculation():
     assert result['MACD'].iloc[-1] > 0
 
     # EMA20 < EMA50 < EMA200 dans une tendance
-    assert result['EMA_20'].iloc[-1] > result['EMA_50'].iloc[-1]
-    assert result['EMA_50'].iloc[-1] > result['EMA_200'].iloc[-1]
+    assert result['EMA_5'].iloc[-1] > result['EMA_10'].iloc[-1]
+    assert result['EMA_10'].iloc[-1] > result['EMA_20'].iloc[-1]
 
 
 def test_custom_indicators():
