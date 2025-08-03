@@ -1,4 +1,6 @@
 # tests/unit/test_technical_indicators.py
+from platform import machine
+
 import pytest
 import pandas as pd
 import numpy as np
@@ -9,21 +11,21 @@ def test_calculate_indicators_basic():
     """Teste le calcul des indicateurs avec des données basiques."""
     # Créer des données de test
     data = pd.DataFrame({
-        'Open': [100, 101, 102, 103, 104],
-        'High': [105, 106, 107, 108, 109],
-        'Low': [95, 96, 97, 98, 99],
-        'Close': [100, 102, 101, 103, 105],
-        'Volume': [1000, 2000, 1500, 2500, 3000]
-    }, index=pd.date_range('2023-01-01', periods=5))
+        'Open': [100 + i for i in range(30)],
+        'High': [105 + i for i in range(30)],
+        'Low': [95 + i for i in range(30)],
+        'Close': [100 + i for i in range(30)],
+        'Volume': [1000 + i * 100 for i in range(30)]
+    }, index=pd.date_range('2023-01-01', periods=30))
 
     # Calculer les indicateurs
-    result = calculate_indicators(data)
+    result = calculate_indicators(data, ema_windows=[5, 10, 20], adx_window=7, )
 
     # Vérifier les colonnes ajoutées
     expected_indicators = [
         'RSI', 'MACD', 'MACD_Signal', 'Stochastic_%K', 'Stochastic_%D',
         'ATR', 'BB_Upper', 'BB_Middle', 'BB_Lower',
-        'EMA_20', 'EMA_50', 'EMA_200', 'ADX',
+        'EMA_5', 'EMA_10', 'EMA_20', 'ADX',
         'OBV', 'Volume_MA_20', 'Price_Volume_Trend', 'Daily_Return'
     ]
 
@@ -34,7 +36,7 @@ def test_calculate_indicators_basic():
     assert not result['RSI'].isna().all()
     assert not result['MACD'].isna().all()
     assert not result['ATR'].isna().all()
-    assert result['UpperBand'].iloc[-1] > result['LowerBand'].iloc[-1]
+    assert result['BB_Upper'].iloc[-1] > result['BB_Lower'].iloc[-1]
     assert result['MACD'].iloc[-1] != 0
 
 
