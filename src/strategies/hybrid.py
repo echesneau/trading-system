@@ -48,7 +48,7 @@ class HybridStrategy(BaseStrategy):
 
         # Conditions de vente
         sell_condition = (
-                (last['RSI'] > self.rsi_sell) or
+                (last['RSI'] > self.rsi_sell) and
                 (prediction == 0)
         )
         # Génération du signal

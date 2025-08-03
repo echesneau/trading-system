@@ -57,20 +57,35 @@ def test_hybrid_strategy_buy_signal():
 
 def test_hybrid_strategy_no_buy_with_low_ml_confidence():
     """Vérifie qu'aucun achat n'est déclenché avec une faible confiance ML."""
+    # Créer un mock pour le modèle ML
     mock_model = MagicMock()
+    mock_scaler = MagicMock()
     mock_model.predict_proba.return_value = np.array([[0.5, 0.5]])  # Seulement 50% de confiance
-    
-    strategy = HybridStrategy(model=mock_model)
-    strategy.scaler = MagicMock()
-    strategy.scaler.transform.return_value = np.array([[30, 1, 0.5, 100, 90, 5, 105, 100, 1500]])
-    
+    mock_scaler.transform.return_value = np.array([
+        [25,  # RSI bas
+         1.5,  # MACD > Signal (positif)
+         1.0,  # Signal
+         90,  # Prix
+         92,  # Bande inférieure (prix < bande)
+         3,  # ATR
+         95,  # EMA50
+         100,  # EMA200 (EMA50 > EMA200 = tendance haussière)
+         1500  # Volume
+         ]
+    ])
+    strategy = HybridStrategy(model=mock_model, scaler=mock_scaler, rsi_buy=30)
+
     data = pd.DataFrame({
-        'RSI': [30],
-        'MACD': [0.5],
-        'Signal': [0.4],
-        'Close': [91],
-        'LowerBand': [90],
-        # Autres colonnes nécessaires...
+        'RSI': [25, 26, 27, 28, 29],
+        'MACD': [1.5, 1.4, 1.3, 1.2, 1.1],
+        'Signal': [1.0, 1.0, 1.0, 1.0, 1.0],
+        'Close': [95, 94, 93, 92, 91],
+        'BB_Upper': [96, 95, 94, 93, 92],
+        'BB_Lower': [96, 95, 94, 93, 92],
+        'ATR': [3, 3, 3, 3, 3],
+        'EMA_50': [100, 99, 98, 97, 96],
+        'EMA_200': [105, 104, 103, 102, 101],
+        'VolMA20': [1000, 1100, 1200, 1300, 1400]
     })
     
     signals = strategy.generate_signals(data)
