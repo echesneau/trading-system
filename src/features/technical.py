@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 import ta  # Bibliothèque d'analyse technique
+from ta.trend import ema_indicator
 from typing import Optional, List
 
 
@@ -88,11 +89,7 @@ def calculate_indicators(
     ## Exponential Moving Averages (EMA)
     for window in ema_windows:
         if len(df) >= window:
-            df[f'EMA_{window}'] = ta.trend.EMAIndicator(
-                close=df['Close'],
-                window=window,
-                fillna=False
-            ).ema_indicator()
+            df[f'EMA_{window}'] = ema_indicator(df['Close'], window=window)
         else:
             df[f'EMA_{window}'] = np.nan
     ## ADX
