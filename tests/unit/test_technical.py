@@ -26,7 +26,7 @@ def test_calculate_indicators_basic():
         'RSI', 'MACD', 'MACD_Signal', 'Stochastic_%K', 'Stochastic_%D',
         'ATR', 'BB_Upper', 'BB_Middle', 'BB_Lower',
         'EMA_5', 'EMA_10', 'EMA_20', 'ADX',
-        'OBV', 'Volume_MA_20', 'Price_Volume_Trend', 'Daily_Return'
+        'OBV', 'VolMA20', 'Price_Volume_Trend', 'Daily_Return'
     ]
 
     for indicator in expected_indicators:
