@@ -12,6 +12,7 @@ class HybridStrategy(BaseStrategy):
         self.model = model
         self.scaler = scaler
         # Paramètres par défaut
+        self.ml_threshold = kwargs.get('ml_threshold', 0.65)
         self.rsi_buy = kwargs.get('rsi_buy', 30.0)
         self.rsi_sell = kwargs.get('rsi_sell', 70.0)
 
@@ -32,7 +33,7 @@ class HybridStrategy(BaseStrategy):
 
         # Prédiction ML
         proba = self.model.predict_proba(features_scaled)[:, 1]
-        predictions = (proba > 0.65).astype(int)  # 1 si achat, 0 sinon
+        predictions = (proba > self.ml_threshold).astype(int)  # 1 si achat, 0 sinon
 
         # Initialisation des signaux
         signals = pd.Series('HOLD', index=data.index)
