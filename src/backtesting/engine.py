@@ -47,8 +47,19 @@ class BacktestingEngine:
 
             # Gestion des positions existantes
             if position > 0:
+                # Vérifier signal de vente
+                if signal == 'SELL':
+                    trades.append({
+                        'date': date,
+                        'action': 'SELL',
+                        'price': price,
+                        'shares': position,
+                        'reason': 'signal'
+                    })
+                    capital += position * price * (1 - self.transaction_fee)
+                    position = 0
                 # Vérifier stop-loss
-                if self.stop_loss and price <= entry_price *  self.stop_loss:
+                elif self.stop_loss and price <= entry_price *  self.stop_loss:
                     trades.append({
                         'date': date,
                         'action': 'SELL',
@@ -58,7 +69,6 @@ class BacktestingEngine:
                     })
                     capital += position * price * (1 - self.transaction_fee)
                     position = 0
-
                 # Vérifier take-profit
                 elif self.take_profit and price >= entry_price * self.take_profit:
                     trades.append({
@@ -71,17 +81,6 @@ class BacktestingEngine:
                     capital += position * price * (1 - self.transaction_fee)
                     position = 0
 
-                # Vérifier signal de vente
-                elif signal == 'SELL':
-                    trades.append({
-                        'date': date,
-                        'action': 'SELL',
-                        'price': price,
-                        'shares': position,
-                        'reason': 'signal'
-                    })
-                    capital += position * price * (1 - self.transaction_fee)
-                    position = 0
 
             # Gestion des nouveaux signaux d'achat
             if signal == 'BUY' and position == 0 and capital > 0:
