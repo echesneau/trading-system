@@ -24,40 +24,37 @@ class HybridStrategy(BaseStrategy):
             raise ValueError(f"Colonnes manquantes: {missing}")
 
         # Préparation des features
-        features = data[[
-            'RSI', 'MACD', 'Signal', 'BB_Upper', 'BB_Lower',
-            'ATR', 'EMA_50', 'EMA_200', 'VolMA20'
-        ]].iloc[[-1]]
+        features = data[['RSI', 'MACD', 'Signal', 'BB_Upper', 'BB_Lower',
+                         'ATR', 'EMA_50', 'EMA_200', 'VolMA20']]
 
         # Normalisation
         features_scaled = self.scaler.transform(features)
 
         # Prédiction ML
-        proba = self.model.predict_proba(features_scaled)[0][1]
-        prediction = 1 if proba > 0.65 else 0
+        proba = self.model.predict_proba(features_scaled)[:, 1]
+        predictions = (proba > 0.65).astype(int)  # 1 si achat, 0 sinon
 
-        # Dernières valeurs des indicateurs
-        last = data.iloc[-1]
+        # Initialisation des signaux
+        signals = pd.Series('HOLD', index=data.index)
 
+        # Conditions d'achat (vectorisées)
         buy_condition = (
-                (last['RSI'] < self.rsi_buy) and
-                (last['MACD'] > last['Signal']) and
-                (last['Close'] < last['BB_Lower']) and
-                (prediction == 1)
+                (data['RSI'] < self.rsi_buy) &
+                (data['MACD'] > data['Signal']) &
+                (data['Close'] < data['BB_Lower']) &
+                (predictions == 1)
         )
 
         # Conditions de vente
         sell_condition = (
-                (last['RSI'] > self.rsi_sell) and
-                (prediction == 0)
+                (data['RSI'] > self.rsi_sell) &
+                (predictions == 0)
         )
-        # Génération du signal
-        if buy_condition:
-            return pd.Series(['BUY'], index=[data.index[-1]])
-        elif sell_condition:
-            return pd.Series(['SELL'], index=[data.index[-1]])
-        else:
-            return pd.Series(['HOLD'], index=[data.index[-1]])
+
+        signals[buy_condition] = 'BUY'
+        signals[sell_condition] = 'SELL'
+
+        return signals
 
     def get_parameters(self) -> dict:
         return {
