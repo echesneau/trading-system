@@ -48,7 +48,7 @@ class BacktestingEngine:
             # Gestion des positions existantes
             if position > 0:
                 # Vérifier stop-loss
-                if self.stop_loss and price <= entry_price * (1 - self.stop_loss):
+                if self.stop_loss and price <= entry_price *  self.stop_loss:
                     trades.append({
                         'date': date,
                         'action': 'SELL',
@@ -60,7 +60,7 @@ class BacktestingEngine:
                     position = 0
 
                 # Vérifier take-profit
-                elif self.take_profit and price >= entry_price * (1 + self.take_profit):
+                elif self.take_profit and price >= entry_price * self.take_profit:
                     trades.append({
                         'date': date,
                         'action': 'SELL',
