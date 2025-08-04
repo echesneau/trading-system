@@ -110,7 +110,7 @@ def calculate_indicators(
     # 4. Volume Indicators
     df['OBV'] = ta.volume.OnBalanceVolumeIndicator(
         df['Close'], df['Volume']).on_balance_volume()
-    df['Volume_MA_20'] = df['Volume'].rolling(window=20).mean()
+    df['VolMA20'] = df['Volume'].rolling(window=20).mean()
 
     # 5. Custom Indicators
     df['Price_Volume_Trend'] = calculate_price_volume_trend(df)
