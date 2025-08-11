@@ -4,6 +4,7 @@ pandas
 scikit-learn
 yfinance
 ta
+cachetools
 matplotlib
 pytest
 pytest-cov
