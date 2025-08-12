@@ -30,21 +30,20 @@ class ClassicalStrategy(BaseStrategy):  # Hérite de BaseStrategy
         Returns:
             Series avec les signaux
         """
-        df = self.calculate_indicators(data)
-        signals = pd.Series('HOLD', index=df.index)
+        signals = pd.Series('HOLD', index=data.index)
 
         # Conditions d'achat
         buy_condition = (
-                (df['RSI'] < self.rsi_buy) &
-                (df['MACD'] > df['Signal']) &
-                (df['Close'] <= df['LowerBand'])
+                (data['RSI'] < self.rsi_buy) &
+                (data['MACD'] > data['MACD_Signal']) &
+                (data['Close'] <= data['BB_Lower'])
         )
 
         # Conditions de vente
         sell_condition = (
-                (df['RSI'] > self.rsi_sell) |
-                (df['MACD'] < df['Signal']) &
-                (df['Close'] >= df['UpperBand'])
+                (data['RSI'] > self.rsi_sell) |
+                (data['MACD'] < data['MACD_Signal']) &
+                (data['Close'] >= data['BB_Upper'])
         )
 
         signals[buy_condition] = 'BUY'
