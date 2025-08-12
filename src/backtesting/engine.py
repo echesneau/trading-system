@@ -1,5 +1,6 @@
 # src/backtesting/engine.py
 import pandas as pd
+import numpy as np
 from typing import Dict, Any
 
 
@@ -121,17 +122,39 @@ class BacktestingEngine:
 
     def _calculate_performance(self, portfolio_values: list) -> Dict[str, float]:
         """Calcule les métriques de performance."""
-        if not portfolio_values:
-            return {}
+        if len(portfolio_values) < 2:
+            return {
+                'return': 0.0,
+                'annualized_return': 0.0,
+                'max_drawdown': 0.0,
+                'sharpe_ratio': 0.0
+            }
 
-        start_value = portfolio_values[0]['value']
-        end_value = portfolio_values[-1]['value']
+        # Convertir en DataFrame pour faciliter les calculs
+        df = pd.DataFrame(portfolio_values).set_index('date')
+        # Calcul du rendement total
+        start_val = df['value'].iloc[0]
+        end_val = df['value'].iloc[-1]
+        total_return = (end_val - start_val) / start_val if start_val != 0 else 0.0
+
+        # Calcul du drawdown maximum
+        df['peak'] = df['value'].cummax()
+        df['drawdown'] = (df['peak'] - df['value']) / df['peak']
+        max_drawdown = df['drawdown'].max()
+
+        # Calcul du ratio de Sharpe (simplifié)
+        returns = df['value'].pct_change().dropna()
+        sharpe_ratio = returns.mean() / returns.std() if returns.std() != 0 else 0.0
+
+        # Calcul du rendement annualisé
+        days = (df.index[-1] - df.index[0]).days
+        annualized_return = ((1 + total_return) ** (365 / days) - 1) if days > 0 else 0.0
 
         return {
-            'return': (end_value - start_value) / start_value,
-            'annualized_return': self._annualized_return(portfolio_values),
-            'max_drawdown': self._max_drawdown(portfolio_values),
-            'sharpe_ratio': self._sharpe_ratio(portfolio_values)
+            'return': total_return,
+            'annualized_return': annualized_return,
+            'max_drawdown': max_drawdown,
+            'sharpe_ratio': sharpe_ratio if not np.isnan(sharpe_ratio) else 0.0
         }
 
     def _annualized_return(self, values: list) -> float:
