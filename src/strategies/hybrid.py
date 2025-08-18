@@ -7,14 +7,22 @@ from .core import BaseStrategy  # Import relatif
 class HybridStrategy(BaseStrategy):
     """Stratégie hybride combinant indicateurs techniques et machine learning."""
 
-    def __init__(self, model, scaler, **kwargs):
+    def __init__(self, model_artifacts: dict, **kwargs):
         super().__init__()  # Appel au constructeur parent
-        self.model = model
-        self.scaler = scaler
+        self.model = model_artifacts['model']
+        self.scaler = model_artifacts['scaler']
+        self.feature_names = model_artifacts['feature_names']
+        self._validate_features()
         # Paramètres par défaut
         self.ml_threshold = kwargs.get('ml_threshold', 0.65)
         self.rsi_buy = kwargs.get('rsi_buy', 30.0)
         self.rsi_sell = kwargs.get('rsi_sell', 70.0)
+
+    def _validate_features(self):
+        required = {'RSI', 'MACD', 'BB_Upper', 'BB_Lower'}
+        missing = required - set(self.feature_names)
+        if missing:
+            raise ValueError(f"Features manquantes dans le modèle: {missing}")
 
     def generate_signals(self, data: pd.DataFrame) -> pd.Series:
         # Calcul des indicateurs

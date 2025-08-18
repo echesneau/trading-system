@@ -1,10 +1,10 @@
 # requirements.txt
 numpy
 pandas
-scikit-learn
 yfinance
 ta
 cachetools
-matplotlib
 pytest
-pytest-cov
+joblib
+scikit-learn
+xgboost
