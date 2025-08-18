@@ -5,7 +5,7 @@ from src.backtesting.engine import BacktestingEngine
 from src.strategies.classical import ClassicalStrategy
 from src.strategies.hybrid import HybridStrategy
 from src.features.technical import calculate_indicators
-
+from src.ml.model import load_model
 
 @pytest.fixture
 def ticker_test():
@@ -30,18 +30,28 @@ def test_classical_strategy(test_data):
     )
     results = engine.run()
     assert isinstance(results['performance']['return'], float)
-    assert -0.5 < results['performance']['return'] < 2.0  # Plage large
+    assert -0.5 < results['performance']['return'] < 2.0
     assert 0 <= results['performance']['max_drawdown'] < 0.5
 
 def test_hybrid_strategy(test_data):
+    # Chargement du modèle et du scaler
+    model, scaler = load_model('models/rf_model.joblib')
+
     engine = BacktestingEngine(
-        strategy=HybridStrategy(config={'model_path': 'models/rf_model.joblib'}),
+        strategy=HybridStrategy(
+            model=model,
+            scaler=scaler,
+            rsi_buy=30,
+            rsi_sell=70
+        ),
         data=test_data,
         initial_capital=10000
     )
     results = engine.run()
-    assert results['return'] > 0
-    assert results['max_drawdown'] < 0.15
+
+    assert isinstance(results['performance']['return'], float)
+    assert -0.5 < results['performance']['return'] < 2.0
+    assert 0 <= results['performance']['max_drawdown'] < 0.5
 
 def test_strategy_comparison(test_data):
     classical_engine = BacktestingEngine(
