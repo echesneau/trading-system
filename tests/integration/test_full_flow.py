@@ -1,25 +1,9 @@
-import pytest
-import pandas as pd
-from src.data.loader import load_yfinance_data
 from src.backtesting.engine import BacktestingEngine
 from src.strategies.classical import ClassicalStrategy
 from src.strategies.hybrid import HybridStrategy
 from src.features.technical import calculate_indicators
 from src.ml.model import load_model
 
-@pytest.fixture
-def ticker_test():
-    """Fixture pour le ticker de test"""
-    return "SAN.PA"
-
-@pytest.fixture
-def test_data(ticker_test):
-    # Charger des données de test
-    return load_yfinance_data(
-        ticker=ticker_test,
-        start_date="2023-01-01",
-        end_date="2023-06-01"
-    )
 
 def test_classical_strategy(test_data):
     processed_data = calculate_indicators(test_data, ema_windows=[5, 10, 20])

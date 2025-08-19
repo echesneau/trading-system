@@ -1,23 +1,5 @@
 # tests/unit/test_trainer.py
-import pytest
 from src.ml.trainer import ModelTrainer
-import pandas as pd
-import numpy as np
-
-
-@pytest.fixture
-def sample_data():
-    # Générer plus de données pour les indicateurs longs
-    dates = pd.date_range('2020-01-01', periods=250)  # 250 périodes
-    prices = np.cumprod(1 + np.random.normal(0.001, 0.02, len(dates)))
-
-    return pd.DataFrame({
-        'Open': prices * 0.99,
-        'High': prices * 1.01,
-        'Low': prices * 0.98,
-        'Close': prices,
-        'Volume': np.random.randint(1000, 5000, len(dates))
-    }, index=dates)
 
 
 def test_trainer_initialization():
