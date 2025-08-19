@@ -18,6 +18,7 @@ def test_hybrid_strategy_buy_signal():
          1.0,  # Signal
          90,  # Prix
          92,  # Bande inférieure (prix < bande)
+         101,  # Bande superieur (prix > bande)
          3,  # ATR
          95,  # EMA50
          100,  # EMA200 (EMA50 > EMA200 = tendance haussière)
@@ -26,7 +27,13 @@ def test_hybrid_strategy_buy_signal():
     ])
 
     # Initialiser la stratégie avec les mocks
-    strategy = HybridStrategy(model=mock_model, scaler=mock_scaler, rsi_buy=30)
+    model_artifacts = {
+        'model': mock_model,
+        'scaler': mock_scaler,
+        'feature_names': ['RSI', 'MACD', 'Signal', 'Close', 'BB_Lower',
+                          'BB_Upper', 'ATR', 'EMA_50', 'EMA_200', 'VolMA20']
+    }
+    strategy = HybridStrategy(model_artifacts, rsi_buy=30)
 
     # Données avec conditions techniques d'achat
     data = pd.DataFrame({
@@ -73,7 +80,13 @@ def test_hybrid_strategy_no_buy_with_low_ml_confidence():
          1500  # Volume
          ]
     ])
-    strategy = HybridStrategy(model=mock_model, scaler=mock_scaler, rsi_buy=30)
+    model_artifacts = {
+        'model': mock_model,
+        'scaler': mock_scaler,
+        'feature_names': ['RSI', 'MACD', 'Signal', 'Close', 'BB_Lower',
+                          'BB_Upper', 'ATR', 'EMA_50', 'EMA_200', 'VolMA20']
+    }
+    strategy = HybridStrategy(model_artifacts, rsi_buy=30)
 
     data = pd.DataFrame({
         'RSI': [25, 26, 27, 28, 29],
@@ -110,8 +123,13 @@ def test_hybrid_strategy_sell_signal():
          1500  # Volume
          ]
     ])
-    
-    strategy = HybridStrategy(model=mock_model, scaler=mock_scaler, rsi_buy=30, rsi_sell=70)
+    model_artifacts = {
+        'model': mock_model,
+        'scaler': mock_scaler,
+        'feature_names': ['RSI', 'MACD', 'Signal', 'Close', 'BB_Lower',
+                          'BB_Upper', 'ATR', 'EMA_50', 'EMA_200', 'VolMA20']
+    }
+    strategy = HybridStrategy(model_artifacts, rsi_buy=30, rsi_sell=70)
     
     # Données avec conditions techniques de vente
     data = pd.DataFrame({
