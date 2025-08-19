@@ -5,7 +5,7 @@ import numpy as np
 from src.ml.trainer import ModelTrainer
 from src.data.loader import load_yfinance_data
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def sample_data():
     # Générer plus de données pour les indicateurs longs
     dates = pd.date_range('2020-01-01', periods=250)  # 250 périodes
@@ -19,12 +19,12 @@ def sample_data():
         'Volume': np.random.randint(1000, 5000, len(dates))
     }, index=dates)
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def ticker_test():
     """Fixture pour le ticker de test"""
     return "SAN.PA"
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def test_data(ticker_test):
     # Charger des données de test
     return load_yfinance_data(
@@ -49,10 +49,10 @@ def model_trainer():
 
 
 @pytest.fixture(scope="session")
-def trained_model_artifacts(real_test_data, model_trainer):
+def trained_model_artifacts(test_data, model_trainer):
     """Utilise ModelTrainer pour entraîner un modèle sur les données réelles"""
     try:
-        artifacts = model_trainer.train(real_test_data)
+        artifacts = model_trainer.train(test_data)
 
         # Validation basique du modèle
         assert 'model' in artifacts

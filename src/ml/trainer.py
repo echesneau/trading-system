@@ -18,10 +18,13 @@ class ModelTrainer:
             'technical_params': {  # Nouveau: paramètres pour calculate_indicators
                 'ema_windows': [20, 50, 200],
                 'bb_window': 20,
-                'rsi_window': 14
+                'rsi_window': 14,
+                'atr_window': 14
             },
             **config
         }
+        # Stocker les paramètres techniques séparément
+        self.technical_params = self.config['technical_params']
 
     def prepare_features(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
         """Prépare les features et targets"""
@@ -82,5 +85,7 @@ class ModelTrainer:
             'model': model,
             'scaler': final_scaler,
             'feature_names': features.columns.tolist(),
-            'test_score': np.mean(scores)
+            'test_score': np.mean(scores),
+            'technical_params': self.technical_params,
+            'config': self.config
         }
