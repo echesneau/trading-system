@@ -14,7 +14,12 @@ class ModelTrainer:
             'n_estimators': 100,
             'max_depth': 3,
             'learning_rate': 0.1,
-            'target_horizon': 5,  # Prévoir 5 jours ahead
+            'target_horizon': 5,
+            'technical_params': {  # Nouveau: paramètres pour calculate_indicators
+                'ema_windows': [20, 50, 200],
+                'bb_window': 20,
+                'rsi_window': 14
+            },
             **config
         }
 
@@ -22,7 +27,9 @@ class ModelTrainer:
         """Prépare les features et targets"""
         # Calcul des indicateurs
         from src.features.technical import calculate_indicators
-        data = calculate_indicators(data)
+        # Applique les paramètres techniques
+        tech_params = self.config.get('technical_params', {})
+        data = calculate_indicators(data, **tech_params)
 
         # Création de la target
         horizon = self.config['target_horizon']
