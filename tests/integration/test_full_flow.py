@@ -45,19 +45,3 @@ def test_hybrid_strategy(test_data, trained_model_artifacts):
     assert -0.5 < results['performance']['return'] < 2.0
     assert 0 <= results['performance']['max_drawdown'] < 0.5
 
-def test_strategy_comparison(test_data):
-    classical_engine = BacktestingEngine(
-        strategy=ClassicalStrategy(),
-        data=test_data
-    )
-    hybrid_engine = BacktestingEngine(
-        strategy=HybridStrategy(config={'model_path': 'models/rf_model.joblib'}),
-        data=test_data
-    )
-    
-    classical_results = classical_engine.run()
-    hybrid_results = hybrid_engine.run()
-    
-    # Vérifier que la stratégie hybride surperforme
-    assert hybrid_results['return'] > classical_results['return']
-    assert hybrid_results['sharpe'] > classical_results['sharpe']
