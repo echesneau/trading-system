@@ -30,7 +30,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          pytest tests/unit/ -v
+          pytest tests/unit/ -v --no-cov
 
   integration-test:
     name: Integration tests
@@ -55,7 +55,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest tests/integration/ -v 
+          pytest tests/integration/ -v  --no-cov
 
   coverage:
     name: All tests with coverage
