@@ -2,8 +2,8 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from src.ml.trainer import ModelTrainer
-from src.data.loader import load_yfinance_data
+from src.trading_system.ml.trainer import ModelTrainer
+from src.trading_system.data import load_yfinance_data
 
 @pytest.fixture(scope="session")
 def sample_data():

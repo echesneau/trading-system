@@ -1,7 +1,5 @@
-import pytest
 import pandas as pd
-from src.backtesting.engine import BacktestingEngine
-from src.strategies.classical import ClassicalStrategy
+from src.trading_system.backtesting import BacktestingEngine
 from unittest.mock import MagicMock
 
 def test_backtest_engine_basic():

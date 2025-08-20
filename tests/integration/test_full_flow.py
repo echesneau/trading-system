@@ -1,8 +1,8 @@
 import pytest
-from src.backtesting.engine import BacktestingEngine
-from src.strategies.classical import ClassicalStrategy
-from src.strategies.hybrid import HybridStrategy
-from src.features.technical import calculate_indicators
+from src.trading_system.backtesting import BacktestingEngine
+from src.trading_system.strategies.classical import ClassicalStrategy
+from src.trading_system.strategies.hybrid import HybridStrategy
+from src.trading_system.features import calculate_indicators
 
 
 def test_classical_strategy(test_data):

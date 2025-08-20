@@ -4,7 +4,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import TimeSeriesSplit
 import pandas as pd
 import numpy as np
-import joblib
 from typing import Tuple, Dict
 
 
@@ -30,7 +29,7 @@ class ModelTrainer:
     def prepare_features(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
         """Prépare les features et targets"""
         # Calcul des indicateurs
-        from src.features.technical import calculate_indicators
+        from src.trading_system.features import calculate_indicators
         # Applique les paramètres techniques
         tech_params = self.config.get('technical_params', {})
         data = calculate_indicators(data, **tech_params)

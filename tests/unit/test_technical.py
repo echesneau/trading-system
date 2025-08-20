@@ -1,10 +1,8 @@
 # tests/unit/test_technical_indicators.py
-from platform import machine
 
 import pytest
 import pandas as pd
-import numpy as np
-from src.features.technical import calculate_indicators, calculate_price_volume_trend
+from src.trading_system.features import calculate_indicators, calculate_price_volume_trend
 
 
 def test_calculate_indicators_basic():

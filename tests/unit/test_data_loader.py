@@ -1,7 +1,7 @@
 # tests/unit/test_data_loader.py
 import pytest
-from unittest.mock import patch, MagicMock
-from src.data.loader import load_yfinance_data, DataLoadingError
+from unittest.mock import patch
+from src.trading_system.data import load_yfinance_data, DataLoadingError
 import pandas as pd
 
 
