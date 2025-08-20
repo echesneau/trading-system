@@ -47,7 +47,7 @@ test = [
 packages = { find = { where = ["src"] } }
 
 [tool.setuptools.package-dir]
-trading_system = "src"
+trading_system = "src/trading_system"
 
 [tool.black]
 line-length = 88
