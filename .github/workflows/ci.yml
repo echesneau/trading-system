@@ -8,7 +8,109 @@ on:
     branches: [ master ]
 
 jobs:
-  test:
+  unit-test:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important pour setuptools-scm
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -e .[dev,test]
+
+      - name: Run unit tests
+        run: |
+          pytest tests/unit/ -v
+    unit-test:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important pour setuptools-scm
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -e .[dev,test]
+
+      - name: Run unit tests
+        run: |
+          pytest tests/unit/ -v
+  integration-test:
+    name: Integration tests
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important pour setuptools-scm
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -e .[dev,test]
+
+      - name: Run tests
+        run: |
+          pytest tests/integration/ -v 
+
+  coverage:
+    name: All tests with coverage
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important pour setuptools-scm
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -e .[dev,test]
+
+      - name: Run all tests with coverage
+        run: |
+          pytest tests/ -v --cov=trading_system --cov-report=xml --tb=short
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: tests
+          name: codecov-umbrella
+
+
+  compatibility-test:
     name: Test Python ${{ matrix.python-version }}
     runs-on: ubuntu-22.04
     strategy:
@@ -32,20 +134,9 @@ jobs:
       run: |
         pip install -e .[dev,test]
 
-    - name: Run unit tests with coverage
+    - name: Run all tests
       run: |
-        pytest tests/unit/ -v --cov=trading_system --cov-report=xml
-
-    - name: Run integration tests
-      run: |
-        pytest tests/integration/ -v --tb=short
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
+        pytest tests/ -v --tb=short
 
   lint:
     name: Linting and Code Quality
