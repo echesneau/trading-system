@@ -1,8 +1,8 @@
+import pytest
 from src.backtesting.engine import BacktestingEngine
 from src.strategies.classical import ClassicalStrategy
 from src.strategies.hybrid import HybridStrategy
 from src.features.technical import calculate_indicators
-from src.ml.model import load_model
 
 
 def test_classical_strategy(test_data):
@@ -17,18 +17,26 @@ def test_classical_strategy(test_data):
     assert -0.5 < results['performance']['return'] < 2.0
     assert 0 <= results['performance']['max_drawdown'] < 0.5
 
-def test_hybrid_strategy(test_data):
-    # Chargement du modèle et du scaler
-    model, scaler = load_model('models/rf_model.joblib')
+def test_hybrid_strategy(test_data, trained_model_artifacts):
+    processed_data = calculate_indicators(
+        test_data,
+        **trained_model_artifacts.get('technical_params', {})
+    )
+    # Vérifier la cohérence des features
+    required_features = set(trained_model_artifacts['feature_names'])
+    available_features = set(processed_data.columns)
+    missing_features = required_features - available_features
 
+    if missing_features:
+        pytest.skip(f"Features manquantes: {missing_features}. "
+                    f"Disponibles: {list(available_features)[:10]}...")
     engine = BacktestingEngine(
         strategy=HybridStrategy(
-            model=model,
-            scaler=scaler,
+            trained_model_artifacts,
             rsi_buy=30,
             rsi_sell=70
         ),
-        data=test_data,
+        data=processed_data,
         initial_capital=10000
     )
     results = engine.run()

@@ -18,6 +18,25 @@ class HybridStrategy(BaseStrategy):
         self.rsi_buy = kwargs.get('rsi_buy', 30.0)
         self.rsi_sell = kwargs.get('rsi_sell', 70.0)
 
+        self.required_cols = self._determine_required_columns()
+
+    def _determine_required_columns(self) -> set:
+        """Détermine dynamiquement les colonnes requises"""
+        required = set()
+
+        # 1. Features du modèle ML
+        required.update(self.feature_names)
+
+        # 2. Colonnes pour les conditions de trading
+        required.update(['RSI', 'MACD', 'MACD_Signal', 'Close', 'BB_Lower'])  # Toujours nécessaires
+
+        # 3. Colonnes conditionnelles selon les paramètres
+        if hasattr(self, 'rsi_buy') or hasattr(self, 'rsi_sell'):
+            required.add('RSI')
+
+
+        return required
+
     def _validate_features(self):
         required = {'RSI', 'MACD', 'BB_Upper', 'BB_Lower'}
         missing = required - set(self.feature_names)
@@ -26,18 +45,19 @@ class HybridStrategy(BaseStrategy):
 
     def generate_signals(self, data: pd.DataFrame) -> pd.Series:
         # Calcul des indicateurs
-        required_cols = {'RSI', 'MACD', 'Signal', 'Close', 'BB_Lower',
-                         'BB_Upper', 'EMA_50', 'EMA_200', 'VolMA20'}
-        if not required_cols.issubset(data.columns):
-            missing = required_cols - set(data.columns)
-            raise ValueError(f"Colonnes manquantes: {missing}")
+        available_cols = set(data.columns)
+        missing_cols = self.required_cols - available_cols
+        if missing_cols:
+            raise ValueError(
+                f"Colonnes manquantes: {missing_cols}. "
+                f"Disponibles: {list(available_cols)[:10]}..."
+            )
 
         # Préparation des features
-        features = data[['RSI', 'MACD', 'Signal', 'BB_Upper', 'BB_Lower',
-                         'ATR', 'EMA_50', 'EMA_200', 'VolMA20']]
+        features = data[list(self.required_cols.intersection(available_cols))]
 
         # Normalisation
-        features_scaled = self.scaler.transform(features)
+        features_scaled = self.scaler.transform(data[self.feature_names])
 
         # Prédiction ML
         proba = self.model.predict_proba(features_scaled)[:, 1]
@@ -49,7 +69,7 @@ class HybridStrategy(BaseStrategy):
         # Conditions d'achat (vectorisées)
         buy_condition = (
                 (data['RSI'] < self.rsi_buy) &
-                (data['MACD'] > data['Signal']) &
+                (data['MACD'] > data['MACD_Signal']) &
                 (data['Close'] < data['BB_Lower']) &
                 (predictions == 1)
         )
