@@ -1,0 +1,66 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "setuptools-scm>=6.4.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trading-system"
+dynamic = ["version"]
+description = "Système de trading algorithmique hybride pour la Bourse de Paris"
+readme = "README.md"
+authors = [
+    { name = "Erwan CHESNEAU", email = "erwanchesneau@gmail.com" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.8"
+dependencies = [
+    "pandas>=1.3.0",
+    "numpy>=1.21.0",
+    "scikit-learn>=1.0.0",
+    "xgboost>=1.5.0",
+    "yfinance>=0.2.0",
+    "ta>=0.10.0",
+    "cachetools>=5.0.0",
+    "setuptools-scm>=6.4.0"
+]
+
+[tool.setuptools_scm]
+write_to = "src/trading_system/_version.py"
+write_to_template = "__version__ = \"{version}\"\n"
+version_scheme = "release-branch-semver"
+local_scheme = "no-local-version"
+
+[project.optional-dependencies]
+dev = [
+
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0"
+]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.setuptools]
+packages = { find = { where = ["src"] } }
+
+[tool.setuptools.package-dir]
+trading_system = "src"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.8"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=src --cov-report=term-missing"
