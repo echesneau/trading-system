@@ -1,6 +1,7 @@
 import pandas as pd
-from src.trading_system.backtesting import BacktestingEngine
 from unittest.mock import MagicMock
+
+from trading_system.backtesting import BacktestingEngine
 
 def test_backtest_engine_basic():
     """Teste le fonctionnement de base du moteur de backtesting."""

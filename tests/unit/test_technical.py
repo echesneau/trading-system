@@ -2,7 +2,7 @@
 
 import pytest
 import pandas as pd
-from src.trading_system.features import calculate_indicators, calculate_price_volume_trend
+from trading_system.features import calculate_indicators, calculate_price_volume_trend
 
 
 def test_calculate_indicators_basic():

@@ -1,7 +1,7 @@
 # src/data/processor.py
 import pandas as pd
 from typing import Optional
-from src.trading_system.features.technical import calculate_indicators
+from trading_system.features import calculate_indicators
 
 
 def process_market_data(

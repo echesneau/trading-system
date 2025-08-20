@@ -1,9 +1,9 @@
 # tests/unit/test_data_loader.py
 import pytest
 from unittest.mock import patch
-from src.trading_system.data import load_yfinance_data, DataLoadingError
 import pandas as pd
 
+from trading_system.data import load_yfinance_data, DataLoadingError
 
 def test_load_yfinance_data_success():
     """Test le chargement réussi de données"""

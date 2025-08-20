@@ -1,6 +1,6 @@
 # scripts/train_model.py
-from src.trading_system.ml.trainer import ModelTrainer
-from src.trading_system.data import load_yfinance_data
+from trading_system.ml.trainer import ModelTrainer
+from trading_system.data import load_yfinance_data
 import joblib
 
 

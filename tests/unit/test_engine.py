@@ -1,6 +1,6 @@
 # tests/unit/test_engine.py
 def test_calculate_performance_edge_cases():
-    from src.trading_system.backtesting import BacktestingEngine
+    from trading_system.backtesting import BacktestingEngine
 
     # Cas 1: Données vides
     assert BacktestingEngine._calculate_performance(None, []) == {

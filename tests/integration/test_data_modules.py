@@ -1,7 +1,8 @@
 # tests/integration/test_data_modules.py
 import pytest
-from src.trading_system.data import load_yfinance_data
-from src.trading_system.data import process_market_data
+
+from trading_system.data import load_yfinance_data
+from trading_system.data import process_market_data
 
 
 @pytest.mark.integration

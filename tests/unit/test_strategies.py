@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from unittest.mock import MagicMock
-from src.trading_system.strategies.hybrid import HybridStrategy
+from trading_system.strategies.hybrid import HybridStrategy
 
 def test_hybrid_strategy_buy_signal():
     """Teste un signal d'achat avec la stratégie hybride."""
