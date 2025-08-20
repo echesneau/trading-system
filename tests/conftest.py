@@ -39,6 +39,7 @@ def model_trainer():
     return ModelTrainer({
         'n_estimators': 10,  # Léger pour les tests
         'max_depth': 3,
+        'early_stopping_rounds': 10,
         'target_horizon': 3,  # Court terme pour les tests
         'technical_params': {
             'ema_windows': [20, 50],  # Évite EMA_200 qui nécessite plus de données

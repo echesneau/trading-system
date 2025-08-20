@@ -14,6 +14,7 @@ class ModelTrainer:
             'n_estimators': 100,
             'max_depth': 3,
             'learning_rate': 0.1,
+            'early_stopping_rounds': 50,
             'target_horizon': 5,
             'technical_params': {  # Nouveau: paramètres pour calculate_indicators
                 'ema_windows': [20, 50, 200],
@@ -71,7 +72,6 @@ class ModelTrainer:
             # Entraînement
             model.fit(X_train_scaled, y_train,
                       eval_set=[(X_test_scaled, y_test)],
-                      early_stopping_rounds=10,
                       verbose=False)
 
             scores.append(model.score(X_test_scaled, y_test))
@@ -79,6 +79,7 @@ class ModelTrainer:
         # Entraînement final sur toutes les données
         final_scaler = StandardScaler()
         X_final_scaled = final_scaler.fit_transform(features)
+        model.early_stopping_rounds = None
         model.fit(X_final_scaled, target)
 
         return {
