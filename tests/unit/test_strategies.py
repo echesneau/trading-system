@@ -30,7 +30,7 @@ def test_hybrid_strategy_buy_signal():
     model_artifacts = {
         'model': mock_model,
         'scaler': mock_scaler,
-        'feature_names': ['RSI', 'MACD', 'Signal', 'Close', 'BB_Lower',
+        'feature_names': ['RSI', 'MACD', 'MACD_Signal', 'Close', 'BB_Lower',
                           'BB_Upper', 'ATR', 'EMA_50', 'EMA_200', 'VolMA20']
     }
     strategy = HybridStrategy(model_artifacts, rsi_buy=30)
@@ -39,7 +39,7 @@ def test_hybrid_strategy_buy_signal():
     data = pd.DataFrame({
         'RSI': [25, 26, 27, 28, 29],
         'MACD': [1.5, 1.4, 1.3, 1.2, 1.1],
-        'Signal': [1.0, 1.0, 1.0, 1.0, 1.0],
+        'MACD_Signal': [1.0, 1.0, 1.0, 1.0, 1.0],
         'Close': [95, 94, 93, 92, 91],
         'BB_Upper': [96, 95, 94, 93, 92],
         'BB_Lower': [96, 95, 94, 93, 92],
@@ -83,7 +83,7 @@ def test_hybrid_strategy_no_buy_with_low_ml_confidence():
     model_artifacts = {
         'model': mock_model,
         'scaler': mock_scaler,
-        'feature_names': ['RSI', 'MACD', 'Signal', 'Close', 'BB_Lower',
+        'feature_names': ['RSI', 'MACD', 'MACD_Signal', 'Close', 'BB_Lower',
                           'BB_Upper', 'ATR', 'EMA_50', 'EMA_200', 'VolMA20']
     }
     strategy = HybridStrategy(model_artifacts, rsi_buy=30)
@@ -91,7 +91,7 @@ def test_hybrid_strategy_no_buy_with_low_ml_confidence():
     data = pd.DataFrame({
         'RSI': [25, 26, 27, 28, 29],
         'MACD': [1.5, 1.4, 1.3, 1.2, 1.1],
-        'Signal': [1.0, 1.0, 1.0, 1.0, 1.0],
+        'MACD_Signal': [1.0, 1.0, 1.0, 1.0, 1.0],
         'Close': [95, 94, 93, 92, 91],
         'BB_Upper': [96, 95, 94, 93, 92],
         'BB_Lower': [96, 95, 94, 93, 92],
@@ -126,7 +126,7 @@ def test_hybrid_strategy_sell_signal():
     model_artifacts = {
         'model': mock_model,
         'scaler': mock_scaler,
-        'feature_names': ['RSI', 'MACD', 'Signal', 'Close', 'BB_Lower',
+        'feature_names': ['RSI', 'MACD', 'MACD_Signal', 'Close', 'BB_Lower',
                           'BB_Upper', 'ATR', 'EMA_50', 'EMA_200', 'VolMA20']
     }
     strategy = HybridStrategy(model_artifacts, rsi_buy=30, rsi_sell=70)
@@ -135,7 +135,7 @@ def test_hybrid_strategy_sell_signal():
     data = pd.DataFrame({
         'RSI': [71, 75, 75, 79, 80],
         'MACD': [1.5, 1.4, 1.3, 1.2, 1.1],
-        'Signal': [1.0, 1.0, 1.0, 1.0, 1.0],
+        'MACD_Signal': [1.0, 1.0, 1.0, 1.0, 1.0],
         'Close': [95, 94, 93, 92, 91],
         'BB_Upper': [96, 95, 94, 93, 92],
         'BB_Lower': [96, 95, 94, 93, 92],
