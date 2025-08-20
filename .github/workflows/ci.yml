@@ -23,29 +23,29 @@ jobs:
       run: |
         pytest tests/integration/
 
-  train-model:
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.ref == 'refs/heads/main'
-    steps:
-    - uses: actions/checkout@v4
-    - name: Train model
-      run: |
-        python scripts/train_model.py
-      env:
-        ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
-    - name: Upload model
-      uses: actions/upload-artifact@v3
-      with:
-        name: ml-models
-        path: models/
+#  train-model:
+#    runs-on: ubuntu-latest
+#    needs: test
+#    if: github.ref == 'refs/heads/main'
+#    steps:
+#    - uses: actions/checkout@v4
+#    - name: Train model
+#      run: |
+#        python scripts/train_model.py
+#      env:
+#        ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
+#    - name: Upload model
+#      uses: actions/upload-artifact@v3
+#      with:
+#        name: ml-models
+#        path: models/
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [test, train-model]
-    if: github.ref == 'refs/heads/main'
-    steps:
-    - uses: actions/checkout@v4
-    - name: Deploy to cloud
-      run: |
-        python scripts/deploy.py
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: [test, train-model]
+#    if: github.ref == 'refs/heads/main'
+#    steps:
+#    - uses: actions/checkout@v4
+#    - name: Deploy to cloud
+#      run: |
+#        python scripts/deploy.py
