@@ -1,5 +1,5 @@
 # tests/unit/test_trainer.py
-from src.trading_system.ml.trainer import ModelTrainer
+from trading_system.ml.trainer import ModelTrainer
 
 
 def test_trainer_initialization():
