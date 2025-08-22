@@ -82,6 +82,7 @@ jobs:
 
       - name: Run unit tests
         run: |
+          source venv/bin/activate
           pytest tests/unit/ -v --no-cov
 
   integration-test:
