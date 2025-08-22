@@ -96,18 +96,19 @@ jobs:
         with:
           fetch-depth: 0  # Important pour setuptools-scm
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - name: Download virtual environment
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.10"
-          cache: 'pip'
+          name: python-venv
 
-      - name: Install dependencies
+      - name: Restore virtual environment
         run: |
-          pip install -e .[dev,test]
+          tar -xzf venv.tar.gz
+          rm venv.tar.gz
 
       - name: Run tests
         run: |
+          source venv/bin/activate
           pytest tests/integration/ -v  --no-cov
 
   coverage:
@@ -121,18 +122,19 @@ jobs:
         with:
           fetch-depth: 0  # Important pour setuptools-scm
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Download virtual environment
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.10"
-          cache: 'pip'
+          name: python-venv
 
-      - name: Install dependencies
+      - name: Restore virtual environment
         run: |
-          pip install -e .[dev,test]
+          tar -xzf venv.tar.gz
+          rm venv.tar.gz
 
       - name: Run all tests with coverage
         run: |
+          source venv/bin/activate
           pytest tests/ -v --cov=trading_system --cov-report=xml --tb=short
 
       - name: Upload coverage to Codecov
@@ -181,30 +183,34 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Download virtual environment
+      uses: actions/download-artifact@v4
       with:
-        python-version: "3.10"
-        cache: 'pip'
+        name: python-venv
 
-    - name: Install dependencies
+    - name: Restore virtual environment
       run: |
-        pip install -e .[dev]
+        tar -xzf venv.tar.gz
+        rm venv.tar.gz
 
     - name: Run flake8 (warning only)
       run: |
+        source venv/bin/activate
         flake8 src/ --max-line-length=88 --extend-ignore=E203,E501 || echo "⚠️ flake8 issues found"
 
     - name: Run black check (warning only)
       run: |
+        source venv/bin/activate
         black --check src/ tests/ || echo "⚠️ black formatting issues found"
 
     - name: Run isort check (warning only)
       run: |
+        source venv/bin/activate
         isort --check-only src/ tests/ || echo "⚠️ isort issues found"
 
     - name: Run mypy (warning only)
       run: |
+        source venv/bin/activate
         mypy src/ --ignore-missing-imports || echo "⚠️ mypy type issues found"
 
   security:
@@ -217,18 +223,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Download virtual environment
+      uses: actions/download-artifact@v4
       with:
-        python-version: "3.10"
+        name: python-venv
+
+    - name: Restore virtual environment
+      run: |
+        tar -xzf venv.tar.gz
+        rm venv.tar.gz
 
     - name: Run safety check
       run: |
+        source venv/bin/activate
         pip install safety
         safety check --full-report
 
     - name: Run bandit
       run: |
+        source venv/bin/activate
         pip install bandit
         bandit -r src/ -ll
 
