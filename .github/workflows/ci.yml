@@ -55,7 +55,7 @@ jobs:
           tar -czf venv.tar.gz venv/
 
       - name: Upload virtual environment
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-venv
           path: venv.tar.gz
