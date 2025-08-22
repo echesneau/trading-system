@@ -71,7 +71,7 @@ jobs:
         with:
           fetch-depth: 0  # Important pour setuptools-scm
       - name: Download virtual environment
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: python-venv
 
@@ -79,11 +79,6 @@ jobs:
         run: |
           tar -xzf venv.tar.gz
           rm venv.tar.gz
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-          cache: 'pip'
 
       - name: Run unit tests
         run: |
