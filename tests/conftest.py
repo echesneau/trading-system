@@ -44,7 +44,7 @@ def model_trainer():
         'technical_params': {
             'ema_windows': [20, 50],  # Évite EMA_200 qui nécessite plus de données
             'rsi_window': 10,
-            'bb_window': 14
+            'bollinger_window': 14
         }
     })
 
@@ -52,16 +52,11 @@ def model_trainer():
 @pytest.fixture(scope="session")
 def trained_model_artifacts(test_data, model_trainer):
     """Utilise ModelTrainer pour entraîner un modèle sur les données réelles"""
-    try:
-        artifacts = model_trainer.train(test_data)
+    artifacts = model_trainer.train(test_data)
+    # Validation basique du modèle
+    assert 'model' in artifacts
+    assert 'scaler' in artifacts
+    assert 'feature_names' in artifacts
+    assert len(artifacts['feature_names']) > 0
 
-        # Validation basique du modèle
-        assert 'model' in artifacts
-        assert 'scaler' in artifacts
-        assert 'feature_names' in artifacts
-        assert len(artifacts['feature_names']) > 0
-
-        return artifacts
-
-    except Exception as e:
-        pytest.skip(f"Échec de l'entraînement: {str(e)}")
+    return artifacts

@@ -11,8 +11,13 @@ def calculate_indicators(
         rsi_window: int = 14,
         atr_window: int = 14,
         adx_window: int = 14,
-        ema_windows: List[int] = [20, 50, 200],
-        bb_window: int = 20,
+        ema_windows: List[int] = [5, 10, 20],
+        bollinger_window: int = 20,
+        bollinger_std: int = 2,
+        macd_slow: int = 26,
+        macd_fast: int = 12,
+        macd_signal: int = 9,
+
         min_periods: Optional[int] = None
 ) -> pd.DataFrame:
     """
@@ -24,7 +29,7 @@ def calculate_indicators(
         atr_window: Période ATR (défaut: 14)
         adx_window: Période ADX (défaut: 14)
         ema_windows: Périodes EMA (défaut: [20, 50, 200])
-        bb_window: Période Bollinger Bands (défaut: 20)
+        bollinger_window: Période Bollinger Bands (défaut: 20)
         min_periods: Nombre minimum de périodes requises (None = window size)
 
     Returns:
@@ -39,7 +44,7 @@ def calculate_indicators(
         raise ValueError(f"Données manquantes pour calculer les indicateurs: {missing}")
 
     # Déterminer la taille de fenêtre maximale
-    max_window = max([rsi_window, atr_window, adx_window, bb_window] + ema_windows)
+    max_window = max([rsi_window, atr_window, adx_window, bollinger_window] + ema_windows)
 
     # Vérifier suffisamment de données
     if len(df) < max_window:
@@ -53,7 +58,7 @@ def calculate_indicators(
         fillna=False
     ).rsi()
     ## MACD (fenêtres fixes conventionnelles)
-    macd = ta.trend.MACD(close=df['Close'], window_slow=26, window_fast=12, window_sign=9)
+    macd = ta.trend.MACD(close=df['Close'], window_slow=macd_slow, window_fast=macd_fast, window_sign=macd_signal)
     df['MACD'] = macd.macd()
     df['MACD_Signal'] = macd.macd_signal()
 
@@ -76,8 +81,8 @@ def calculate_indicators(
     # Bandes de Bollinger
     bb = ta.volatility.BollingerBands(
         close=df['Close'],
-        window=bb_window,
-        window_dev=2,
+        window=bollinger_window,
+        window_dev=bollinger_std,
         fillna=False
     )
     df['BB_Upper'] = bb.bollinger_hband()

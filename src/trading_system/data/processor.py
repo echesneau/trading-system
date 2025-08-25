@@ -21,7 +21,7 @@ def process_market_data(
     default_config = {
         "rsi_window": 14,
         "ema_windows": [5, 10, 20],
-        "bb_window": 20
+        "bollinger_window": 20
     }
     config = {**default_config, **(indicators_config or {})}
 

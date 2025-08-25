@@ -13,7 +13,7 @@ def test_full_training(sample_data):
     config = {
         'max_depth': 2,
         'ema_windows': [10, 20],  # Au lieu de [20, 50, 200]
-        'bb_window': 10,  # Au lieu de 20
+        'bollinger_window': 10,  # Au lieu de 20
         'rsi_window': 10  # Au lieu de 14
     }
     trainer = ModelTrainer(config)

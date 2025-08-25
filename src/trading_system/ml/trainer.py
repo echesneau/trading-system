@@ -17,7 +17,7 @@ class ModelTrainer:
             'target_horizon': 5,
             'technical_params': {  # Nouveau: paramètres pour calculate_indicators
                 'ema_windows': [20, 50, 200],
-                'bb_window': 20,
+                'bollinger_window': 20,
                 'rsi_window': 14,
                 'atr_window': 14
             },
