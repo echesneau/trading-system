@@ -223,25 +223,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Download virtual environment
-      uses: actions/download-artifact@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        name: python-venv
-
-    - name: Restore virtual environment
-      run: |
-        tar -xzf venv.tar.gz
-        rm venv.tar.gz
+        python-version: "3.10"
 
     - name: Run safety check
       run: |
-        source venv/bin/activate
         pip install safety
         safety check --full-report
 
     - name: Run bandit
       run: |
-        source venv/bin/activate
         pip install bandit
         bandit -r src/ -ll
 
