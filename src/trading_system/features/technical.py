@@ -17,8 +17,8 @@ def calculate_indicators(
         macd_slow: int = 26,
         macd_fast: int = 12,
         macd_signal: int = 9,
-
-        min_periods: Optional[int] = None
+        min_periods: Optional[int] = None,
+        **kwargs
 ) -> pd.DataFrame:
     """
     Calcule les indicateurs techniques pour les données de marché.

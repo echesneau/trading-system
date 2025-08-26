@@ -66,7 +66,7 @@ class SignalReporter:
                 # 3. Générer le signal pour ce dernier jour
                 config = {}
                 for param in ["rsi_window", 'rsi_buy', "rsi_sell", 'macd_fast', "macd_slow", "macd_signal",
-                            "bollinger_window", "bollinger_std"]:
+                            "bollinger_window", "bollinger_std", "adx_window"]:
                     if param in kwargs:
                         config[param] = kwargs[param]
                 if self.strategy_cls.__name__ == 'HybridStrategy':
