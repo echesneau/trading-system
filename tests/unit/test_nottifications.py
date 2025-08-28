@@ -106,4 +106,118 @@ def test_generate_daily_report_with_data_loader_error(hybrid_reporter, caplog):
     # Vérifie que l'erreur est bien loggée
     assert "Erreur lors du traitement de ERROR.PA" in caplog.text
 
-# ... (Add tests for buy/sell signals, empty data, etc.)
+class TestFormatReportToHtml:
+    """Test suite pour la méthode format_report_to_html de SignalReporter."""
+
+    def test_format_report_with_buy_and_sell_signals(self):
+        """Test le formatage HTML quand il y a des signaux d'achat et de vente."""
+        # 1. Arrange - Créer un rapport de test complet
+        report = {
+            'buy_signals': [
+                {'ticker': 'AIR.PA', 'signal': 'BUY', 'price': 150.50, 'date': pd.Timestamp('2023-10-27')},
+                {'ticker': 'SAN.PA', 'signal': 'BUY', 'price': 45.75, 'date': pd.Timestamp('2023-10-27')}
+            ],
+            'sell_signals': [
+                {'ticker': 'BNP.PA', 'signal': 'SELL', 'price': 620.80, 'date': pd.Timestamp('2023-10-27')}
+            ],
+            'hold_signals': [],  # Non utilisé dans le formatage actuel, mais présent
+            'errors': [],
+            'report_date': dt.date(2023, 10, 27),
+            'total_tickers_analyzed': 3
+        }
+
+        # 2. Act - Appeler la méthode à tester
+        # On crée une instance minimale de SignalReporter pour appeler la méthode
+        # On n'a pas besoin de vrais strategy_cls ou data_loader pour ce test
+        reporter = SignalReporter(strategy=None, data_loader=None)
+        html_output = reporter.format_report_to_html(report)
+
+        # 3. Assert - Vérifier que le HTML contient les éléments attendus
+        assert "Rapport de Trading Automatique" in html_output
+        assert "2023-10-27" in html_output  # La date du rapport
+        assert "3" in html_output  # Le nombre total de tickers analysés
+
+        # Vérifier la présence des signaux d'achat
+        assert "Signaux d'ACHAT" in html_output
+        assert "AIR.PA" in html_output and "150.50" in html_output
+        assert "SAN.PA" in html_output and "45.75" in html_output
+
+        # Vérifier la présence des signaux de vente
+        assert "Signaux de VENTE" in html_output
+        assert "BNP.PA" in html_output and "620.80" in html_output
+
+        # Vérifier l'absence de messages d'erreur et de "Aucun signal"
+        assert "Aucun signal d'achat" not in html_output
+        assert "Aucun signal de vente" not in html_output
+        assert "Erreurs Rencontrées" not in html_output
+
+    def test_format_report_with_no_signals(self):
+        """Test le formatage HTML quand il n'y a aucun signal (que des HOLD)."""
+        # 1. Arrange - Créer un rapport sans signaux
+        report = {
+            'buy_signals': [],
+            'sell_signals': [],
+            'hold_signals': [{'ticker': 'GLE.PA', 'signal': 'HOLD', 'price': 100.0, 'date': pd.Timestamp('2023-10-27')}],
+            'errors': [],
+            'report_date': dt.date(2023, 10, 27),
+            'total_tickers_analyzed': 1
+        }
+
+        # 2. Act
+        reporter = SignalReporter(strategy=None, data_loader=None)
+        html_output = reporter.format_report_to_html(report)
+
+        # 3. Assert - Vérifier les messages "Aucun signal"
+        assert "Aucun signal d'achat aujourd'hui" in html_output
+        assert "Aucun signal de vente aujourd'hui" in html_output
+        # Vérifier que les sections de signaux spécifiques ne sont pas présentes
+        assert "Signaux d'ACHAT" not in html_output
+        assert "Signaux de VENTE" not in html_output
+
+    def test_format_report_with_errors(self):
+        """Test le formatage HTML quand il y a des erreurs de traitement."""
+        # 1. Arrange - Créer un rapport avec des erreurs
+        report = {
+            'buy_signals': [{'ticker': 'AIR.PA', 'signal': 'BUY', 'price': 150.50, 'date': pd.Timestamp('2023-10-27')}],
+            'sell_signals': [],
+            'hold_signals': [],
+            'errors': [
+                {'ticker': 'BAD.PA', 'error': 'Timeout lors de la récupération des données'},
+                {'ticker': 'FAIL.PA', 'error': 'Division by zero in RSI calculation'}
+            ],
+            'report_date': dt.date(2023, 10, 27),
+            'total_tickers_analyzed': 3 # 1 réussi + 2 en erreur
+        }
+
+        # 2. Act
+        reporter = SignalReporter(strategy=None, data_loader=None)
+        html_output = reporter.format_report_to_html(report)
+
+        # 3. Assert - Vérifier la présence de la section d'erreurs
+        assert "Erreurs Rencontrées" in html_output
+        assert "BAD.PA" in html_output and "Timeout" in html_output
+        assert "FAIL.PA" in html_output and "Division by zero" in html_output
+        # Vérifier que le signal réussi est aussi présent
+        assert "AIR.PA" in html_output and "150.50" in html_output
+
+    def test_format_report_missing_optional_keys(self):
+        """Test la robustesse de la fonction si des clés optionnelles sont manquantes."""
+        # 1. Arrange - Créer un rapport minimal sans 'hold_signals' ni 'errors'
+        report = {
+            'buy_signals': [],
+            'sell_signals': [],
+            # 'hold_signals' key is missing
+            # 'errors' key is missing
+            'report_date': dt.date(2023, 10, 27),
+            'total_tickers_analyzed': 2
+        }
+
+        # 2. Act & Assert - Vérifier que la fonction ne plante pas
+        reporter = SignalReporter(strategy=None, data_loader=None)
+        # Cela ne devrait pas lever d'exception KeyError
+        html_output = reporter.format_report_to_html(report)
+
+        # 3. Vérifier le contenu de base
+        assert "Rapport de Trading Automatique" in html_output
+        assert "Aucun signal d'achat aujourd'hui" in html_output
+        assert "Aucun signal de vente aujourd'hui" in html_output

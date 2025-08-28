@@ -136,7 +136,7 @@ class SignalReporter:
         else:
             html_content += "<p>❌ Aucun signal de vente aujourd'hui.</p>"
 
-        if report['errors']:
+        if "errors" in report:
             html_content += "<h3>⚠️ Erreurs Rencontrées</h3><ul>"
             for error in report['errors']:
                 html_content += f"<li><strong>{error['ticker']}</strong>: {error['error']}</li>"
