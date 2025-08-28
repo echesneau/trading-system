@@ -66,11 +66,16 @@ class SignalReporter:
                 # 3. Générer le signal pour ce dernier jour
                 config = {}
                 for param in ["rsi_window", 'rsi_buy', "rsi_sell", 'macd_fast', "macd_slow", "macd_signal",
-                            "bollinger_window", "bollinger_std", "adx_window"]:
+                            "bollinger_window", "bollinger_std", "adx_window", "ema_windows"]:
                     if param in kwargs:
                         config[param] = kwargs[param]
                 if self.strategy_cls.__name__ == 'HybridStrategy':
-                    model_artifacts = load_model(kwargs['model_path'])
+                    if 'model_path' in kwargs:
+                        model_artifacts = load_model(kwargs['model_path'])
+                    elif "model_artifacts" in kwargs:
+                        model_artifacts = kwargs['model_artifacts']
+                    else:
+                        raise ValueError("Pour la stratégie Hybride, 'model_path' ou 'model_artifacts' doit être fourni dans kwargs.")
                     self.strategy = self.strategy_cls(model_artifacts, **config)
                 else:
                     self.strategy = self.strategy_cls(**config)
