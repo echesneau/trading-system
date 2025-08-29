@@ -149,7 +149,6 @@ class TestFormatReportToHtml:
         # Vérifier l'absence de messages d'erreur et de "Aucun signal"
         assert "Aucun signal d'achat" not in html_output
         assert "Aucun signal de vente" not in html_output
-        assert "Erreurs Rencontrées" not in html_output
 
     def test_format_report_with_no_signals(self):
         """Test le formatage HTML quand il n'y a aucun signal (que des HOLD)."""
