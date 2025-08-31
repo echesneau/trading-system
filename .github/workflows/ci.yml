@@ -9,17 +9,18 @@ on:
 
 env:
   PYTHON_VERSION: "3.10"
-  REAL_EMAIL_SMTP_SERVER: ${{ secrets.REAL_EMAIL_SMTP_SERVER }}
-  REAL_EMAIL_SMTP_PORT: ${{ secrets.REAL_EMAIL_SMTP_PORT }}
-  REAL_EMAIL_LOGIN: ${{ secrets.REAL_EMAIL_LOGIN }}
-  REAL_EMAIL_PASSWORD: ${{ secrets.REAL_EMAIL_PASSWORD }}
-  REAL_EMAIL_TO: ${{ secrets.REAL_EMAIL_TO }}
-  GITHUB_SHA: ${{ github.sha }}
 
 jobs:
   setup:
     name: Setup environment
     runs-on: ubuntu-22.04
+    env:
+      REAL_EMAIL_SMTP_SERVER: ${{ secrets.REAL_EMAIL_SMTP_SERVER }}
+      REAL_EMAIL_SMTP_PORT: ${{ secrets.REAL_EMAIL_SMTP_PORT }}
+      REAL_EMAIL_LOGIN: ${{ secrets.REAL_EMAIL_LOGIN }}
+      REAL_EMAIL_PASSWORD: ${{ secrets.REAL_EMAIL_PASSWORD }}
+      REAL_EMAIL_TO: ${{ secrets.REAL_EMAIL_TO }}
+      GITHUB_SHA: ${{ github.sha }}
     outputs:
       cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
@@ -95,7 +96,13 @@ jobs:
     name: Integration tests
     runs-on: ubuntu-22.04
     needs: unit-test
-
+    env:
+      REAL_EMAIL_SMTP_SERVER: ${{ secrets.REAL_EMAIL_SMTP_SERVER }}
+      REAL_EMAIL_SMTP_PORT: ${{ secrets.REAL_EMAIL_SMTP_PORT }}
+      REAL_EMAIL_LOGIN: ${{ secrets.REAL_EMAIL_LOGIN }}
+      REAL_EMAIL_PASSWORD: ${{ secrets.REAL_EMAIL_PASSWORD }}
+      REAL_EMAIL_TO: ${{ secrets.REAL_EMAIL_TO }}
+      GITHUB_SHA: ${{ github.sha }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -121,7 +128,13 @@ jobs:
     name: All tests with coverage
     runs-on: ubuntu-22.04
     needs: [unit-test, integration-test]
-
+    env:
+      REAL_EMAIL_SMTP_SERVER: ${{ secrets.REAL_EMAIL_SMTP_SERVER }}
+      REAL_EMAIL_SMTP_PORT: ${{ secrets.REAL_EMAIL_SMTP_PORT }}
+      REAL_EMAIL_LOGIN: ${{ secrets.REAL_EMAIL_LOGIN }}
+      REAL_EMAIL_PASSWORD: ${{ secrets.REAL_EMAIL_PASSWORD }}
+      REAL_EMAIL_TO: ${{ secrets.REAL_EMAIL_TO }}
+      GITHUB_SHA: ${{ github.sha }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -154,6 +167,13 @@ jobs:
     name: Test Python ${{ matrix.python-version }}
     runs-on: ubuntu-22.04
     needs: [unit-test, integration-test, coverage]
+    env:
+      REAL_EMAIL_SMTP_SERVER: ${{ secrets.REAL_EMAIL_SMTP_SERVER }}
+      REAL_EMAIL_SMTP_PORT: ${{ secrets.REAL_EMAIL_SMTP_PORT }}
+      REAL_EMAIL_LOGIN: ${{ secrets.REAL_EMAIL_LOGIN }}
+      REAL_EMAIL_PASSWORD: ${{ secrets.REAL_EMAIL_PASSWORD }}
+      REAL_EMAIL_TO: ${{ secrets.REAL_EMAIL_TO }}
+      GITHUB_SHA: ${{ github.sha }}
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
