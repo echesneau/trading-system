@@ -7,10 +7,25 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## A venir
 ### Documentation
-- README.md complet avec instructions d'installation
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## [0.2.0] - 2025-08-31
+### Ajouté
+- Systèmes de génération de rapports
+  - Agrégation des signaux de trading pour multiples tickers en un seul rapport 
+  - génération d'un rapport HTML
+- Système de Notifications par Email 
+  - Module notifications avec classe EmailSender
+  - Envoi d'emails HTML
+  - Support des listes de destinataires (multiple recipients)
+  - Gestion robuste des erreurs SMTP avec reprise gracieuse
+- Tests
+  - tests unitaires complet pour vérifier le comportement attendu
+  - test integration pour valider le flux de bout en bout avec des données réelles
+
+### Modifié
+- remonté des paramètres de configuration pour les stratégies de trading
 ## [0.1.0] - 2025-08-21
 
 ### Ajouté
