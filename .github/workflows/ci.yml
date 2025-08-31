@@ -9,6 +9,12 @@ on:
 
 env:
   PYTHON_VERSION: "3.10"
+  REAL_EMAIL_SMTP_SERVER: ${{ secrets.REAL_EMAIL_SMTP_SERVER }}
+  REAL_EMAIL_SMTP_PORT: ${{ secrets.REAL_EMAIL_SMTP_PORT }}
+  REAL_EMAIL_LOGIN: ${{ secrets.REAL_EMAIL_LOGIN }}
+  REAL_EMAIL_PASSWORD: ${{ secrets.REAL_EMAIL_PASSWORD }}
+  REAL_EMAIL_TO: ${{ secrets.REAL_EMAIL_TO }}
+  GITHUB_SHA: ${{ github.sha }}
 
 jobs:
   setup:
