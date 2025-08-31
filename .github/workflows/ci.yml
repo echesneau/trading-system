@@ -257,6 +257,7 @@ jobs:
     - name: Run safety check
       run: |
         pip install safety
+        pip install typer<0.17.0  # Pour éviter un problème de compatibilité avec safety
         safety check --full-report
 
     - name: Run bandit
