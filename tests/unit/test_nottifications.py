@@ -52,6 +52,9 @@ def classical_reporter(mock_classical_strategy_cls, mock_data_loader):
 def test_generate_daily_report_hybrid(hybrid_reporter, mock_hybrid_strategy_cls, mock_data_loader):
     """Test le flux Hybride: doit appeler load_model."""
     tickers = ['TEST.PA']
+    config = {
+        'TEST.PA': {'rsi_buy': 30, "adx_window": 2}
+    }
     model_path = '/fake/path/model.joblib'
 
     # Mock load_model pour éviter une erreure réelle
@@ -60,7 +63,7 @@ def test_generate_daily_report_hybrid(hybrid_reporter, mock_hybrid_strategy_cls,
         mock_load_model.return_value = mock_model_artifacts
 
         # Execution
-        report = hybrid_reporter.generate_daily_report(tickers, model_path=model_path, rsi_buy=30, adx_window=2)
+        report = hybrid_reporter.generate_daily_report(tickers, ticker_params=config, model_path=model_path)
 
     # Vérifications
     assert report['total_tickers_analyzed'] == 1
@@ -73,11 +76,13 @@ def test_generate_daily_report_hybrid(hybrid_reporter, mock_hybrid_strategy_cls,
 def test_generate_daily_report_classical(classical_reporter, mock_classical_strategy_cls):
     """Test le flux Classique: ne doit PAS appeler load_model."""
     tickers = ['TEST.PA']
-
+    config = {
+        'TEST.PA': {'rsi_buy': 30, "adx_window": 2}
+    }
     # Mock load_model pour s'assurer qu'il n'est PAS appelé
     with patch('trading_system.notifications.reporter.load_model') as mock_load_model:
         # Execution
-        report = classical_reporter.generate_daily_report(tickers, rsi_buy=30, adx_window=2)
+        report = classical_reporter.generate_daily_report(tickers, ticker_params=config)
 
     # Vérifications
     assert report['total_tickers_analyzed'] == 1
@@ -96,7 +101,7 @@ def test_generate_daily_report_with_data_loader_error(hybrid_reporter, caplog):
 
     # Exécution
     with caplog.at_level(logging.ERROR):
-        report = hybrid_reporter.generate_daily_report(tickers, model_path='/fake/path')
+        report = hybrid_reporter.generate_daily_report(tickers, ticker_params={}, model_path='/fake/path')
 
     # Vérifications
     assert report['total_tickers_analyzed'] == 1
