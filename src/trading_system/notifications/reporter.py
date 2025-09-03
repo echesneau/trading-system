@@ -21,13 +21,16 @@ class SignalReporter:
         self.strategy_cls = strategy
         self.data_loader = data_loader
 
-    def generate_daily_report(self, tickers: List[str], max_window_range: int =50, **kwargs) -> Dict[str, List[Dict]]:
+    def generate_daily_report(self, tickers: List[str],
+                              ticker_params: Dict[str, Dict],
+                              max_window_range: int =50, **kwargs) -> Dict[str, List[Dict]]:
         """
         Génère un rapport des signaux pour la dernière journée de données disponibles
         pour chaque ticker.
 
         Args:
             tickers: Liste des symboles (ex: ['AIR.PA', 'SAN.PA'])
+            ticker_params: Dictionnaire {ticker: paramètres} pour chaque ticker
             max_window_range: Nombre maximum de jours requis pour les indicateurs
 
         Returns:
@@ -63,12 +66,10 @@ class SignalReporter:
                     errors.append({'ticker': ticker, 'error': error_msg})
                     continue
 
+                # 2. Récupérer les paramètres SPÉCIFIQUES à ce ticker
+                config = ticker_params.get(ticker, {})
+
                 # 3. Générer le signal pour ce dernier jour
-                config = {}
-                for param in ["rsi_window", 'rsi_buy', "rsi_sell", 'macd_fast', "macd_slow", "macd_signal",
-                            "bollinger_window", "bollinger_std", "adx_window", "ema_windows"]:
-                    if param in kwargs:
-                        config[param] = kwargs[param]
                 if self.strategy_cls.__name__ == 'HybridStrategy':
                     if 'model_path' in kwargs:
                         model_artifacts = load_model(kwargs['model_path'])
