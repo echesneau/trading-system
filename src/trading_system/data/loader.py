@@ -1,4 +1,6 @@
 # src/data/loader.py
+import os
+import json
 import yfinance as yf
 import pandas as pd
 from typing import Optional, Union, Dict
@@ -90,20 +92,82 @@ def load_yfinance_data(
 
 
 def load_multiple_tickers(
-        tickers: Dict[str, str],  # Format: {"AIR.PA": "Airbus"}
+        tickers: list,  # Format: {"AIR.PA": "Airbus"}
         **kwargs
 ) -> Dict[str, pd.DataFrame]:
     """Charge plusieurs tickers en parallèle"""
     from concurrent.futures import ThreadPoolExecutor
 
     def _load_single(ticker):
-        try:
-            return ticker, load_yfinance_data(ticker, **kwargs)
-        except Exception as e:
-            logger.warning(f"Échec sur {ticker}: {str(e)}")
-            return ticker, None
+        return ticker, load_yfinance_data(ticker, **kwargs)
+        #try:
+        #    return ticker, load_yfinance_data(ticker, **kwargs)
+        #except Exception as e:
+        #    logger.warning(f"Échec sur {ticker}: {str(e)}")
+        #    return ticker, None
 
     with ThreadPoolExecutor(max_workers=5) as executor:
-        results = dict(executor.map(_load_single, tickers.keys()))
+        results = dict(executor.map(_load_single, tickers))
 
     return {ticker: df for ticker, df in results.items() if df is not None}
+
+def get_all_ticker_parameters_from_config(config_path: str) -> dict:
+    """Extrait tous les tickers metadata du répertoire de configuration."""
+    params = {}
+    for file in os.listdir(config_path):
+        if file.endswith('.json'):
+            with open(f'{config_path}/{file}') as f:
+                tmp = json.load(f)
+            ticker = tmp['ticker']
+            params[ticker] = tmp['params']
+    return params
+
+
+class ParameterLoader:
+    """Charge et gère les paramètres optimisés par ticker."""
+
+    def __init__(self, params_file: str = "optimized_params.json"):
+        self.params_file = params_file
+        self.ticker_params = self._load_params()
+
+    def _load_params(self) -> Dict[str, Dict]:
+        """Charge les paramètres depuis un fichier JSON."""
+        try:
+            if Path(self.params_file).exists():
+                with open(self.params_file, 'r') as f:
+                    return json.load(f)
+            else:
+                print(f"Fichier {self.params_file} non trouvé. Utilisation des paramètres par défaut.")
+                return {}
+        except Exception as e:
+            print(f"Erreur lors du chargement des paramètres: {e}")
+            return {}
+
+    def get_ticker_params(self, ticker: str, default_params: Dict = None) -> Dict:
+        """Récupère les paramètres pour un ticker spécifique."""
+        if default_params is None:
+            default_params = {
+                'rsi_window': 14,
+                'rsi_buy': 30,
+                'rsi_sell': 70,
+                'macd_fast': 12,
+                'macd_slow': 26,
+                'macd_signal': 9,
+                'bollinger_window': 20,
+                'bollinger_std': 2.0
+            }
+
+        return self.ticker_params.get(ticker, default_params)
+
+    def update_params(self, ticker: str, new_params: Dict):
+        """Met à jour les paramètres pour un ticker."""
+        self.ticker_params[ticker] = new_params
+        self._save_params()
+
+    def _save_params(self):
+        """Sauvegarde les paramètres dans le fichier JSON."""
+        try:
+            with open(self.params_file, 'w') as f:
+                json.dump(self.ticker_params, f, indent=2)
+        except Exception as e:
+            print(f"Erreur lors de la sauvegarde des paramètres: {e}")
