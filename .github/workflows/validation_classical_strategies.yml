@@ -1,0 +1,47 @@
+# .github/workflows/validation.yml
+name: Weekly Strategy Validation
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Tous les lundis à minuit
+  workflow_dispatch:      # Exécution manuelle
+
+jobs:
+  validate-classical-strategies:
+    runs-on: ubuntu-22.04
+    permissions:
+        contents: write
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: pip install -e ".[dev]"
+
+    - name: Run validation
+      run: python scriptq/run_backtest_validator.py
+
+    - name: Configure Git
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+
+    - name: Commit and push validation results
+      run: |
+        if git diff --quiet --exit-code config/validation_classical_strategy.json; then
+          echo "Aucun changement dans le fichier de validation."
+        else
+          echo "Changements détectés, création du commit..."
+          git add config/validation_classical_strategy.json
+          git commit -m "chore: weekly validation update [skip ci]"
+          git push
+          echo "Fichier de validation commité et poussé!"
+        fi
