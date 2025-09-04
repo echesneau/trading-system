@@ -213,11 +213,11 @@ if __name__ == "__main__":
         "SAN.PA",  # Sanofi
         "SU.PA",  # Schneider Electric
         "GLE.PA",  # Société Générale
-        "STM.PA",  # STMicroelectronics
+        "STMPA.PA",  # STMicroelectronics
         "TEP.PA",  # Teleperformance
         "HO.PA",  # Thales
         "TTE.PA",  # TotalEnergies
-        "URW.AS",  # Unibail-Rodamco-Westfield (coté Amsterdam)
+        # "URW.PA",  # Unibail-Rodamco-Westfield --> problème de données
         "VIE.PA",  # Veolia
         "DG.PA",  # Vinci
         "VIV.PA",  # Vivendi
