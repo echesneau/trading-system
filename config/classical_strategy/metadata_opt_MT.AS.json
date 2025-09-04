@@ -1,0 +1,24 @@
+{
+    "ticker": "MT.AS",
+    "date": "2025-09-03 23:57:35",
+    "params": {
+        "rsi_window": 10,
+        "rsi_buy": 35,
+        "rsi_sell": 75,
+        "macd_fast": 20,
+        "macd_slow": 30,
+        "macd_signal": 11,
+        "bollinger_window": 25,
+        "bollinger_std": 2.0
+    },
+    "train_results": {
+        "sharpe_ratio": 0.04103347253213027,
+        "total_return": 3.3354805552897457,
+        "max_drawdown": 0.38094171094607865
+    },
+    "validation_results": {
+        "total_return": 0.16126391135215762,
+        "sharpe_ratio": 0.0481230850761602,
+        "max_drawdown": 0.07735896165977248
+    }
+}

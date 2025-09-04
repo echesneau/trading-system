@@ -1,0 +1,24 @@
+{
+    "ticker": "LR.PA",
+    "date": "2025-09-04 04:03:21",
+    "params": {
+        "rsi_window": 7,
+        "rsi_buy": 35,
+        "rsi_sell": 75,
+        "macd_fast": 16,
+        "macd_slow": 34,
+        "macd_signal": 13,
+        "bollinger_window": 15,
+        "bollinger_std": 1
+    },
+    "train_results": {
+        "sharpe_ratio": 0.02909139337779855,
+        "total_return": 0.6070769849748628,
+        "max_drawdown": 0.15329906210520985
+    },
+    "validation_results": {
+        "total_return": 0.2964171575988772,
+        "sharpe_ratio": 0.08062282214145969,
+        "max_drawdown": 0.04715173987781596
+    }
+}

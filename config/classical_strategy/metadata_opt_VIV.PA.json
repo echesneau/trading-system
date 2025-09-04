@@ -1,0 +1,24 @@
+{
+    "ticker": "VIV.PA",
+    "date": "2025-09-04 13:50:39",
+    "params": {
+        "rsi_window": 7,
+        "rsi_buy": 35,
+        "rsi_sell": 75,
+        "macd_fast": 20,
+        "macd_slow": 34,
+        "macd_signal": 13,
+        "bollinger_window": 10,
+        "bollinger_std": 1
+    },
+    "train_results": {
+        "sharpe_ratio": 0.05605773185341021,
+        "total_return": 2.3225585024430795,
+        "max_drawdown": 0.26746875895157335
+    },
+    "validation_results": {
+        "total_return": 0.023794778171969302,
+        "sharpe_ratio": 0.00834049269718726,
+        "max_drawdown": 0.19384681839385717
+    }
+}

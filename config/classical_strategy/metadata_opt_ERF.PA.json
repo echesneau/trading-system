@@ -1,0 +1,24 @@
+{
+    "ticker": "ERF.PA",
+    "date": "2025-09-04 03:10:41",
+    "params": {
+        "rsi_window": 7,
+        "rsi_buy": 35,
+        "rsi_sell": 70,
+        "macd_fast": 8,
+        "macd_slow": 21,
+        "macd_signal": 13,
+        "bollinger_window": 25,
+        "bollinger_std": 1
+    },
+    "train_results": {
+        "sharpe_ratio": 0.05383300237199197,
+        "total_return": 1.9065171871708666,
+        "max_drawdown": 0.14302943706759183
+    },
+    "validation_results": {
+        "total_return": -0.04815058250541679,
+        "sharpe_ratio": -0.016743160681366175,
+        "max_drawdown": 0.15364566248016345
+    }
+}

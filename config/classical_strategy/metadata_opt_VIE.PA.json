@@ -1,0 +1,24 @@
+{
+    "ticker": "VIE.PA",
+    "date": "2025-09-04 13:09:53",
+    "params": {
+        "rsi_window": 21,
+        "rsi_buy": 35,
+        "rsi_sell": 75,
+        "macd_fast": 20,
+        "macd_slow": 34,
+        "macd_signal": 13,
+        "bollinger_window": 25,
+        "bollinger_std": 1.5
+    },
+    "train_results": {
+        "sharpe_ratio": 0.029064887854937244,
+        "total_return": 0.9238102450027472,
+        "max_drawdown": 0.3214022666942794
+    },
+    "validation_results": {
+        "total_return": 0.0,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0
+    }
+}

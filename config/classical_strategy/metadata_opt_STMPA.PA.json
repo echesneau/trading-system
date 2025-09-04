@@ -1,0 +1,24 @@
+{
+    "ticker": "STMPA.PA",
+    "date": "2025-09-04 09:06:54",
+    "params": {
+        "rsi_window": 21,
+        "rsi_buy": 35,
+        "rsi_sell": 75,
+        "macd_fast": 8,
+        "macd_slow": 21,
+        "macd_signal": 7,
+        "bollinger_window": 10,
+        "bollinger_std": 1.5
+    },
+    "train_results": {
+        "sharpe_ratio": 0.04995499226886671,
+        "total_return": 2.6013016241379985,
+        "max_drawdown": 0.19011722666455094
+    },
+    "validation_results": {
+        "total_return": -0.04427834413719156,
+        "sharpe_ratio": 0.0031121879876416137,
+        "max_drawdown": 0.38747449848384047
+    }
+}

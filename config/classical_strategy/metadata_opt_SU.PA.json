@@ -1,0 +1,24 @@
+{
+    "ticker": "SU.PA",
+    "date": "2025-09-04 06:58:47",
+    "params": {
+        "rsi_window": 10,
+        "rsi_buy": 35,
+        "rsi_sell": 75,
+        "macd_fast": 20,
+        "macd_slow": 26,
+        "macd_signal": 13,
+        "bollinger_window": 15,
+        "bollinger_std": 2.0
+    },
+    "train_results": {
+        "sharpe_ratio": 0.02545481173809249,
+        "total_return": 0.7942020989580164,
+        "max_drawdown": 0.2275355706775306
+    },
+    "validation_results": {
+        "total_return": 0.15414695444488535,
+        "sharpe_ratio": 0.05562695448499006,
+        "max_drawdown": 0.05283830893167466
+    }
+}

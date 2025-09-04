@@ -1,0 +1,24 @@
+{
+    "ticker": "DG.PA",
+    "date": "2025-09-04 13:30:13",
+    "params": {
+        "rsi_window": 7,
+        "rsi_buy": 35,
+        "rsi_sell": 75,
+        "macd_fast": 16,
+        "macd_slow": 26,
+        "macd_signal": 13,
+        "bollinger_window": 15,
+        "bollinger_std": 2.0
+    },
+    "train_results": {
+        "sharpe_ratio": 0.02990126090362071,
+        "total_return": 0.9269771903543479,
+        "max_drawdown": 0.23312335648673427
+    },
+    "validation_results": {
+        "total_return": 0.05514378785095232,
+        "sharpe_ratio": 0.050828466586013546,
+        "max_drawdown": 0.016982855796813783
+    }
+}

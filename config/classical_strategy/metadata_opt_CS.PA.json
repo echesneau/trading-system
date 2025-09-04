@@ -1,0 +1,24 @@
+{
+    "ticker": "CS.PA",
+    "date": "2025-09-04 00:15:07",
+    "params": {
+        "rsi_window": 7,
+        "rsi_buy": 35,
+        "rsi_sell": 75,
+        "macd_fast": 12,
+        "macd_slow": 26,
+        "macd_signal": 11,
+        "bollinger_window": 20,
+        "bollinger_std": 1
+    },
+    "train_results": {
+        "sharpe_ratio": 0.03961314602352517,
+        "total_return": 1.376137864753963,
+        "max_drawdown": 0.2696582520339422
+    },
+    "validation_results": {
+        "total_return": 0.06330399163818365,
+        "sharpe_ratio": 0.046314995876564194,
+        "max_drawdown": 0.025993721689224186
+    }
+}

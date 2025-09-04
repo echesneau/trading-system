@@ -1,0 +1,24 @@
+{
+    "ticker": "SGO.PA",
+    "date": "2025-09-04 06:23:42",
+    "params": {
+        "rsi_window": 7,
+        "rsi_buy": 35,
+        "rsi_sell": 75,
+        "macd_fast": 8,
+        "macd_slow": 21,
+        "macd_signal": 9,
+        "bollinger_window": 25,
+        "bollinger_std": 1
+    },
+    "train_results": {
+        "sharpe_ratio": 0.026847657577471012,
+        "total_return": 0.8784688271293657,
+        "max_drawdown": 0.23094690598140183
+    },
+    "validation_results": {
+        "total_return": -0.03509579132728559,
+        "sharpe_ratio": -0.013644045355567283,
+        "max_drawdown": 0.12526995045603878
+    }
+}

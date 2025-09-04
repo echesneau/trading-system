@@ -1,0 +1,24 @@
+{
+    "ticker": "EL.PA",
+    "date": "2025-09-04 02:53:10",
+    "params": {
+        "rsi_window": 10,
+        "rsi_buy": 35,
+        "rsi_sell": 75,
+        "macd_fast": 12,
+        "macd_slow": 21,
+        "macd_signal": 11,
+        "bollinger_window": 15,
+        "bollinger_std": 1.5
+    },
+    "train_results": {
+        "sharpe_ratio": 0.037309651972032384,
+        "total_return": 1.011656505329133,
+        "max_drawdown": 0.16094436045864952
+    },
+    "validation_results": {
+        "total_return": 0.0,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0
+    }
+}
