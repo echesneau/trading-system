@@ -1,6 +1,7 @@
 import os
 import json
 
+from trading_system import config_path
 from trading_system.data.loader import get_all_ticker_parameters_from_config
 from trading_system.notifications.email_sender import EmailSender
 from trading_system.notifications.reporter import SignalReporter
@@ -26,7 +27,7 @@ email_sender = EmailSender(
 
 if __name__ == "__main__":
     print("🔎 Début du scan quotidien...")
-    config_path = "../config/classical_strategy/"
+    config_path = f"{config_path}/classical_strategy/"
     # read all parameters
     config = get_all_ticker_parameters_from_config(config_path)
     # read status: if parameters are validated or not

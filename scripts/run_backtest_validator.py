@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timedelta
 
+from trading_system import config_path
 from trading_system.data.loader import get_all_ticker_parameters_from_config, load_yfinance_data
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
@@ -24,8 +25,8 @@ def is_valid(result, min_performance=0.02, max_drawdown=-20.0, min_trades=2, min
 
 if __name__ == "__main__":
     # get all metadata files
-    output_path = "../config//validation_classical_strategy.json"
-    config_path = "../config/classical_strategy/"
+    output_path = f"{config_path}/validation_classical_strategy.json"
+    config_path = f"{config_path}/classical_strategy/"
     config = get_all_ticker_parameters_from_config(config_path)
     validation_period = 252  # 1 an de validation
     initial_capital = 10000

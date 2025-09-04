@@ -8,6 +8,7 @@ import numpy as np
 import json
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from trading_system import config_path
 from trading_system.data.loader import load_yfinance_data
 from trading_system.backtesting.engine import BacktestingEngine
 from trading_system.strategies.classical import ClassicalStrategy
@@ -234,7 +235,7 @@ if __name__ == "__main__":
         'bollinger_window': [10, 15, 20, 25],
         'bollinger_std': [1, 1.5, 2.0]
     }
-    odir = "../config/classical_strategy/"
+    odir = f"{config_path}/classical_strategy/"
     for ticker in tickers_cac40_list:
         print("=" * 50)
         print(f"Optimisation pour le ticker: {ticker}")
