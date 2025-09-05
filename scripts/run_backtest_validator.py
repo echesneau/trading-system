@@ -28,7 +28,7 @@ if __name__ == "__main__":
     output_path = f"{config_path}/validation_classical_strategy.json"
     config_path = f"{config_path}/classical_strategy/"
     config = get_all_ticker_parameters_from_config(config_path)
-    validation_period = 252  # 1 an de validation
+    validation_period = 365  # 1 an de validation
     initial_capital = 10000
     transaction_fee = 0.005  # 0.5% par transaction
     end_date = datetime.now().date()
