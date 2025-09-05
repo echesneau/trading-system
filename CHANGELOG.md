@@ -10,11 +10,12 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
-## HEAD - Now
+## [0.3.0] - 2025-08-31
 ### Ajouté
 - Ajout d'un script d'optimisation des paramètres de trading pour la stratégie classique
 - ajout d'un script de scan de marché pour la stratégie classique
 - ajout d'un fonction de lecture pour lire les configurations de stratégie depuis un fichier JSON
+- ajout d'un script de validation des stratégies
 ### Modifié 
 - SignalReporter: la méthode generate_daily_report() prend en argument un dictionnaire contenant les paramètres pour chaque ticker
 
