@@ -122,52 +122,9 @@ def get_all_ticker_parameters_from_config(config_path: str) -> dict:
             params[ticker] = tmp['params']
     return params
 
-
-class ParameterLoader:
-    """Charge et gère les paramètres optimisés par ticker."""
-
-    def __init__(self, params_file: str = "optimized_params.json"):
-        self.params_file = params_file
-        self.ticker_params = self._load_params()
-
-    def _load_params(self) -> Dict[str, Dict]:
-        """Charge les paramètres depuis un fichier JSON."""
-        try:
-            if Path(self.params_file).exists():
-                with open(self.params_file, 'r') as f:
-                    return json.load(f)
-            else:
-                print(f"Fichier {self.params_file} non trouvé. Utilisation des paramètres par défaut.")
-                return {}
-        except Exception as e:
-            print(f"Erreur lors du chargement des paramètres: {e}")
-            return {}
-
-    def get_ticker_params(self, ticker: str, default_params: Dict = None) -> Dict:
-        """Récupère les paramètres pour un ticker spécifique."""
-        if default_params is None:
-            default_params = {
-                'rsi_window': 14,
-                'rsi_buy': 30,
-                'rsi_sell': 70,
-                'macd_fast': 12,
-                'macd_slow': 26,
-                'macd_signal': 9,
-                'bollinger_window': 20,
-                'bollinger_std': 2.0
-            }
-
-        return self.ticker_params.get(ticker, default_params)
-
-    def update_params(self, ticker: str, new_params: Dict):
-        """Met à jour les paramètres pour un ticker."""
-        self.ticker_params[ticker] = new_params
-        self._save_params()
-
-    def _save_params(self):
-        """Sauvegarde les paramètres dans le fichier JSON."""
-        try:
-            with open(self.params_file, 'w') as f:
-                json.dump(self.ticker_params, f, indent=2)
-        except Exception as e:
-            print(f"Erreur lors de la sauvegarde des paramètres: {e}")
+def load_validation_results(file_path: str) -> dict:
+    """Charge les résultats de validation depuis un fichier JSON."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Fichier non trouvé: {file_path}")
+    with open(file_path, 'r') as f:
+        return json.load(f)

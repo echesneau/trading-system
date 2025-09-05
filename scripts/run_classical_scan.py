@@ -2,7 +2,7 @@ import os
 import json
 
 from trading_system import config_path
-from trading_system.data.loader import get_all_ticker_parameters_from_config
+from trading_system.data.loader import get_all_ticker_parameters_from_config, load_validation_results
 from trading_system.notifications.email_sender import EmailSender
 from trading_system.notifications.reporter import SignalReporter
 from trading_system.strategies.classical import ClassicalStrategy
@@ -27,11 +27,14 @@ email_sender = EmailSender(
 
 if __name__ == "__main__":
     print("🔎 Début du scan quotidien...")
-    config_path = f"{config_path}/classical_strategy/"
+    classical_config_path = f"{config_path}/classical_strategy/"
+    validator_path = f"{config_path}/validation_classical_strategy.json"
     # read all parameters
-    config = get_all_ticker_parameters_from_config(config_path)
+    config = get_all_ticker_parameters_from_config(classical_config_path)
     # read status: if parameters are validated or not
-
+    validator = load_validation_results(validator_path)
+    # filter only validated parameters
+    config = {k: v for k, v in config.items() if k in validator and validator[k]['valid'] == True}
     # Générer le rapport
     reporter = SignalReporter(strategy=ClassicalStrategy, data_loader=load_yfinance_data)
     report = reporter.generate_daily_report(list(config.keys()), config, max_window_range=100)
