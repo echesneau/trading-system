@@ -8,6 +8,13 @@ on:
 jobs:
   validate-classical-strategies:
     runs-on: ubuntu-22.04
+    env:
+      REAL_EMAIL_SMTP_SERVER: ${{ secrets.REAL_EMAIL_SMTP_SERVER }}
+      REAL_EMAIL_SMTP_PORT: ${{ secrets.REAL_EMAIL_SMTP_PORT }}
+      REAL_EMAIL_LOGIN: ${{ secrets.REAL_EMAIL_LOGIN }}
+      REAL_EMAIL_PASSWORD: ${{ secrets.REAL_EMAIL_PASSWORD }}
+      REAL_EMAIL_TO_PROD: ${{ secrets.REAL_EMAIL_TO_PROD }}
+      GITHUB_SHA: ${{ github.sha }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4

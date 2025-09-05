@@ -4,12 +4,12 @@
         "reason": "OK"
     },
     "RNO.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "HO.PA": {
         "valid": true,
         "reason": "OK"
+    },
+    "HO.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
     },
     "SAF.PA": {
         "valid": false,
@@ -20,8 +20,8 @@
         "reason": "Low Return, Not enough trades"
     },
     "ML.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "valid": true,
+        "reason": "OK"
     },
     "EN.PA": {
         "valid": false,
@@ -32,8 +32,8 @@
         "reason": "Low Return, Not enough trades"
     },
     "AIR.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "valid": true,
+        "reason": "OK"
     },
     "CS.PA": {
         "valid": false,
@@ -45,19 +45,19 @@
     },
     "STMPA.PA": {
         "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "reason": "Low Return"
     },
     "LR.PA": {
         "valid": true,
         "reason": "OK"
     },
     "KER.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "valid": true,
+        "reason": "OK"
     },
     "ORA.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "valid": true,
+        "reason": "OK"
     },
     "MT.AS": {
         "valid": false,
@@ -69,7 +69,7 @@
     },
     "ACA.PA": {
         "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "reason": "Low Return"
     },
     "MC.PA": {
         "valid": true,
@@ -77,7 +77,7 @@
     },
     "OR.PA": {
         "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "reason": "Low Return"
     },
     "SAN.PA": {
         "valid": false,
@@ -88,8 +88,8 @@
         "reason": "Low Return, Not enough trades"
     },
     "TTE.PA": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Low Return"
     },
     "SU.PA": {
         "valid": false,
@@ -117,7 +117,7 @@
     },
     "WLN.PA": {
         "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "reason": "Low Return"
     },
     "CAP.PA": {
         "valid": false,
