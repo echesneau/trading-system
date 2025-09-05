@@ -79,7 +79,7 @@ print(f"Rendement: {results['performance']['return']:.2%}")
 python scripts/train_model.py --ticker SAN.PA --start-date 2020-01-01
 
 # Backtest avec le modèle entraîné
-python scripts/run_backtest.py --strategy hybrid --ticker AIR.PA
+python scripts/run_backtest_validator.py --strategy hybrid --ticker AIR.PA
 ```
 ## 🏗️ Architecture
 ```text
