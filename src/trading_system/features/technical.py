@@ -124,7 +124,7 @@ def calculate_indicators(
 def calculate_price_volume_trend(df: pd.DataFrame) -> pd.Series:
     """Calcule un indicateur personnalisé combinant prix et volume."""
     price_change = df['Close'].pct_change()
-    volume_change = df['Volume'].pct_change()
+    volume_change = df['Volume'].pct_change().replace([np.inf, -np.inf], 0).fillna(0)
 
     # On utilise la multiplication signée pour garder la direction
     pv_trend = (price_change * volume_change.abs())  # Volume absolu mais garde le signe du prix
