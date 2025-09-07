@@ -122,6 +122,8 @@ def test_custom_indicators():
     # Et négatif quand ils baissent
     assert result.iloc[4] < result.iloc[3]
 
+    assert pd.isnull(result).sum() == 1
+
 
 def test_bollinger_bands():
     """Teste le calcul des bandes de Bollinger."""
