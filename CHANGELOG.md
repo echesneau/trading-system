@@ -9,6 +9,10 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Documentation
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
+- 
+## [0.3.1] - 2025-09.07
+### Modifié 
+- Correction de la fonction calculate_price_volume_trend pour éviter les valeurs nulles
 
 ## [0.3.0] - 2025-08-31
 ### Ajouté
