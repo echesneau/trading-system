@@ -4,8 +4,8 @@
         "reason": "OK"
     },
     "RNO.PA": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
     },
     "HO.PA": {
         "valid": false,
@@ -117,7 +117,7 @@
     },
     "WLN.PA": {
         "valid": false,
-        "reason": "Low Return"
+        "reason": "Low Return, Not enough trades"
     },
     "CAP.PA": {
         "valid": false,
