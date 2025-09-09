@@ -212,7 +212,7 @@ def load_ccxt_data(
     interval: str = "1d",
     start_date: Optional[Union[str, pd.Timestamp]] = None,
     end_date: Optional[Union[str, pd.Timestamp]] = None,
-    limit: int = 1000,
+    limit: int = 10000,
     pause: float = 1.2
 ) -> pd.DataFrame:
     """
@@ -249,7 +249,7 @@ def load_ccxt_data(
 
         # filtrer si end_date défini
         if end_ts:
-            df = df[df["time"] < pd.to_datetime(end_date)]
+            df = df[df["time"] <= pd.to_datetime(end_date)]
 
         if df.empty:
             break

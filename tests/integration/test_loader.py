@@ -32,6 +32,33 @@ def test_integration_load_ccxt_data():
     result = load_ccxt_data("BTC/USDT", exchange_name="binance", interval="1d",
                             start_date="2023-01-02", end_date="2023-01-07")
     assert not result.empty
-    assert len(result) == 5
+    assert len(result) == 6
     for col in ['Open', 'High', 'Low', 'Close', 'Volume']:
         assert col in result.columns
+
+@pytest.mark.parametrize("interval,expected_delta", [
+    ("1d", pd.Timedelta(days=1)),
+    ("6h", pd.Timedelta(hours=6)),
+    ("1h", pd.Timedelta(hours=1)),
+    ("15m", pd.Timedelta(minutes=15)),
+])
+def test_load_ccxt_data_interval(interval, expected_delta):
+    df = load_ccxt_data(
+        exchange_name="binance",
+        pair="BTC/EUR",
+        start_date="2023-01-01",
+        end_date="2023-01-10",
+        interval=interval,
+    )
+
+    # Vérifier qu'on a bien un DataFrame non vide
+    assert not df.empty, "Le DataFrame retourné est vide"
+
+    # Vérifier que l'index est bien de type datetime
+    assert isinstance(df.index, pd.DatetimeIndex), "L'index doit être un DatetimeIndex"
+
+    # Calcul des deltas entre deux points
+    deltas = df.index.to_series().diff().dropna().unique()
+
+    # Vérifie que toutes les différences correspondent à l'interval attendu
+    assert all(d == expected_delta for d in deltas), f"Deltas {deltas} ne correspondent pas à {expected_delta}"
