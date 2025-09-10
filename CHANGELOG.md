@@ -10,7 +10,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
-## HEAD
+## [0.4.0] - 2025-09.10
 ### Ajouté
 - ajout d'une fonction pour charger les données depuis Kraken
 - ajout d'une fonction pour charger les données depuis Binance via ccxt
