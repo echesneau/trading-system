@@ -212,7 +212,7 @@ def load_ccxt_data(
     interval: str = "1d",
     start_date: Optional[Union[str, pd.Timestamp]] = None,
     end_date: Optional[Union[str, pd.Timestamp]] = None,
-    limit: int = 10000,
+    limit = None,
     pause: float = 1.2
 ) -> pd.DataFrame:
     """
@@ -239,6 +239,8 @@ def load_ccxt_data(
     end_ts = int(pd.Timestamp(end_date).timestamp() * 1000) if end_date else None
 
     all_data = []
+    last_since = None
+
     while True:
         ohlcv = exchange.fetch_ohlcv(pair, timeframe=interval, since=since_ts, limit=limit)
         if not ohlcv:
@@ -256,11 +258,16 @@ def load_ccxt_data(
 
         all_data.append(df)
 
+        # Nouveau since
+        new_since = int(df["time"].iloc[-1].timestamp() * 1000)
+        if new_since == since_ts:
+            break
+
         # Avancer since
-        since_ts = int(df["time"].iloc[-1].timestamp() * 1000)
+        last_since, since_ts = since_ts, new_since
 
         # Conditions d’arrêt
-        if len(ohlcv) < limit:
+        if pd.notnull(limit) and len(ohlcv) < limit:
             break
         if end_ts and since_ts >= end_ts:
             break
