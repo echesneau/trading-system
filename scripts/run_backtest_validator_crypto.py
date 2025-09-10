@@ -38,7 +38,7 @@ if __name__ == "__main__":
     for ticker, params in config.items():
         raw_data = load_ccxt_data(
             ticker,
-            exchange_name="binance",
+            exchange_name="kraken",
             interval="1d",
             start_date=start_date,
             end_date=end_date,

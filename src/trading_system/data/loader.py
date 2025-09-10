@@ -208,7 +208,7 @@ def load_validation_results(file_path: str) -> dict:
 @cachetools.func.ttl_cache(maxsize=10, ttl=3600)
 def load_ccxt_data(
     pair: str = "BTC/USDT",
-    exchange_name: str = "binance",
+    exchange_name: str = "kraken",
     interval: str = "1d",
     start_date: Optional[Union[str, pd.Timestamp]] = None,
     end_date: Optional[Union[str, pd.Timestamp]] = None,
