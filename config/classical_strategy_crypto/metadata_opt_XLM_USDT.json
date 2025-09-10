@@ -1,0 +1,18 @@
+{
+    "ticker": "XLM/USDT",
+    "date": "2025-09-09 23:42:59",
+    "params": {
+        "rsi_window": 14,
+        "rsi_buy": 30
+    },
+    "train_results": {
+        "sharpe_ratio": 0.05031378908751174,
+        "total_return": 1.1005638520499996,
+        "max_drawdown": 0.08459149342852645
+    },
+    "validation_results": {
+        "total_return": 0.0,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0
+    }
+}

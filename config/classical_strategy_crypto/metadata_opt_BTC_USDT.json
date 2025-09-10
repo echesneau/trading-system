@@ -1,0 +1,24 @@
+{
+    "ticker": "BTC/USDT",
+    "date": "2025-09-10 01:06:27",
+    "params": {
+        "rsi_window": 14,
+        "rsi_buy": 40,
+        "rsi_sell": 75,
+        "macd_fast": 20,
+        "macd_slow": 21,
+        "macd_signal": 13,
+        "bollinger_window": 10,
+        "bollinger_std": 1
+    },
+    "train_results": {
+        "sharpe_ratio": 0.05254553239525679,
+        "total_return": 1.6992674250000004,
+        "max_drawdown": 0.20923973001032517
+    },
+    "validation_results": {
+        "total_return": 0.0,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0
+    }
+}
