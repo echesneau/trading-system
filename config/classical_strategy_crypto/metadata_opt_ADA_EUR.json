@@ -1,6 +1,6 @@
 {
     "ticker": "ADA/EUR",
-    "date": "2025-09-10 00:31:16",
+    "date": "2025-09-10 22:36:26",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 40,
@@ -12,13 +12,13 @@
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.03868475585936728,
-        "total_return": 0.5882753988000015,
-        "max_drawdown": 0.3122341524615302
+        "sharpe_ratio": 0.04090963179046292,
+        "total_return": 0.6477478363000013,
+        "max_drawdown": 0.3115048422836499
     },
     "validation_results": {
-        "total_return": 1.2344647855000004,
-        "sharpe_ratio": 0.040486951504911356,
-        "max_drawdown": 0.3297196754696352
+        "total_return": 1.1900581764500013,
+        "sharpe_ratio": 0.03978712373472555,
+        "max_drawdown": 0.33018264097461186
     }
 }
