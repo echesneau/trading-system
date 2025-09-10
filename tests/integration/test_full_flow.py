@@ -47,8 +47,8 @@ def test_hybrid_strategy(test_data, trained_model_artifacts):
     assert 0 <= results['performance']['max_drawdown'] < 0.5
 
 def test_classical_strategy_crypto():
-    data = load_ccxt_data("BTC/USDT", exchange_name="binance", interval="1d",
-                            start_date="2018-01-01", end_date="2023-01-01")
+    data = load_ccxt_data("BTC/USDT", exchange_name="kraken", interval="1d",
+                            start_date="2023-10-01", end_date="2025-08-31")
     processed_data = calculate_indicators(data, ema_windows=[5, 10, 20])
     engine = BacktestingEngine(
         strategy=ClassicalStrategy(rsi_buy=30, rsi_sell=70),
