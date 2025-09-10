@@ -1,0 +1,54 @@
+{
+    "ADA/EUR": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "ADA/USDT": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "ATOM/EUR": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "ATOM/USDT": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "BTC/EUR": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "BTC/USDT": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "ETC/USDT": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "ETH/EUR": {
+        "valid": false,
+        "reason": "Low Return"
+    },
+    "ETH/USDT": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "XLM/EUR": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "XLM/USDT": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "XRP/EUR": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "XRP/USDT": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    }
+}
