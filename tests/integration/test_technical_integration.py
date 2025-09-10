@@ -14,8 +14,8 @@ def test_test_custom_indicators():
 
 def test_calculate_indicators_crypto():
     pair = 'BTC/EUR'
-    data = load_ccxt_data("BTC/USDT", exchange_name="binance", interval="1d",
-                            start_date="2023-01-01", end_date="2025-01-02")
+    data = load_ccxt_data("BTC/EUR", exchange_name="kraken", interval="1d",
+                            start_date="2023-10-01", end_date="2025-10-02")
     result = calculate_indicators(data, ema_windows=[5, 10, 20], adx_window=7)
     assert not result.empty
     assert len(result) == len(data)
