@@ -1,0 +1,18 @@
+{
+    "ticker": "ADA/USDT",
+    "date": "2025-09-09 23:42:38",
+    "params": {
+        "rsi_window": 10,
+        "rsi_buy": 30
+    },
+    "train_results": {
+        "sharpe_ratio": 0.007458293251724127,
+        "total_return": 0.04215026380000018,
+        "max_drawdown": 0.3409258628573916
+    },
+    "validation_results": {
+        "total_return": 0.0,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0
+    }
+}

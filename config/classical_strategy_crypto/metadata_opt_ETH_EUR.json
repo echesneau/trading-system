@@ -1,0 +1,24 @@
+{
+    "ticker": "ETH/EUR",
+    "date": "2025-09-10 22:11:45",
+    "params": {
+        "rsi_window": 21,
+        "rsi_buy": 40,
+        "rsi_sell": 65,
+        "macd_fast": 20,
+        "macd_slow": 26,
+        "macd_signal": 13,
+        "bollinger_window": 10,
+        "bollinger_std": 1
+    },
+    "train_results": {
+        "sharpe_ratio": 0.06613364148229323,
+        "total_return": 2.064752292500001,
+        "max_drawdown": 0.39263427459099326
+    },
+    "validation_results": {
+        "total_return": -0.17485347999999976,
+        "sharpe_ratio": -0.010733399197090014,
+        "max_drawdown": 0.4079628317184211
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "ticker": "ETH/USDT",
+    "date": "2025-09-09 23:41:57",
+    "params": {
+        "rsi_window": 14,
+        "rsi_buy": 25
+    },
+    "train_results": {
+        "sharpe_ratio": 0.0,
+        "total_return": 0.0,
+        "max_drawdown": 0.0
+    },
+    "validation_results": {
+        "total_return": 0.0,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0
+    }
+}

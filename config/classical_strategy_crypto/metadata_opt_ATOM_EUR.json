@@ -1,0 +1,24 @@
+{
+    "ticker": "ATOM/EUR",
+    "date": "2025-09-10 22:53:34",
+    "params": {
+        "rsi_window": 14,
+        "rsi_buy": 25,
+        "rsi_sell": 70,
+        "macd_fast": 8,
+        "macd_slow": 30,
+        "macd_signal": 13,
+        "bollinger_window": 15,
+        "bollinger_std": 2.0
+    },
+    "train_results": {
+        "sharpe_ratio": 0.11464931490577597,
+        "total_return": 1.5809941562500003,
+        "max_drawdown": 0.1907532088918213
+    },
+    "validation_results": {
+        "total_return": 0.0,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0
+    }
+}

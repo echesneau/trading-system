@@ -21,7 +21,9 @@ dependencies = [
     "yfinance>=0.2.0",
     "ta>=0.10.0",
     "cachetools>=5.0.0",
-    "setuptools-scm>=6.4.0"
+    "setuptools-scm>=6.4.0",
+    "krakenex",
+    "ccxt",
 ]
 
 [tool.setuptools_scm]

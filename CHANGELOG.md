@@ -9,7 +9,16 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Documentation
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
-- 
+
+## HEAD
+### Ajouté
+- ajout d'une fonction pour charger les données depuis Kraken
+- ajout d'une fonction pour charger les données depuis Binance via ccxt
+- ajout d'un script d'optimisation des paramètres de trading pour la stratégie classique pour les crypto
+- ajout d'un script pour valider les paramètres optimaux sur des données hors échantillon pour la stratégie classique pour les crypto
+- ajout d'un script de scan de marché pour la stratégie classique pour les crypto
+- ajout des workflows GitHub Actions pour le trading crypto
+
 ## [0.3.1] - 2025-09.07
 ### Modifié 
 - Correction de la fonction calculate_price_volume_trend pour éviter les valeurs nulles

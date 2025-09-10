@@ -1,0 +1,18 @@
+{
+    "ticker": "ATOM/USDT",
+    "date": "2025-09-09 23:43:40",
+    "params": {
+        "rsi_window": 14,
+        "rsi_buy": 40
+    },
+    "train_results": {
+        "sharpe_ratio": 0.05370597838248087,
+        "total_return": 3.095977198500001,
+        "max_drawdown": 0.4547735231197442
+    },
+    "validation_results": {
+        "total_return": 0.42890385200000036,
+        "sharpe_ratio": 0.028663270017063938,
+        "max_drawdown": 0.44514167776680247
+    }
+}
