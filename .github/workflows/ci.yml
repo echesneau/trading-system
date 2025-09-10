@@ -268,7 +268,7 @@ jobs:
   build:
     name: Build Package
     runs-on: ubuntu-22.04
-    needs: [unit-test, integration-test, coverage, compatibility-test, lint, security]
+    needs: [unit-test, integration-test, coverage, compatibility-test, security]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     steps:
