@@ -25,7 +25,7 @@
     },
     "ETC/USDT": {
         "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "reason": "Bad Symbol"
     },
     "ETH/EUR": {
         "valid": false,
@@ -36,12 +36,12 @@
         "reason": "Low Return, Not enough trades"
     },
     "XLM/EUR": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "valid": true,
+        "reason": "OK"
     },
     "XLM/USDT": {
         "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "reason": "Bad Symbol"
     },
     "XRP/EUR": {
         "valid": false,
