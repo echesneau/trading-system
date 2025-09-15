@@ -192,3 +192,76 @@ class BacktestingEngine:
         std_dev = (sum((x - avg_return) ** 2 for x in returns) / len(returns)) ** 0.5
 
         return avg_return / std_dev if std_dev != 0 else 0.0
+
+    def strategy_score(self, return_pct, drawdown_pct, n_trades, win_rate,
+                       w_return=0.4, w_drawdown=0.3, w_trades=0.1, w_winrate=0.2,
+                       max_trades_ref=200):
+        """
+        Calcule un score composite pour une stratégie de trading.
+
+        Args:
+            return_pct: rendement total en %
+            drawdown_pct: drawdown max en %
+            n_trades: nombre de trades
+            win_rate: ratio trades gagnants (0-1)
+            w_return, w_drawdown, w_trades, w_winrate: poids des critères
+            max_trades_ref: valeur de référence pour normaliser le nombre de trades
+
+        Returns:
+            score (float) : plus il est élevé, meilleure est la stratégie
+        """
+
+        # Normalisation
+        return_norm = np.tanh(return_pct / 100)  # borné [-1,1], stabilise gros gains
+        drawdown_norm = np.tanh(drawdown_pct / 100)  # borné [0,1]
+        trades_norm = min(n_trades / max_trades_ref, 1.0)  # max 1
+        winrate_norm = win_rate  # déjà entre 0 et 1
+
+        # Score composite
+        score = (
+                w_return * return_norm
+                - w_drawdown * drawdown_norm
+                + w_trades * trades_norm
+                + w_winrate * winrate_norm
+        )
+
+        return score
+
+    def _compute_trade_metrics(self, trades: pd.DataFrame, fee_rate: float = 0.001):
+        """
+        Calcule les profits, win/loss ratio et win rate avec frais inclus.
+
+        Args:
+            trades: DataFrame avec colonnes ["type", "price"] et alternance buy/sell
+            fee_rate: frais de transaction par ordre (ex: 0.001 = 0.1%)
+
+        Returns:
+            dict avec profits, nb_gagnants, nb_perdants, win_rate, win_loss_ratio
+        """
+        # Séparer buy et sell
+        buy_prices = trades.loc[trades["type"] == "buy", "price"].reset_index(drop=True)
+        sell_prices = trades.loc[trades["type"] == "sell", "price"].reset_index(drop=True)
+
+        # Appliquer les frais :
+        # - le buy coûte plus cher
+        # - le sell rapporte moins
+        buy_adj = buy_prices * (1 + fee_rate)
+        sell_adj = sell_prices * (1 - fee_rate)
+
+        # Profit net par trade
+        profits = sell_adj.values - buy_adj.values
+
+        # Statistiques
+        n_wins = (profits > 0).sum()
+        n_losses = (profits <  0).sum()
+        win_loss_ratio = n_wins / n_losses if n_losses > 0 else float("inf")
+        win_rate = n_wins / (n_wins + n_losses) if (n_wins + n_losses) > 0 else 0
+
+        return {
+            "profits": profits,
+            "n_wins": int(n_wins),
+            "n_losses": int(n_losses),
+            "win_rate": win_rate,
+            "win_loss_ratio": win_loss_ratio,
+            "total_profit": profits.sum()
+        }
