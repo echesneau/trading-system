@@ -115,12 +115,12 @@ class BacktestingEngine:
         results = {
             'portfolio': pd.DataFrame(portfolio_values).set_index('date'),
             'trades': pd.DataFrame(trades),
-            'performance': self._calculate_performance(portfolio_values)
+            'performance': self._calculate_performance(portfolio_values, pd.DataFrame(trades))
         }
 
         return results
 
-    def _calculate_performance(self, portfolio_values: list) -> Dict[str, float]:
+    def _calculate_performance(self, portfolio_values: list, trades: pd.DataFrame) -> Dict[str, float]:
         """Calcule les métriques de performance."""
         if len(portfolio_values) < 2:
             return {
@@ -150,11 +150,20 @@ class BacktestingEngine:
         days = (df.index[-1] - df.index[0]).days
         annualized_return = ((1 + total_return) ** (365 / days) - 1) if days > 0 else 0.0
 
+        # calcum des métriques de trades
+        trade_metrics = self._compute_trade_metrics(trades, fee_rate=self.transaction_fee)
+
+        # custom strategy score
+        strategy_score = self.strategy_score(total_return * 100, max_drawdown * 100,
+                                             len(trades), trade_metrics['win_rate'])
+
         return {
             'return': total_return,
             'annualized_return': annualized_return,
             'max_drawdown': max_drawdown,
-            'sharpe_ratio': sharpe_ratio if not np.isnan(sharpe_ratio) else 0.0
+            'sharpe_ratio': sharpe_ratio if not np.isnan(sharpe_ratio) else 0.0,
+            'trade_metrics': trade_metrics,
+            'strategy_score': strategy_score
         }
 
     def _annualized_return(self, values: list) -> float:
@@ -239,8 +248,8 @@ class BacktestingEngine:
             dict avec profits, nb_gagnants, nb_perdants, win_rate, win_loss_ratio
         """
         # Séparer buy et sell
-        buy_prices = trades.loc[trades["type"] == "buy", "price"].reset_index(drop=True)
-        sell_prices = trades.loc[trades["type"] == "sell", "price"].reset_index(drop=True)
+        buy_prices = trades.loc[trades["action"] == "BUY", "price"].reset_index(drop=True)
+        sell_prices = trades.loc[trades["action"] == "SELL", "price"].reset_index(drop=True)
 
         # Appliquer les frais :
         # - le buy coûte plus cher
@@ -249,7 +258,8 @@ class BacktestingEngine:
         sell_adj = sell_prices * (1 - fee_rate)
 
         # Profit net par trade
-        profits = sell_adj.values - buy_adj.values
+        n = min(len(buy_adj), len(sell_adj))
+        profits = sell_adj.values[:n] - buy_adj.values[:n]
 
         # Statistiques
         n_wins = (profits > 0).sum()
@@ -258,10 +268,10 @@ class BacktestingEngine:
         win_rate = n_wins / (n_wins + n_losses) if (n_wins + n_losses) > 0 else 0
 
         return {
-            "profits": profits,
+            "profits_by_trades": profits,
             "n_wins": int(n_wins),
             "n_losses": int(n_losses),
             "win_rate": win_rate,
             "win_loss_ratio": win_loss_ratio,
-            "total_profit": profits.sum()
+            "total_profit_by_trades": profits.sum()
         }
