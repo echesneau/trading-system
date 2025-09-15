@@ -247,6 +247,16 @@ class BacktestingEngine:
         Returns:
             dict avec profits, nb_gagnants, nb_perdants, win_rate, win_loss_ratio
         """
+        # Cas vide ou None
+        if trades is None or trades.empty:
+            return {
+                "profits_by_trades": np.array([], dtype=float),
+                "n_wins": 0,
+                "n_losses": 0,
+                "win_rate": 0.0,
+                "win_loss_ratio": 0.0,
+                "total_profit_by_trades": 0.0
+            }
         # Séparer buy et sell
         buy_prices = trades.loc[trades["action"] == "BUY", "price"].reset_index(drop=True)
         sell_prices = trades.loc[trades["action"] == "SELL", "price"].reset_index(drop=True)
