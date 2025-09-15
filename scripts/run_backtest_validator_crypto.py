@@ -1,6 +1,8 @@
 import json
 from datetime import datetime, timedelta
 
+from ccxt import BadSymbol
+
 from trading_system import config_path
 from trading_system.data.loader import get_all_ticker_parameters_from_config, load_ccxt_data
 from trading_system.strategies.classical import ClassicalStrategy
@@ -36,25 +38,28 @@ if __name__ == "__main__":
     end_date = end_date.strftime('%Y-%m-%d')
     valid = {}
     for ticker, params in config.items():
-        raw_data = load_ccxt_data(
-            ticker,
-            exchange_name="kraken",
-            interval="1d",
-            start_date=start_date,
-            end_date=end_date,
-            limit=None
-        )
-        data = calculate_indicators(raw_data, **params)
-        strategy = ClassicalStrategy(**params)
-        engine = BacktestingEngine(
-            strategy=strategy,
-            data=data,
-            initial_capital=initial_capital,
-            transaction_fee=transaction_fee,
-            position_size=1
-        )
-        result = engine.run()
-        valid[ticker] = is_valid(result)
+        try:
+            raw_data = load_ccxt_data(
+                ticker,
+                exchange_name="kraken",
+                interval="1d",
+                start_date=start_date,
+                end_date=end_date,
+                limit=None
+            )
+            data = calculate_indicators(raw_data, **params)
+            strategy = ClassicalStrategy(**params)
+            engine = BacktestingEngine(
+                strategy=strategy,
+                data=data,
+                initial_capital=initial_capital,
+                transaction_fee=transaction_fee,
+                position_size=1
+            )
+            result = engine.run()
+            valid[ticker] = is_valid(result)
+        except BadSymbol:
+            valid[ticker] = {'valid': False, 'reason': 'Bad Symbol'}
     # Sauvegarder le fichier
     with open(output_path, 'w') as f:
         json.dump(valid, f, indent=4)
