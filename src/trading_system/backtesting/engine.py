@@ -204,7 +204,7 @@ class BacktestingEngine:
 
     def strategy_score(self, return_pct, drawdown_pct, n_trades, win_rate,
                        w_return=0.4, w_drawdown=0.3, w_trades=0.1, w_winrate=0.2,
-                       max_trades_ref=200):
+                       max_trades_ref_per_year=20):
         """
         Calcule un score composite pour une stratégie de trading.
 
@@ -223,7 +223,11 @@ class BacktestingEngine:
         # Normalisation
         return_norm = np.tanh(return_pct / 100)  # borné [-1,1], stabilise gros gains
         drawdown_norm = np.tanh(drawdown_pct / 100)  # borné [0,1]
-        trades_norm = min(n_trades / max_trades_ref, 1.0)  # max 1
+        # Durée du test
+        test_years = self._get_test_years()
+        # Fréquence de trading par an
+        trades_per_year = n_trades / test_years
+        trades_norm = min(trades_per_year / max_trades_ref_per_year, 1.0)
         winrate_norm = win_rate  # déjà entre 0 et 1
 
         # Score composite
@@ -285,3 +289,10 @@ class BacktestingEngine:
             "win_loss_ratio": win_loss_ratio,
             "total_profit_by_trades": profits.sum()
         }
+
+    def _get_test_years(self):
+        """Calcule la durée du backtest en années."""
+        if len(self.data.index) < 2:
+            return 1e-6  # évite division par zéro
+        delta_days = (self.data.index[-1] - self.data.index[0]).days
+        return max(delta_days / 365, 1e-6)
