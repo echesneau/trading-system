@@ -184,7 +184,7 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
         'sharpe_ratio': validation_result['performance']['sharpe_ratio'],
         'max_drawdown': validation_result['performance']['max_drawdown'],
         "strategy_score": validation_result['performance']['strategy_score'],
-        "annualized_return": validation_result['annualized_return'],
+        "annualized_return": validation_result['performance']['annualized_return'],
     }
     with open(f'{odir}/metadata_opt_{ticker.replace("/", "_")}.json', 'w', encoding='utf-8') as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
