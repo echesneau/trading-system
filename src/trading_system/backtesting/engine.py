@@ -154,7 +154,7 @@ class BacktestingEngine:
         trade_metrics = self._compute_trade_metrics(trades, fee_rate=self.transaction_fee)
 
         # custom strategy score
-        strategy_score = self.strategy_score(total_return * 100, max_drawdown * 100,
+        strategy_score = self.strategy_score(annualized_return * 100, total_return * 100, max_drawdown * 100,
                                              len(trades), trade_metrics['win_rate'])
 
         return {
@@ -202,26 +202,28 @@ class BacktestingEngine:
 
         return avg_return / std_dev if std_dev != 0 else 0.0
 
-    def strategy_score(self, return_pct, drawdown_pct, n_trades, win_rate,
-                       w_return=0.4, w_drawdown=0.3, w_trades=0.1, w_winrate=0.2,
+    def strategy_score(self, annualized_return, total_return, drawdown_pct, n_trades, win_rate,
+                       w_cagr=0.35, w_total_return=0.1, w_drawdown=0.25, w_trades=0.15, w_winrate=0.15,
                        max_trades_ref_per_year=20):
         """
         Calcule un score composite pour une stratégie de trading.
 
         Args:
-            return_pct: rendement total en %
+            annualized_return: rendement annualisé en % (CAGR)
+            total_return: rendement total en %
             drawdown_pct: drawdown max en %
             n_trades: nombre de trades
             win_rate: ratio trades gagnants (0-1)
-            w_return, w_drawdown, w_trades, w_winrate: poids des critères
-            max_trades_ref: valeur de référence pour normaliser le nombre de trades
+            w_cagr, w_total_return, w_drawdown, w_trades, w_winrate: poids des critères
+            max_trades_ref_per_year: valeur de référence pour normaliser le nombre de trades
 
         Returns:
             score (float) : plus il est élevé, meilleure est la stratégie
         """
 
         # Normalisation
-        return_norm = np.tanh(return_pct / 100)  # borné [-1,1], stabilise gros gains
+        cagr_norm = np.tanh(annualized_return / 100)
+        return_norm = np.tanh(total_return / 100)  # borné [-1,1], stabilise gros gains
         drawdown_norm = np.tanh(drawdown_pct / 100)  # borné [0,1]
         # Durée du test
         test_years = self._get_test_years()
@@ -232,7 +234,8 @@ class BacktestingEngine:
 
         # Score composite
         score = (
-                w_return * return_norm
+            w_cagr * cagr_norm
+                + w_total_return * return_norm
                 - w_drawdown * drawdown_norm
                 + w_trades * trades_norm
                 + w_winrate * winrate_norm
