@@ -1,33 +1,5 @@
 {
-    "CA.PA": {
-        "valid": true,
-        "reason": "OK"
-    },
-    "RNO.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "HO.PA": {
-        "valid": true,
-        "reason": "OK"
-    },
-    "SAF.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "DG.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "ML.PA": {
-        "valid": true,
-        "reason": "OK"
-    },
-    "EN.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "EL.PA": {
+    "ACA.PA": {
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
@@ -35,7 +7,39 @@
         "valid": true,
         "reason": "OK"
     },
+    "BN.PA": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "BNP.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "CA.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "CAP.PA": {
+        "valid": false,
+        "reason": "Low Return"
+    },
     "CS.PA": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "DG.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "DSY.PA": {
+        "valid": false,
+        "reason": "Low Return"
+    },
+    "EL.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "EN.PA": {
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
@@ -43,63 +47,7 @@
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
-    "STMPA.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "LR.PA": {
-        "valid": true,
-        "reason": "OK"
-    },
-    "KER.PA": {
-        "valid": true,
-        "reason": "OK"
-    },
-    "ORA.PA": {
-        "valid": true,
-        "reason": "OK"
-    },
-    "MT.AS": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "SGO.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "ACA.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "MC.PA": {
-        "valid": true,
-        "reason": "OK"
-    },
-    "OR.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "SAN.PA": {
-        "valid": false,
-        "reason": "Low Return"
-    },
-    "RI.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "TTE.PA": {
-        "valid": false,
-        "reason": "Low Return"
-    },
-    "SU.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "BNP.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "VIE.PA": {
+    "ERF.PA": {
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
@@ -107,9 +55,81 @@
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
+    "HO.PA": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "KER.PA": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "LR.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "MC.PA": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "ML.PA": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "MT.AS": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "OR.PA": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "ORA.PA": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "RI.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
     "RMS.PA": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "RNO.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "SAF.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "SAN.PA": {
         "valid": false,
         "reason": "Low Return"
+    },
+    "SGO.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "STMPA.PA": {
+        "valid": false,
+        "reason": "Low Return"
+    },
+    "SU.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "TEP.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "TTE.PA": {
+        "valid": false,
+        "reason": "Low Return"
+    },
+    "VIE.PA": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
     },
     "VIV.PA": {
         "valid": true,
@@ -118,25 +138,5 @@
     "WLN.PA": {
         "valid": false,
         "reason": "Low Return, Not enough trades"
-    },
-    "CAP.PA": {
-        "valid": false,
-        "reason": "Not enough trades"
-    },
-    "ERF.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "BN.PA": {
-        "valid": true,
-        "reason": "OK"
-    },
-    "TEP.PA": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "DSY.PA": {
-        "valid": false,
-        "reason": "Low Return"
     }
 }
