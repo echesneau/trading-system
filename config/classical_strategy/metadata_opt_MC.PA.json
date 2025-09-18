@@ -1,6 +1,6 @@
 {
     "ticker": "MC.PA",
-    "date": "2025-09-04 04:38:27",
+    "date": "2025-09-18 04:00:39",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 35,
@@ -12,13 +12,17 @@
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.05606038899266543,
-        "total_return": 1.9772155881500275,
-        "max_drawdown": 0.11589518422706663
+        "sharpe_ratio": 0.05606040351870914,
+        "total_return": 1.9772163296089202,
+        "max_drawdown": 0.11589495678624788,
+        "strategy_score": 0.2534156976013867,
+        "annualized_return": 0.08758277831873551
     },
     "validation_results": {
-        "total_return": 0.422450148333741,
-        "sharpe_ratio": 0.06332761426096008,
-        "max_drawdown": 0.14311031136931862
+        "total_return": 0.4224502460876471,
+        "sharpe_ratio": 0.0633276162707326,
+        "max_drawdown": 0.1431102999127185,
+        "strategy_score": 0.21252640868596875,
+        "annualized_return": 0.14178969623743987
     }
 }

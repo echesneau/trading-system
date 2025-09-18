@@ -1,24 +1,28 @@
 {
     "ticker": "KER.PA",
-    "date": "2025-09-04 03:45:46",
+    "date": "2025-09-18 03:07:51",
     "params": {
-        "rsi_window": 7,
+        "rsi_window": 10,
         "rsi_buy": 35,
         "rsi_sell": 75,
-        "macd_fast": 20,
-        "macd_slow": 30,
-        "macd_signal": 13,
+        "macd_fast": 8,
+        "macd_slow": 21,
+        "macd_signal": 7,
         "bollinger_window": 15,
-        "bollinger_std": 1.5
+        "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.038861556906496945,
-        "total_return": 1.2883786481933615,
-        "max_drawdown": 0.1980080128314785
+        "sharpe_ratio": 0.0507261314580426,
+        "total_return": 1.1551393965110788,
+        "max_drawdown": 0.11938337630024957,
+        "strategy_score": 0.2292904956283724,
+        "annualized_return": 0.06087146486971706
     },
     "validation_results": {
-        "total_return": -0.05290869074554393,
-        "sharpe_ratio": -0.0012440795413018327,
-        "max_drawdown": 0.40317584085027425
+        "total_return": -0.02232508961486783,
+        "sharpe_ratio": 0.006061705287604821,
+        "max_drawdown": 0.4091624909677307,
+        "strategy_score": -0.03520036900729861,
+        "annualized_return": -0.008459882530664875
     }
 }

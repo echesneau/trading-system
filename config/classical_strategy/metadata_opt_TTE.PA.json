@@ -1,6 +1,6 @@
 {
     "ticker": "TTE.PA",
-    "date": "2025-09-04 09:59:46",
+    "date": "2025-09-18 07:49:03",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 35,
@@ -12,13 +12,17 @@
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.0496774781931366,
-        "total_return": 2.030773768290046,
-        "max_drawdown": 0.17895524826698578
+        "sharpe_ratio": 0.04967743581196586,
+        "total_return": 2.0307738415303267,
+        "max_drawdown": 0.1789551257820864,
+        "strategy_score": 0.24424115341444028,
+        "annualized_return": 0.08907602897414302
     },
     "validation_results": {
-        "total_return": 0.03196962336196939,
-        "sharpe_ratio": 0.011780041937192644,
-        "max_drawdown": 0.18262596011451848
+        "total_return": 0.03196969386329693,
+        "sharpe_ratio": 0.011780056510034663,
+        "max_drawdown": 0.18262601129832115,
+        "strategy_score": 0.07914224674599421,
+        "annualized_return": 0.011911929409597954
     }
 }
