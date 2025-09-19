@@ -1,24 +1,28 @@
 {
     "ticker": "BTC/USDT",
-    "date": "2025-09-10 01:06:27",
+    "date": "2025-09-19 01:31:28",
     "params": {
-        "rsi_window": 14,
+        "rsi_window": 7,
         "rsi_buy": 40,
         "rsi_sell": 75,
-        "macd_fast": 20,
+        "macd_fast": 12,
         "macd_slow": 21,
-        "macd_signal": 13,
+        "macd_signal": 9,
         "bollinger_window": 10,
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.05254553239525679,
-        "total_return": 1.6992674250000004,
-        "max_drawdown": 0.20923973001032517
+        "sharpe_ratio": 0.060800023692412525,
+        "total_return": 1.7492157525000027,
+        "max_drawdown": 0.15531755749999976,
+        "strategy_score": 0.3053361419754359,
+        "annualized_return": 0.20688652797366403
     },
     "validation_results": {
         "total_return": 0.0,
         "sharpe_ratio": 0.0,
-        "max_drawdown": 0.0
+        "max_drawdown": 0.0,
+        "strategy_score": 0.0,
+        "annualized_return": 0.0
     }
 }
