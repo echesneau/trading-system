@@ -1,6 +1,6 @@
 {
     "ticker": "WLN.PA",
-    "date": "2025-09-04 14:04:17",
+    "date": "2025-09-18 08:55:19",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 35,
@@ -14,11 +14,15 @@
     "train_results": {
         "sharpe_ratio": 0.03624541806580648,
         "total_return": 0.6020959721250547,
-        "max_drawdown": 0.13241731844432672
+        "max_drawdown": 0.13241731844432672,
+        "strategy_score": 0.20140859048444013,
+        "annualized_return": 0.05691092953353194
     },
     "validation_results": {
         "total_return": -0.6410106741312499,
         "sharpe_ratio": -0.030005825649308537,
-        "max_drawdown": 0.6521286718075683
+        "max_drawdown": 0.6521286718075683,
+        "strategy_score": -0.2883699738739141,
+        "annualized_return": -0.3198851974302006
     }
 }

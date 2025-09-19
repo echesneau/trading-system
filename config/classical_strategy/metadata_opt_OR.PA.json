@@ -1,24 +1,28 @@
 {
     "ticker": "OR.PA",
-    "date": "2025-09-04 04:20:55",
+    "date": "2025-09-18 03:43:05",
     "params": {
-        "rsi_window": 7,
+        "rsi_window": 14,
         "rsi_buy": 35,
         "rsi_sell": 75,
-        "macd_fast": 16,
-        "macd_slow": 34,
-        "macd_signal": 11,
-        "bollinger_window": 15,
-        "bollinger_std": 1.5
+        "macd_fast": 8,
+        "macd_slow": 21,
+        "macd_signal": 7,
+        "bollinger_window": 20,
+        "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.03557075388789935,
-        "total_return": 0.6234640524120341,
-        "max_drawdown": 0.1428106373263037
+        "sharpe_ratio": 0.039736303163563476,
+        "total_return": 0.5226316417236331,
+        "max_drawdown": 0.0683590192042464,
+        "strategy_score": 0.19587803177186638,
+        "annualized_return": 0.032884310317850884
     },
     "validation_results": {
-        "total_return": -0.01143357401733374,
-        "sharpe_ratio": -0.0009288211304607013,
-        "max_drawdown": 0.14623637357936642
+        "total_return": -0.026142014617919814,
+        "sharpe_ratio": 3.221452778038417e-05,
+        "max_drawdown": 0.21420078947417745,
+        "strategy_score": -0.05318652321506637,
+        "annualized_return": -0.009918294206142875
     }
 }

@@ -1,24 +1,28 @@
 {
     "ticker": "ORA.PA",
-    "date": "2025-09-04 05:13:31",
+    "date": "2025-09-18 04:35:48",
     "params": {
-        "rsi_window": 7,
+        "rsi_window": 10,
         "rsi_buy": 35,
-        "rsi_sell": 75,
+        "rsi_sell": 70,
         "macd_fast": 20,
-        "macd_slow": 34,
+        "macd_slow": 21,
         "macd_signal": 13,
-        "bollinger_window": 15,
+        "bollinger_window": 20,
         "bollinger_std": 1.5
     },
     "train_results": {
-        "sharpe_ratio": 0.039706044012395025,
-        "total_return": 1.358665385419849,
-        "max_drawdown": 0.23283107461704516
+        "sharpe_ratio": 0.04263006637783003,
+        "total_return": 0.7027264160811912,
+        "max_drawdown": 0.1063192363953877,
+        "strategy_score": 0.2091428691266085,
+        "annualized_return": 0.04180844231407965
     },
     "validation_results": {
-        "total_return": 0.07944378846349773,
-        "sharpe_ratio": 0.035885785632537484,
-        "max_drawdown": 0.07730571366173346
+        "total_return": 0.050389439167499765,
+        "sharpe_ratio": 0.048130220759056985,
+        "max_drawdown": 0.03139496864077144,
+        "strategy_score": 0.1593668991317308,
+        "annualized_return": 0.018670884310660663
     }
 }

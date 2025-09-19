@@ -1,6 +1,6 @@
 {
     "ticker": "GLE.PA",
-    "date": "2025-09-04 07:16:21",
+    "date": "2025-09-18 06:38:41",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 35,
@@ -12,13 +12,17 @@
         "bollinger_std": 1.5
     },
     "train_results": {
-        "sharpe_ratio": 0.05569320152388296,
-        "total_return": 5.261850491688738,
-        "max_drawdown": 0.24705703068731322
+        "sharpe_ratio": 0.05569321517310166,
+        "total_return": 5.261850245770462,
+        "max_drawdown": 0.24705694218362578,
+        "strategy_score": 0.2556286443733704,
+        "annualized_return": 0.15162388459338016
     },
     "validation_results": {
-        "total_return": 0.09205558965721139,
-        "sharpe_ratio": 0.07446200698549128,
-        "max_drawdown": 0.008748097979300954
+        "total_return": 0.09205569293212902,
+        "sharpe_ratio": 0.07446197047580733,
+        "max_drawdown": 0.008748194665233468,
+        "strategy_score": 0.1744246679848495,
+        "annualized_return": 0.03369182040170848
     }
 }

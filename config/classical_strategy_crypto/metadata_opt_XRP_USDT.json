@@ -1,18 +1,28 @@
 {
     "ticker": "XRP/USDT",
-    "date": "2025-09-09 23:42:17",
+    "date": "2025-09-19 02:13:41",
     "params": {
-        "rsi_window": 21,
-        "rsi_buy": 40
+        "rsi_window": 14,
+        "rsi_buy": 40,
+        "rsi_sell": 75,
+        "macd_fast": 8,
+        "macd_slow": 34,
+        "macd_signal": 11,
+        "bollinger_window": 15,
+        "bollinger_std": 2.0
     },
     "train_results": {
-        "sharpe_ratio": 0.05503182819123279,
-        "total_return": 4.127130026310002,
-        "max_drawdown": 0.4178129460528944
+        "sharpe_ratio": 0.07323583839779266,
+        "total_return": 12.684515165585,
+        "max_drawdown": 0.271422676503908,
+        "strategy_score": 0.42576434565941557,
+        "annualized_return": 0.7519648495017885
     },
     "validation_results": {
-        "total_return": 0.2938638145300001,
-        "sharpe_ratio": 0.057850780180157,
-        "max_drawdown": 0.10398650719433458
+        "total_return": 0.19850284800000026,
+        "sharpe_ratio": 0.03976401407048111,
+        "max_drawdown": 0.1041350991404151,
+        "strategy_score": 0.17380827820243203,
+        "annualized_return": 0.0702111388289135
     }
 }

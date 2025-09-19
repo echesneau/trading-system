@@ -1,24 +1,28 @@
 {
     "ticker": "BN.PA",
-    "date": "2025-09-04 02:00:31",
+    "date": "2025-09-18 01:22:08",
     "params": {
-        "rsi_window": 14,
+        "rsi_window": 21,
         "rsi_buy": 35,
-        "rsi_sell": 75,
+        "rsi_sell": 70,
         "macd_fast": 8,
-        "macd_slow": 26,
-        "macd_signal": 7,
+        "macd_slow": 21,
+        "macd_signal": 9,
         "bollinger_window": 25,
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.03356458542051362,
-        "total_return": 0.7012164440031055,
-        "max_drawdown": 0.1817933142858898
+        "sharpe_ratio": 0.03980678376608715,
+        "total_return": 0.5478377295818334,
+        "max_drawdown": 0.06227471177490953,
+        "strategy_score": 0.20092044464775843,
+        "annualized_return": 0.034190199263979926
     },
     "validation_results": {
-        "total_return": 0.04221997461547872,
-        "sharpe_ratio": 0.01913459338935534,
-        "max_drawdown": 0.04657074832833039
+        "total_return": 0.04751220890121476,
+        "sharpe_ratio": 0.02126587147092354,
+        "max_drawdown": 0.046649155087974195,
+        "strategy_score": 0.0020823428371707993,
+        "annualized_return": 0.017620010233170502
     }
 }

@@ -1,6 +1,6 @@
 {
     "ticker": "AIR.PA",
-    "date": "2025-09-03 23:40:01",
+    "date": "2025-09-17 23:00:45",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 35,
@@ -12,13 +12,17 @@
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.042759502037812445,
-        "total_return": 1.993855467628481,
-        "max_drawdown": 0.1920485635808384
+        "sharpe_ratio": 0.042759521990082844,
+        "total_return": 1.9938556367416405,
+        "max_drawdown": 0.19204853076823472,
+        "strategy_score": 0.2287278203861165,
+        "annualized_return": 0.08804934019790922
     },
     "validation_results": {
-        "total_return": 0.23046258048095733,
-        "sharpe_ratio": 0.08178319578498437,
-        "max_drawdown": 0.04741698054872249
+        "total_return": 0.23046270852661163,
+        "sharpe_ratio": 0.0817832602081528,
+        "max_drawdown": 0.04741692200140259,
+        "strategy_score": 0.2060796985670187,
+        "annualized_return": 0.08116440398466396
     }
 }

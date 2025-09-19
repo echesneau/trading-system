@@ -1,24 +1,28 @@
 {
     "ticker": "XRP/EUR",
-    "date": "2025-09-10 22:25:33",
+    "date": "2025-09-19 00:41:39",
     "params": {
-        "rsi_window": 21,
+        "rsi_window": 14,
         "rsi_buy": 40,
         "rsi_sell": 75,
-        "macd_fast": 8,
-        "macd_slow": 21,
+        "macd_fast": 20,
+        "macd_slow": 34,
         "macd_signal": 7,
-        "bollinger_window": 25,
-        "bollinger_std": 1
+        "bollinger_window": 20,
+        "bollinger_std": 1.5
     },
     "train_results": {
-        "sharpe_ratio": 0.06411867911902373,
-        "total_return": 5.117312236590005,
-        "max_drawdown": 0.5474815958763006
+        "sharpe_ratio": 0.07115557851363226,
+        "total_return": 3.9298316543975003,
+        "max_drawdown": 0.14600304637230752,
+        "strategy_score": 0.4408352725028799,
+        "annualized_return": 0.7027666291309473
     },
     "validation_results": {
-        "total_return": 0.9723254042500005,
-        "sharpe_ratio": 0.06872949440067147,
-        "max_drawdown": 0.15290490348492716
+        "total_return": 0.5597494474250003,
+        "sharpe_ratio": 0.05602228192230191,
+        "max_drawdown": 0.2243423916292244,
+        "strategy_score": 0.21961390580713241,
+        "annualized_return": 0.18126140086844278
     }
 }

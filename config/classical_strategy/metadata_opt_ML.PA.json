@@ -1,24 +1,28 @@
 {
     "ticker": "ML.PA",
-    "date": "2025-09-04 04:55:58",
+    "date": "2025-09-18 04:18:13",
     "params": {
-        "rsi_window": 14,
+        "rsi_window": 7,
         "rsi_buy": 35,
         "rsi_sell": 75,
-        "macd_fast": 16,
-        "macd_slow": 34,
-        "macd_signal": 9,
-        "bollinger_window": 15,
-        "bollinger_std": 1
+        "macd_fast": 20,
+        "macd_slow": 30,
+        "macd_signal": 13,
+        "bollinger_window": 25,
+        "bollinger_std": 2.0
     },
     "train_results": {
-        "sharpe_ratio": 0.04255356177134308,
-        "total_return": 1.6343958413655764,
-        "max_drawdown": 0.25032552854827006
+        "sharpe_ratio": 0.056766335498969644,
+        "total_return": 1.0534514119987497,
+        "max_drawdown": 0.07230622116287905,
+        "strategy_score": 0.2371003343248742,
+        "annualized_return": 0.05693285883148347
     },
     "validation_results": {
-        "total_return": 0.11519086770629892,
-        "sharpe_ratio": 0.04646812595894026,
-        "max_drawdown": 0.05733782579140411
+        "total_return": 0.06019744834728263,
+        "sharpe_ratio": 0.07675252912917956,
+        "max_drawdown": 0.000998735437774485,
+        "strategy_score": 0.16918974584624163,
+        "annualized_return": 0.022239710703424453
     }
 }

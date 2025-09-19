@@ -115,12 +115,12 @@ class BacktestingEngine:
         results = {
             'portfolio': pd.DataFrame(portfolio_values).set_index('date'),
             'trades': pd.DataFrame(trades),
-            'performance': self._calculate_performance(portfolio_values)
+            'performance': self._calculate_performance(portfolio_values, pd.DataFrame(trades))
         }
 
         return results
 
-    def _calculate_performance(self, portfolio_values: list) -> Dict[str, float]:
+    def _calculate_performance(self, portfolio_values: list, trades: pd.DataFrame) -> Dict[str, float]:
         """Calcule les métriques de performance."""
         if len(portfolio_values) < 2:
             return {
@@ -150,11 +150,20 @@ class BacktestingEngine:
         days = (df.index[-1] - df.index[0]).days
         annualized_return = ((1 + total_return) ** (365 / days) - 1) if days > 0 else 0.0
 
+        # calcum des métriques de trades
+        trade_metrics = self._compute_trade_metrics(trades, fee_rate=self.transaction_fee)
+
+        # custom strategy score
+        strategy_score = self.strategy_score(annualized_return * 100, total_return * 100, max_drawdown * 100,
+                                             len(trades), trade_metrics['win_rate'])
+
         return {
             'return': total_return,
             'annualized_return': annualized_return,
             'max_drawdown': max_drawdown,
-            'sharpe_ratio': sharpe_ratio if not np.isnan(sharpe_ratio) else 0.0
+            'sharpe_ratio': sharpe_ratio if not np.isnan(sharpe_ratio) else 0.0,
+            'trade_metrics': trade_metrics,
+            'strategy_score': strategy_score
         }
 
     def _annualized_return(self, values: list) -> float:
@@ -192,3 +201,101 @@ class BacktestingEngine:
         std_dev = (sum((x - avg_return) ** 2 for x in returns) / len(returns)) ** 0.5
 
         return avg_return / std_dev if std_dev != 0 else 0.0
+
+    def strategy_score(self, annualized_return, total_return, drawdown_pct, n_trades, win_rate,
+                       w_cagr=0.35, w_total_return=0.1, w_drawdown=0.25, w_trades=0.15, w_winrate=0.15,
+                       max_trades_ref_per_year=20):
+        """
+        Calcule un score composite pour une stratégie de trading.
+
+        Args:
+            annualized_return: rendement annualisé en % (CAGR)
+            total_return: rendement total en %
+            drawdown_pct: drawdown max en %
+            n_trades: nombre de trades
+            win_rate: ratio trades gagnants (0-1)
+            w_cagr, w_total_return, w_drawdown, w_trades, w_winrate: poids des critères
+            max_trades_ref_per_year: valeur de référence pour normaliser le nombre de trades
+
+        Returns:
+            score (float) : plus il est élevé, meilleure est la stratégie
+        """
+
+        # Normalisation
+        cagr_norm = np.tanh(annualized_return / 100)
+        return_norm = np.tanh(total_return / 100)  # borné [-1,1], stabilise gros gains
+        drawdown_norm = np.tanh(drawdown_pct / 100)  # borné [0,1]
+        # Durée du test
+        test_years = self._get_test_years()
+        # Fréquence de trading par an
+        trades_per_year = n_trades / test_years
+        trades_norm = min(trades_per_year / max_trades_ref_per_year, 1.0)
+        winrate_norm = win_rate  # déjà entre 0 et 1
+
+        # Score composite
+        score = (
+            w_cagr * cagr_norm
+                + w_total_return * return_norm
+                - w_drawdown * drawdown_norm
+                + w_trades * trades_norm
+                + w_winrate * winrate_norm
+        )
+
+        return score
+
+    def _compute_trade_metrics(self, trades: pd.DataFrame, fee_rate: float = 0.001):
+        """
+        Calcule les profits, win/loss ratio et win rate avec frais inclus.
+
+        Args:
+            trades: DataFrame avec colonnes ["type", "price"] et alternance buy/sell
+            fee_rate: frais de transaction par ordre (ex: 0.001 = 0.1%)
+
+        Returns:
+            dict avec profits, nb_gagnants, nb_perdants, win_rate, win_loss_ratio
+        """
+        # Cas vide ou None
+        if trades is None or trades.empty:
+            return {
+                "profits_by_trades": np.array([], dtype=float),
+                "n_wins": 0,
+                "n_losses": 0,
+                "win_rate": 0.0,
+                "win_loss_ratio": 0.0,
+                "total_profit_by_trades": 0.0
+            }
+        # Séparer buy et sell
+        buy_prices = trades.loc[trades["action"] == "BUY", "price"].reset_index(drop=True)
+        sell_prices = trades.loc[trades["action"] == "SELL", "price"].reset_index(drop=True)
+
+        # Appliquer les frais :
+        # - le buy coûte plus cher
+        # - le sell rapporte moins
+        buy_adj = buy_prices * (1 + fee_rate)
+        sell_adj = sell_prices * (1 - fee_rate)
+
+        # Profit net par trade
+        n = min(len(buy_adj), len(sell_adj))
+        profits = sell_adj.values[:n] - buy_adj.values[:n]
+
+        # Statistiques
+        n_wins = (profits > 0).sum()
+        n_losses = (profits <  0).sum()
+        win_loss_ratio = n_wins / n_losses if n_losses > 0 else float("inf")
+        win_rate = n_wins / (n_wins + n_losses) if (n_wins + n_losses) > 0 else 0
+
+        return {
+            "profits_by_trades": profits,
+            "n_wins": int(n_wins),
+            "n_losses": int(n_losses),
+            "win_rate": win_rate,
+            "win_loss_ratio": win_loss_ratio,
+            "total_profit_by_trades": profits.sum()
+        }
+
+    def _get_test_years(self):
+        """Calcule la durée du backtest en années."""
+        if len(self.data.index) < 2:
+            return 1e-6  # évite division par zéro
+        delta_days = (self.data.index[-1] - self.data.index[0]).days
+        return max(delta_days / 365, 1e-6)

@@ -1,24 +1,28 @@
 {
     "ticker": "RNO.PA",
-    "date": "2025-09-04 05:48:39",
+    "date": "2025-09-18 05:10:52",
     "params": {
-        "rsi_window": 7,
+        "rsi_window": 10,
         "rsi_buy": 35,
         "rsi_sell": 75,
         "macd_fast": 20,
-        "macd_slow": 30,
-        "macd_signal": 11,
-        "bollinger_window": 10,
-        "bollinger_std": 1
+        "macd_slow": 21,
+        "macd_signal": 9,
+        "bollinger_window": 20,
+        "bollinger_std": 2.0
     },
     "train_results": {
-        "sharpe_ratio": 0.037215631466488014,
-        "total_return": 2.1754572204194114,
-        "max_drawdown": 0.21930957059581824
+        "sharpe_ratio": 0.05578034938715992,
+        "total_return": 1.1051052702531818,
+        "max_drawdown": 0.1243582162123286,
+        "strategy_score": 0.2245301389627195,
+        "annualized_return": 0.05895548131353823
     },
     "validation_results": {
-        "total_return": 0.07328334824218782,
-        "sharpe_ratio": 0.018246144571704426,
-        "max_drawdown": 0.225898298907965
+        "total_return": 0.16569417328262334,
+        "sharpe_ratio": 0.07530404654989255,
+        "max_drawdown": 0.02504539983967384,
+        "strategy_score": 0.18656510716829755,
+        "annualized_return": 0.05938797635179527
     }
 }

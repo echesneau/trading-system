@@ -39,6 +39,7 @@ def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.
             'total_return': result['performance']['return'],
             'max_drawdown': result['performance']['max_drawdown'],
             'annualized_return': result['performance']['annualized_return'],
+            'strategy_score': result['performance']['strategy_score'],
             'n_trades': len(result['trades']) if 'trades' in result and result['trades'] is not None else 0
         }
     except Exception as e:
@@ -50,6 +51,7 @@ def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.
             'max_drawdown': np.inf,
             'annualized_return': -np.inf,
             'n_trades': 0,
+            'strategy_score':0,
             'error': str(e)
         }
 
@@ -101,7 +103,7 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
                 results.append(result)
 
                 if i % 100 == 0:
-                    print(f"\rTest {i}/{len(all_combinations)} - Return: {result['total_return']:.2f}", end='', flush=True)
+                    print(f"\rTest {i}/{len(all_combinations)} - strategy_score: {result['strategy_score']:.2f}", end='', flush=True)
                     #print(f"Test {i}/{len(all_combinations)} - Return: {result['total_return']:.2f}", end="\n")
 
             except Exception as e:
@@ -112,6 +114,7 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
                     'total_return': -np.inf,
                     'max_drawdown': np.inf,
                     'annualized_return': -np.inf,
+                    'strategy_score': -np.inf,
                     'n_trades': 0,
                     'error': str(e)
                 })
@@ -139,20 +142,25 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
     best_sharpe = results_df.loc[results_df['sharpe_ratio'].idxmax()]
     best_return = results_df.loc[results_df['total_return'].idxmax()]
     best_drawdown = results_df.loc[results_df['max_drawdown'].idxmin()]
+    best_strategy = results_df.loc[results_df['strategy_score'].idxmax()]
     metadata = {
         "ticker": ticker,
         'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'params': best_return['params'],
+        'params': best_strategy['params'],
         'train_results': {
-            'sharpe_ratio': best_return['sharpe_ratio'],
-            'total_return': best_return['total_return'],
-            'max_drawdown': best_return['max_drawdown'],
+            'sharpe_ratio': best_strategy['sharpe_ratio'],
+            'total_return': best_strategy['total_return'],
+            'max_drawdown': best_strategy['max_drawdown'],
+            "strategy_score": best_strategy['strategy_score'],
+            "annualized_return": best_strategy['annualized_return'],
         }
     }
-    print("Meilleur Sharpe Ratio:")
-    print(f"Paramètres: {best_return['params']}")
-    print(f"Sharpe: {best_return['sharpe_ratio']:.2f}")
-    print(f"Return: {best_return['total_return']:.2%}")
+    print("Meilleur Strategie:")
+    print(f"Paramètres: {best_strategy['params']}")
+    print(f"Sharpe: {best_strategy['sharpe_ratio']:.2f}")
+    print(f"Total Return: {best_strategy['total_return']:.2%}")
+    print(f"Annualized Return: {best_strategy['annualized_return']:.2%}")
+    print(f"Strategy Score: {best_strategy['strategy_score']:.2f}")
 
     # Sauvegarder tous les résultats
     results_df.to_csv(f"{odir}/optimization_results_{ticker}.csv", index=False)
@@ -165,10 +173,10 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
     )
 
     # Valider les meilleurs paramètres
-    data = calculate_indicators(validation_data, **best_return['params'])
-    best_strategy = ClassicalStrategy(**best_return['params'])
+    data = calculate_indicators(validation_data, **best_strategy['params'])
+    best_strategy_engine = ClassicalStrategy(**best_strategy['params'])
     validation_engine = BacktestingEngine(
-        strategy=best_strategy,
+        strategy=best_strategy_engine,
         data=data,
         initial_capital=10000,
         transaction_fee=0.001,
@@ -181,6 +189,8 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
         'total_return': validation_result['performance']['return'],
         'sharpe_ratio': validation_result['performance']['sharpe_ratio'],
         'max_drawdown': validation_result['performance']['max_drawdown'],
+        "strategy_score": validation_result['performance']['strategy_score'],
+        "annualized_return": validation_result['performance']['annualized_return'],
     }
     with open(f'{odir}/metadata_opt_{ticker}.json', 'w', encoding='utf-8') as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
@@ -235,6 +245,7 @@ if __name__ == "__main__":
         'bollinger_window': [10, 15, 20, 25],
         'bollinger_std': [1, 1.5, 2.0]
     }
+
     odir = f"{config_path}/classical_strategy/"
     for ticker in tickers_cac40_list:
         print("=" * 50)

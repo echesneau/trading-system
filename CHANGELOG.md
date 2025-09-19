@@ -10,6 +10,13 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## [0.5.0] - 2025-09-19
+### Ajouté
+- ajout d'une fonction de scoring personnalisée pour évaluer les performances des stratégies de trading 
+
+### Modifié
+- recacul des paramètres techniques optimaux avec la nouvelle fonction de scoring
+
 ## [0.4.0] - 2025-09.10
 ### Ajouté
 - ajout d'une fonction pour charger les données depuis Kraken

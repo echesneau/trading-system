@@ -29,6 +29,7 @@ def test_backtest_engine_basic():
     results = engine.run()
     
     # Vérifier les résultats
+    assert isinstance(results, dict)
     assert 'portfolio' in results
     assert 'performance' in results
     assert 'trades' in results
@@ -39,6 +40,7 @@ def test_backtest_engine_basic():
     # Vérifier les transactions
     trades = results['trades']
     assert len(trades) == 4  # 2 trades complets (achat + vente)
+    assert all(col in trades.columns for col in ["action", "price", "shares"])
     
     # Premier trade: achat à 102, vente à 103
     assert trades.iloc[0]['action'] == 'BUY'
@@ -71,6 +73,9 @@ def test_position_sizing():
     shares_bought = trades.iloc[0]['shares']
     assert abs(shares_bought * 100 - 5000) < 1  # 50% de 10000 à 100€
 
+    # Vérifie qu'il y a bien un SELL correspondant
+    assert "SELL" in trades["action"].values
+
 def test_stop_loss_and_take_profit():
     """Teste le déclenchement des stop-loss et take-profit."""
     data = pd.DataFrame({
@@ -94,6 +99,46 @@ def test_stop_loss_and_take_profit():
     trades = results['trades']
     
     # Vérifier que le stop-loss a été déclenché
+    assert len(trades) >= 2
     assert trades.iloc[1]['action'] == 'SELL'
     assert trades.iloc[1]['price'] == 90  # Prix du stop-loss
     assert trades.iloc[1]['reason'] == 'stop_loss'
+
+
+def test_no_signals_results_in_no_trades():
+    """Vérifie qu'aucun signal ne produit aucun trade."""
+    data = pd.DataFrame({
+        'Close': [100, 101, 102, 103],
+    }, index=pd.date_range('2023-01-01', periods=4))
+
+    strategy = MagicMock()
+    strategy.generate_signals.return_value = pd.Series(
+        ['HOLD', 'HOLD', 'HOLD', 'HOLD'],
+        index=data.index
+    )
+
+    engine = BacktestingEngine(strategy=strategy, data=data, initial_capital=10000)
+    results = engine.run()
+
+    assert results['trades'].empty
+    assert results['portfolio']['value'].iloc[-1] == 10000  # capital inchangé
+
+
+def test_all_buy_signals():
+    """Vérifie le comportement si la stratégie renvoie uniquement des BUY."""
+    data = pd.DataFrame({
+        'Close': [100, 101, 102, 103],
+    }, index=pd.date_range('2023-01-01', periods=4))
+
+    strategy = MagicMock()
+    strategy.generate_signals.return_value = pd.Series(
+        ['BUY', 'BUY', 'BUY', 'BUY'],
+        index=data.index
+    )
+
+    engine = BacktestingEngine(strategy=strategy, data=data, initial_capital=10000)
+    results = engine.run()
+
+    trades = results['trades']
+    # Normalement un seul BUY est exécuté, pas plusieurs d'affilée
+    assert trades["action"].tolist().count("BUY") == 1
