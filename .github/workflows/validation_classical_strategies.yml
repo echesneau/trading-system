@@ -34,6 +34,10 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
 
+    - name: pull repository 
+      run: |
+        git pull
+
     - name: Commit and push validation results
       run: |
         if git diff --quiet --exit-code config/validation_classical_strategy.json; then
@@ -71,6 +75,10 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+
+      - name: pull repository 
+        run: |
+          git pull
 
       - name: Commit and push validation results
         run: |
