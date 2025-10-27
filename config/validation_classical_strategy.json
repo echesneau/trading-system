@@ -25,7 +25,7 @@
     },
     "TEP.PA": {
         "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "reason": "Low Return"
     },
     "VIE.PA": {
         "valid": false,
