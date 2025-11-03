@@ -64,8 +64,8 @@
         "reason": "Low Return, Not enough trades"
     },
     "CS.PA": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Low Return"
     },
     "MC.PA": {
         "valid": true,
@@ -89,7 +89,7 @@
     },
     "ACA.PA": {
         "valid": false,
-        "reason": "Low Return"
+        "reason": "Low Return, Not enough trades"
     },
     "BN.PA": {
         "valid": true,
