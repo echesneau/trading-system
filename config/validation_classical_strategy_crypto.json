@@ -1,11 +1,11 @@
 {
-    "XLM/USDT": {
+    "ETC/USDT": {
         "valid": false,
         "reason": "Bad Symbol"
     },
-    "XLM/EUR": {
-        "valid": true,
-        "reason": "OK"
+    "ETH/EUR": {
+        "valid": false,
+        "reason": "Low Return"
     },
     "XRP/USDT": {
         "valid": false,
@@ -15,23 +15,23 @@
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
-    "ATOM/USDT": {
-        "valid": true,
-        "reason": "OK"
-    },
-    "ATOM/EUR": {
+    "XRP/EUR": {
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
-    "ETC/USDT": {
-        "valid": false,
-        "reason": "Bad Symbol"
-    },
-    "ETH/EUR": {
-        "valid": false,
-        "reason": "Low Return"
+    "ADA/EUR": {
+        "valid": true,
+        "reason": "OK"
     },
     "BTC/EUR": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "XLM/EUR": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "ETH/USDT": {
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
@@ -39,15 +39,15 @@
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
-    "XRP/EUR": {
+    "ATOM/EUR": {
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
-    "ETH/USDT": {
+    "XLM/USDT": {
         "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "reason": "Bad Symbol"
     },
-    "ADA/EUR": {
+    "ATOM/USDT": {
         "valid": true,
         "reason": "OK"
     }
