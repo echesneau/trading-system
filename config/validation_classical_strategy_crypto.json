@@ -20,8 +20,8 @@
         "reason": "Low Return, Not enough trades"
     },
     "ADA/EUR": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Low Return"
     },
     "BTC/EUR": {
         "valid": false,
