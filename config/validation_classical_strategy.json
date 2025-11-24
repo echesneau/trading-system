@@ -128,8 +128,8 @@
         "reason": "OK"
     },
     "ML.PA": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
     },
     "BNP.PA": {
         "valid": false,
