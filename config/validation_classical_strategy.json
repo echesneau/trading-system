@@ -72,8 +72,8 @@
         "reason": "Low Return, Not enough trades"
     },
     "OR.PA": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Not enough trades"
     },
     "RMS.PA": {
         "valid": true,
@@ -120,8 +120,8 @@
         "reason": "Low Return, Not enough trades"
     },
     "SAN.PA": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Low Return"
     },
     "HO.PA": {
         "valid": true,
