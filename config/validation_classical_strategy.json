@@ -80,8 +80,8 @@
         "reason": "OK"
     },
     "CS.PA": {
-        "valid": false,
-        "reason": "Low Return"
+        "valid": true,
+        "reason": "OK"
     },
     "EN.PA": {
         "valid": false,
@@ -92,8 +92,8 @@
         "reason": "Low Return"
     },
     "ORA.PA": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
     },
     "ENGI.PA": {
         "valid": false,
