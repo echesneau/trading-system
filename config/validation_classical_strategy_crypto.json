@@ -1,45 +1,5 @@
 {
-    "ETC/USDT": {
-        "valid": false,
-        "reason": "Bad Symbol"
-    },
-    "ETH/EUR": {
-        "valid": false,
-        "reason": "Low Return"
-    },
-    "XRP/USDT": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "ADA/USDT": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "XRP/EUR": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "ADA/EUR": {
-        "valid": false,
-        "reason": "Low Return"
-    },
-    "BTC/EUR": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "XLM/EUR": {
-        "valid": true,
-        "reason": "OK"
-    },
     "ETH/USDT": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "BTC/USDT": {
-        "valid": false,
-        "reason": "Low Return, Not enough trades"
-    },
-    "ATOM/EUR": {
         "valid": false,
         "reason": "Low Return, Not enough trades"
     },
@@ -47,8 +7,48 @@
         "valid": false,
         "reason": "Bad Symbol"
     },
+    "XRP/USDT": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "BTC/USDT": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "XRP/EUR": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "BTC/EUR": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "ETC/USDT": {
+        "valid": false,
+        "reason": "Bad Symbol"
+    },
+    "ADA/EUR": {
+        "valid": false,
+        "reason": "Low Return"
+    },
+    "ETH/EUR": {
+        "valid": false,
+        "reason": "Low Return"
+    },
     "ATOM/USDT": {
         "valid": true,
         "reason": "OK"
+    },
+    "XLM/EUR": {
+        "valid": true,
+        "reason": "OK"
+    },
+    "ADA/USDT": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
+    },
+    "ATOM/EUR": {
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
     }
 }
