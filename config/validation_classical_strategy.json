@@ -52,8 +52,8 @@
         "reason": "Low Return, Not enough trades"
     },
     "RMS.PA": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Low Return"
     },
     "CA.PA": {
         "valid": false,
