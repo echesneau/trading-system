@@ -28,8 +28,8 @@
         "reason": "Bad Symbol"
     },
     "ADA/EUR": {
-        "valid": false,
-        "reason": "Low Return"
+        "valid": true,
+        "reason": "OK"
     },
     "ETH/EUR": {
         "valid": false,
