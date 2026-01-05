@@ -17,7 +17,7 @@
     },
     "XRP/EUR": {
         "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "reason": "Not enough trades"
     },
     "BTC/EUR": {
         "valid": false,
