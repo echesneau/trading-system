@@ -12,12 +12,12 @@
         "reason": "Low Return, Not enough trades"
     },
     "XLM/EUR": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Low Return"
     },
     "XRP/EUR": {
         "valid": false,
-        "reason": "Not enough trades"
+        "reason": "Low Return, Not enough trades"
     },
     "XLM/USDT": {
         "valid": false,
