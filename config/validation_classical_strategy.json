@@ -116,8 +116,8 @@
         "reason": "OK"
     },
     "VIV.PA": {
-        "valid": true,
-        "reason": "OK"
+        "valid": false,
+        "reason": "Low Return, Not enough trades"
     },
     "SAN.PA": {
         "valid": false,
