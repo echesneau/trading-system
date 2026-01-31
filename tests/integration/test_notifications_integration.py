@@ -10,7 +10,7 @@ def test_signal_reporter(trained_model_artifacts):
     }
     reporter = SignalReporter(strategy=ClassicalStrategy, data_loader=load_yfinance_data)
     report = reporter.generate_daily_report(["SAN.PA", "AIR.PA"], ticker_params=config,
-                                            max_window_range=50)
+                                            max_window_range=60)
     tot_len = 0
     for k in ['buy_signals', 'sell_signals', 'hold_signals', 'errors']:
         assert k in report
@@ -23,7 +23,7 @@ def test_signal_reporter(trained_model_artifacts):
 
     reporter = SignalReporter(strategy=HybridStrategy, data_loader=load_yfinance_data)
     report = reporter.generate_daily_report(["SAN.PA", "AIR.PA"], ticker_params=config,
-                                            max_window_range=50,
+                                            max_window_range=60,
                                             model_artifacts=trained_model_artifacts, ema_windows=[5, 10, 20, 50])
     tot_len = 0
     for k in ['buy_signals', 'sell_signals', 'hold_signals', 'errors']:
