@@ -30,7 +30,7 @@ def test_integration_load_kraken_data():
 
 def test_integration_load_ccxt_data():
     result = load_ccxt_data("BTC/EUR", exchange_name="kraken", interval="1d",
-                            start_date="2023-10-02", end_date="2023-10-07")
+                            start_date="2024-10-02", end_date="2024-10-07")
     assert not result.empty
     assert len(result) == 6
     for col in ['Open', 'High', 'Low', 'Close', 'Volume']:
