@@ -83,9 +83,9 @@ class SignalReporter:
 
                 processed_data = calculate_indicators(hist_data, **config)
                 signal_series = self.strategy.generate_signals(processed_data)
-                signal = signal_series.iloc[0]  # Prendre le premier (et seul) signal
-                price = processed_data['Close'].iloc[0]
-                date = processed_data.index[0]
+                signal = signal_series.iloc[-1]  # Prendre le dernier signal
+                price = processed_data['Close'].iloc[-1]
+                date = processed_data.index[-1]
 
                 # 4. Agréger le signal
                 signal_data = {'ticker': ticker, 'signal': signal, 'price': price, 'date': date}
@@ -121,7 +121,7 @@ class SignalReporter:
         Nombre d'actions analysées: <strong>{report['total_tickers_analyzed']}</strong></p>
         """
 
-        if report['buy_signals']:
+        if "buy_signals" in report and len(report['buy_signals']) > 0:
             html_content += "<h3>🎯 Signaux d'ACHAT</h3><ul>"
             for signal in report['buy_signals']:
                 html_content += f"<li><strong>{signal['ticker']}</strong> - Prix: {signal['price']:.2f}€ (Date: {signal['date'].strftime('%Y-%m-%d')})</li>"
@@ -129,13 +129,22 @@ class SignalReporter:
         else:
             html_content += "<p>❌ Aucun signal d'achat aujourd'hui.</p>"
 
-        if report['sell_signals']:
+        if "sell_signals" in report and len(report['sell_signals']) > 0:
             html_content += "<h3>📉 Signaux de VENTE</h3><ul>"
             for signal in report['sell_signals']:
                 html_content += f"<li><strong>{signal['ticker']}</strong> - Prix: {signal['price']:.2f}€ (Date: {signal['date'].strftime('%Y-%m-%d')})</li>"
             html_content += "</ul>"
         else:
             html_content += "<p>❌ Aucun signal de vente aujourd'hui.</p>"
+
+        if "hold_signals" in report and len(report['hold_signals']) > 0:
+            html_content += "<h3>📉 Signaux de conservation</h3><ul>"
+            for signal in report['hold_signals']:
+                html_content += f"<li><strong>{signal['ticker']}</strong> - Prix: {signal['price']:.2f}€ (Date: {signal['date'].strftime('%Y-%m-%d')})</li>"
+            html_content += "</ul>"
+        else:
+            html_content += "<p>❌ Aucun signal de conservation aujourd'hui.</p>"
+
 
         if "errors" in report:
             html_content += "<h3>⚠️ Erreurs Rencontrées</h3><ul>"
