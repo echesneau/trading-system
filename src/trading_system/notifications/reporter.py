@@ -4,6 +4,8 @@ from typing import List, Dict, Any
 import datetime as dt
 import logging
 
+from fontTools.misc.plistlib import end_date
+
 logger = logging.getLogger(__name__)
 
 from ..features.fundamental import get_previous_date
@@ -17,9 +19,15 @@ class SignalReporter:
     afin de générer un rapport consolidé.
     """
 
-    def __init__(self, strategy, data_loader):
+    def __init__(self, strategy, data_loader, debug=False, debug_date: str = None):
+        """
+        debug_date: str
+            date of report in format YYYY-MM-DD
+        """
         self.strategy_cls = strategy
         self.data_loader = data_loader
+        self.debug = debug
+        self.debug_date = debug_date
 
     def generate_daily_report(self, tickers: List[str],
                               ticker_params: Dict[str, Dict],
@@ -49,8 +57,15 @@ class SignalReporter:
         all_sell_signals = []
         all_hold_signals = []
         errors = []
-        start_date = get_previous_date(max_window_range)
-        end_date = (dt.datetime.now().date()+dt.timedelta(days=1)).strftime('%Y-%m-%d')
+        if self.debug:
+            date = dt.datetime.strptime(self.debug_date, '%Y-%m-%d').date()
+        else:
+            date = None
+        start_date = get_previous_date(max_window_range, today=date)
+        if self.debug:
+            end_date =  (dt.datetime.strptime(self.debug_date, '%Y-%m-%d').date() + dt.timedelta(days=1)).strftime('%Y-%m-%d')
+        else:
+            end_date = (dt.datetime.now().date()+dt.timedelta(days=1)).strftime('%Y-%m-%d')
 
         for ticker in tickers:
             try:
