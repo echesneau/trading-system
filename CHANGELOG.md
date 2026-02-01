@@ -10,6 +10,12 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## [0.5.1] - 2026-02-01
+### Ajouté
+- ajout d'un mode debug pour tester le rapport sur un jour spécifique
+### debug
+- le signal n'était pas le bon jour
+
 ## [0.5.0] - 2025-09-19
 ### Ajouté
 - ajout d'une fonction de scoring personnalisée pour évaluer les performances des stratégies de trading 
