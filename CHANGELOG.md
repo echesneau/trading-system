@@ -10,6 +10,10 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## [0.5.2] - 2026-02-02
+### Modifié
+- nouvelle optimisation des paramètres pour les actions Paris
+
 ## [0.5.1] - 2026-02-01
 ### Ajouté
 - ajout d'un mode debug pour tester le rapport sur un jour spécifique
