@@ -1,6 +1,6 @@
 {
     "ticker": "CS.PA",
-    "date": "2025-09-17 23:36:13",
+    "date": "2026-02-01 23:37:42",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 35,
@@ -12,17 +12,17 @@
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.039079708237188406,
-        "total_return": 1.285461404782058,
-        "max_drawdown": 0.2009617725143199,
-        "strategy_score": 0.21956092093621993,
-        "annualized_return": 0.06567559498853903
+        "sharpe_ratio": 0.039619439421108356,
+        "total_return": 1.411167192489864,
+        "max_drawdown": 0.20096170355278387,
+        "strategy_score": 0.22261089959930713,
+        "annualized_return": 0.06492246754714182
     },
     "validation_results": {
-        "total_return": 0.111009113579941,
-        "sharpe_ratio": 0.05443134662345858,
-        "max_drawdown": 0.04121063285878826,
-        "strategy_score": 0.17900408571812976,
-        "annualized_return": 0.040406417822157925
+        "total_return": 0.046982388940811325,
+        "sharpe_ratio": 0.022154331000480768,
+        "max_drawdown": 0.08495469405744888,
+        "strategy_score": 0.08074621112428639,
+        "annualized_return": 0.022324490512123152
     }
 }

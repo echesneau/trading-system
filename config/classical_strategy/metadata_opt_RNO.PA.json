@@ -1,28 +1,28 @@
 {
     "ticker": "RNO.PA",
-    "date": "2025-09-18 05:10:52",
+    "date": "2026-02-02 01:23:17",
     "params": {
         "rsi_window": 10,
         "rsi_buy": 35,
         "rsi_sell": 75,
         "macd_fast": 20,
-        "macd_slow": 21,
-        "macd_signal": 9,
-        "bollinger_window": 20,
-        "bollinger_std": 2.0
+        "macd_slow": 30,
+        "macd_signal": 11,
+        "bollinger_window": 10,
+        "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.05578034938715992,
-        "total_return": 1.1051052702531818,
-        "max_drawdown": 0.1243582162123286,
-        "strategy_score": 0.2245301389627195,
-        "annualized_return": 0.05895548131353823
+        "sharpe_ratio": 0.039601415085667876,
+        "total_return": 1.814799975975993,
+        "max_drawdown": 0.20863845785143748,
+        "strategy_score": 0.1995536191421386,
+        "annualized_return": 0.0767682817066262
     },
     "validation_results": {
-        "total_return": 0.16569417328262334,
-        "sharpe_ratio": 0.07530404654989255,
-        "max_drawdown": 0.02504539983967384,
-        "strategy_score": 0.18656510716829755,
-        "annualized_return": 0.05938797635179527
+        "total_return": 0.04785416556625369,
+        "sharpe_ratio": 0.018090563321778646,
+        "max_drawdown": 0.13615723738541047,
+        "strategy_score": 0.13612014374568424,
+        "annualized_return": 0.022733762355660936
     }
 }

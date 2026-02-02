@@ -1,6 +1,6 @@
 {
     "ticker": "CAP.PA",
-    "date": "2025-09-18 00:29:08",
+    "date": "2026-02-01 23:54:48",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 35,
@@ -12,17 +12,17 @@
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.038791339234824765,
-        "total_return": 1.078041167167665,
-        "max_drawdown": 0.14878569037554426,
-        "strategy_score": 0.22526337158262863,
-        "annualized_return": 0.05790151227200546
+        "sharpe_ratio": 0.037692922641977815,
+        "total_return": 1.1634068554992694,
+        "max_drawdown": 0.14878544429218452,
+        "strategy_score": 0.22797954206586651,
+        "annualized_return": 0.05670194087768521
     },
     "validation_results": {
-        "total_return": -0.12342354438171314,
-        "sharpe_ratio": -0.017009748445347795,
-        "max_drawdown": 0.28250372410849794,
-        "strategy_score": -0.00042092827061235294,
-        "annualized_return": -0.048360519801949
+        "total_return": -0.0998704647331233,
+        "sharpe_ratio": -0.014517954026803274,
+        "max_drawdown": 0.28262174392638467,
+        "strategy_score": 0.007812512345860084,
+        "annualized_return": -0.04933946140118828
     }
 }

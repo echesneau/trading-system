@@ -1,6 +1,6 @@
 {
     "ticker": "BNP.PA",
-    "date": "2025-09-17 23:53:50",
+    "date": "2026-02-01 23:43:33",
     "params": {
         "rsi_window": 10,
         "rsi_buy": 35,
@@ -12,11 +12,11 @@
         "bollinger_std": 1.5
     },
     "train_results": {
-        "sharpe_ratio": 0.04197265852282976,
-        "total_return": 3.876119516469003,
-        "max_drawdown": 0.3188317919998142,
-        "strategy_score": 0.2294762468398117,
-        "annualized_return": 0.12966874788031002
+        "sharpe_ratio": 0.04044434404714254,
+        "total_return": 3.876364310562136,
+        "max_drawdown": 0.31894001792091803,
+        "strategy_score": 0.2252621380423251,
+        "annualized_return": 0.11989832878050644
     },
     "validation_results": {
         "total_return": 0.0,

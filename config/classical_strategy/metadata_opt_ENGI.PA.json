@@ -1,6 +1,6 @@
 {
     "ticker": "ENGI.PA",
-    "date": "2025-09-18 01:57:25",
+    "date": "2026-02-02 00:22:58",
     "params": {
         "rsi_window": 14,
         "rsi_buy": 35,
@@ -12,11 +12,11 @@
         "bollinger_std": 1.5
     },
     "train_results": {
-        "sharpe_ratio": 0.05356532122831855,
-        "total_return": 1.3613834959654818,
-        "max_drawdown": 0.09868274551086992,
-        "strategy_score": 0.24274056478128483,
-        "annualized_return": 0.06835902086758572
+        "sharpe_ratio": 0.0516194607408326,
+        "total_return": 1.3611183360018735,
+        "max_drawdown": 0.09866011683095494,
+        "strategy_score": 0.24057513689397717,
+        "annualized_return": 0.06332720135335057
     },
     "validation_results": {
         "total_return": 0.0,

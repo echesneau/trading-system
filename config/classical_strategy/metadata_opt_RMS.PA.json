@@ -1,6 +1,6 @@
 {
     "ticker": "RMS.PA",
-    "date": "2025-09-18 02:50:15",
+    "date": "2026-02-02 00:39:36",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 35,
@@ -12,17 +12,17 @@
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.04259741724111808,
-        "total_return": 1.0799285338516253,
-        "max_drawdown": 0.10361456914654121,
-        "strategy_score": 0.23878094040879766,
-        "annualized_return": 0.05797542260144395
+        "sharpe_ratio": 0.04116771990949367,
+        "total_return": 1.0837536057662982,
+        "max_drawdown": 0.10419639579048132,
+        "strategy_score": 0.2362774051954487,
+        "annualized_return": 0.05387261351302608
     },
     "validation_results": {
-        "total_return": 0.013572948144531619,
-        "sharpe_ratio": 0.007362160659431412,
-        "max_drawdown": 0.084049522103278,
-        "strategy_score": 0.14346287530809176,
-        "annualized_return": 0.005085885498808285
+        "total_return": 0.06049864736328164,
+        "sharpe_ratio": 0.01930326306637199,
+        "max_drawdown": 0.08371382379884523,
+        "strategy_score": 0.17043465125725205,
+        "annualized_return": 0.02865019321560669
     }
 }

@@ -1,6 +1,6 @@
 {
     "ticker": "HO.PA",
-    "date": "2025-09-18 07:31:29",
+    "date": "2026-02-02 02:06:48",
     "params": {
         "rsi_window": 10,
         "rsi_buy": 35,
@@ -12,17 +12,17 @@
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.04741470652006914,
-        "total_return": 0.9790297785673152,
-        "max_drawdown": 0.1356668257612026,
-        "strategy_score": 0.2196478879554138,
-        "annualized_return": 0.05393454861387492
+        "sharpe_ratio": 0.04571509113015789,
+        "total_return": 0.9795195564727793,
+        "max_drawdown": 0.13564809377996725,
+        "strategy_score": 0.21764718872487107,
+        "annualized_return": 0.05001447487461563
     },
     "validation_results": {
-        "total_return": 0.08165071431274427,
-        "sharpe_ratio": 0.053877715644283015,
-        "max_drawdown": 0.019662679637721538,
-        "strategy_score": 0.16936428054065036,
-        "annualized_return": 0.029974724143482456
+        "total_return": 0.08129723818969742,
+        "sharpe_ratio": 0.06093885617032286,
+        "max_drawdown": 0.019578510245163334,
+        "strategy_score": 0.1738307514700645,
+        "annualized_return": 0.03830287591277526
     }
 }

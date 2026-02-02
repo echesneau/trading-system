@@ -1,6 +1,6 @@
 {
     "ticker": "CA.PA",
-    "date": "2025-09-18 00:46:50",
+    "date": "2026-02-02 00:00:27",
     "params": {
         "rsi_window": 10,
         "rsi_buy": 30,
@@ -12,17 +12,17 @@
         "bollinger_std": 1.5
     },
     "train_results": {
-        "sharpe_ratio": 0.034566305033714724,
-        "total_return": 0.7438893180074694,
-        "max_drawdown": 0.09564352499071452,
-        "strategy_score": 0.2080677959926881,
-        "annualized_return": 0.043725303249669834
+        "sharpe_ratio": 0.0379305380809968,
+        "total_return": 0.9153801967854502,
+        "max_drawdown": 0.0956508297606757,
+        "strategy_score": 0.21944705481965032,
+        "annualized_return": 0.04754554474198258
     },
     "validation_results": {
-        "total_return": 0.10656056304283139,
-        "sharpe_ratio": 0.06914594524817468,
-        "max_drawdown": 0.009827214153840563,
-        "strategy_score": 0.1773895929655331,
-        "annualized_return": 0.038836892967265335
+        "total_return": 0.0,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0,
+        "strategy_score": 0.0,
+        "annualized_return": 0.0
     }
 }

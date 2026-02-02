@@ -1,6 +1,6 @@
 {
     "ticker": "DSY.PA",
-    "date": "2025-09-18 01:39:47",
+    "date": "2026-02-02 00:17:27",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 35,
@@ -12,17 +12,17 @@
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.05289297488844307,
-        "total_return": 1.0340208359313023,
-        "max_drawdown": 0.07932064567931266,
-        "strategy_score": 0.24009588179000826,
-        "annualized_return": 0.056159835859811214
+        "sharpe_ratio": 0.05443755450906381,
+        "total_return": 1.2614783465418837,
+        "max_drawdown": 0.07932065934812231,
+        "strategy_score": 0.2502893907079171,
+        "annualized_return": 0.06005552837461048
     },
     "validation_results": {
-        "total_return": 0.0656945839666374,
-        "sharpe_ratio": 0.017020324180198432,
-        "max_drawdown": 0.1234693524870289,
-        "strategy_score": 0.10537157576820043,
-        "annualized_return": 0.02423094668078085
+        "total_return": -0.07308155427131606,
+        "sharpe_ratio": -0.013991046668281572,
+        "max_drawdown": 0.18953617690348873,
+        "strategy_score": 0.003016439638539155,
+        "annualized_return": -0.03583712754397661
     }
 }

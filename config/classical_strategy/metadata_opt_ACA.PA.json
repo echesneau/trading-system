@@ -1,6 +1,6 @@
 {
     "ticker": "ACA.PA",
-    "date": "2025-09-18 01:04:29",
+    "date": "2026-02-02 00:06:11",
     "params": {
         "rsi_window": 7,
         "rsi_buy": 35,
@@ -12,17 +12,17 @@
         "bollinger_std": 1
     },
     "train_results": {
-        "sharpe_ratio": 0.05520769011754513,
-        "total_return": 5.488855543609507,
-        "max_drawdown": 0.2952364107112151,
-        "strategy_score": 0.24095967496165902,
-        "annualized_return": 0.1547841479004226
+        "sharpe_ratio": 0.05320112879783238,
+        "total_return": 5.488854629987425,
+        "max_drawdown": 0.2952362897163765,
+        "strategy_score": 0.23495066586915192,
+        "annualized_return": 0.14299960715791404
     },
     "validation_results": {
         "total_return": 0.01921121178531648,
-        "sharpe_ratio": 0.02387114677073286,
+        "sharpe_ratio": 0.026990203914219534,
         "max_drawdown": 0.025644187914848227,
-        "strategy_score": 0.15367066316788033,
-        "annualized_return": 0.007186096252394414
+        "strategy_score": 0.15594213032874754,
+        "annualized_return": 0.009192969582203059
     }
 }
