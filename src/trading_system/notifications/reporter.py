@@ -4,8 +4,6 @@ from typing import List, Dict, Any
 import datetime as dt
 import logging
 
-from fontTools.misc.plistlib import end_date
-
 logger = logging.getLogger(__name__)
 
 from ..features.fundamental import get_previous_date
