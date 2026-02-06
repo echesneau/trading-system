@@ -1,8 +1,55 @@
 # src/backtesting/engine.py
 import pandas as pd
 import numpy as np
+from numba import njit
 from typing import Dict, Any
 
+@njit
+def backtest_core(prices, signals, initial_capital, position_size, fee, stop_loss, take_profit):
+    n = len(prices)
+    capital = initial_capital
+    position = 0.0
+    entry_price = 0.0
+
+    portfolio_values = np.zeros(n)
+    positions = np.zeros(n)
+    trades = np.zeros((n, 4))
+    for i in range(n):
+        price = prices[i]
+        signal = signals[i]
+
+        # --- GESTION POSITION EXISTANTE ---
+        if position > 0:
+            if signal == -1:
+                trades[i] = [-1, price, position, 0] # Action, price, position, reason (0=signal)
+                capital += position * price * (1 - fee)
+                position = 0
+
+            elif stop_loss > 0 and price <= entry_price * stop_loss:
+                trades[i] = [-1, price, position, 1]  # Action, price, position, reason (1=stop_loss)
+                capital += position * price * (1 - fee)
+                position = 0
+
+            elif take_profit > 0 and price >= entry_price * take_profit:
+                trades[i] = [-1, price, position, 2]  # Action, price, position, reason (2=take_profit)
+                capital += position * price * (1 - fee)
+                position = 0
+
+        # --- NOUVEL ACHAT ---
+        if signal == 1 and position == 0 and capital > 0:
+            max_invest = capital * position_size
+            shares = np.floor(max_invest / price)
+
+            if shares > 0:
+                cost = shares * price * (1 + fee)
+                capital -= cost
+                position = shares
+                entry_price = price
+                trades[i] = [1, price, position, 0]  # Action, price, position, reason (0=signal)
+
+        portfolio_values[i] = capital + position * price
+        positions[i] = position
+    return portfolio_values, positions, trades
 
 class BacktestingEngine:
     """Moteur de backtesting pour évaluer les stratégies de trading."""
@@ -29,6 +76,43 @@ class BacktestingEngine:
         self.position_size = position_size
         self.stop_loss = stop_loss
         self.take_profit = take_profit
+
+    def run_numba(self) -> Dict[str, Any]:
+        prices = self.data["Close"].values
+        signals_raw = self.strategy.generate_signals(self.data).values
+        dates = self.data.index
+
+        signal_map = {"BUY": 1, "SELL": -1}
+        signals = np.array([signal_map.get(s, 0) for s in signals_raw], dtype=np.int8)
+
+        portfolio_values, positions, trades = backtest_core(
+            prices,
+            signals,
+            self.initial_capital,
+            self.position_size,
+            self.transaction_fee,
+            self.stop_loss if self.stop_loss else 0.0,
+            self.take_profit if self.take_profit else 0.0,
+        )
+
+        portfolio_df = pd.DataFrame({
+            "date": dates,
+            "value": portfolio_values,
+            "position": positions,
+            "price": prices
+        }, index=dates)
+
+        trades_df = pd.DataFrame(trades, columns=["action", "price", "shares", "reason"])
+        trades_df['date'] = dates
+        trades_df = trades_df[trades_df["action"] != 0]
+
+        results = {
+            "portfolio": portfolio_df,
+            "trades": trades_df,
+            "performance": self._calculate_performance(portfolio_df, trades_df)
+        }
+
+        return results
 
     def run(self) -> Dict[str, Any]:
         """Exécute le backtest et retourne les résultats."""
@@ -131,7 +215,10 @@ class BacktestingEngine:
             }
 
         # Convertir en DataFrame pour faciliter les calculs
-        df = pd.DataFrame(portfolio_values).set_index('date')
+        if isinstance(portfolio_values, pd.DataFrame):
+            df = portfolio_values
+        else:
+            df = pd.DataFrame(portfolio_values).set_index('date')
         # Calcul du rendement total
         start_val = df['value'].iloc[0]
         end_val = df['value'].iloc[-1]
