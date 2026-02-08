@@ -1,6 +1,77 @@
 # tests/unit/test_engine.py
+import numpy as np
 import pandas as pd
+import pytest
 from trading_system.backtesting import BacktestingEngine
+from trading_system.backtesting.engine import backtest_core
+
+
+def test_backtest_core_simple_trade():
+    # --- Données de test ---
+    prices = np.array([100., 100., 100., 100.])
+    signals = np.array([1, 0, -1, 0])  # BUY puis SELL
+
+    initial_capital = 1000.0
+    position_size = 1.0
+    fee = 0.0
+    stop_loss = 0.0
+    take_profit = 0.0
+
+    # --- Exécution ---
+    portfolio_values, positions, trades = backtest_core(
+        prices,
+        signals,
+        initial_capital,
+        position_size,
+        fee,
+        stop_loss,
+        take_profit
+    )
+
+    # --- Assertions structurelles ---
+    assert portfolio_values.shape == (4,)
+    assert positions.shape == (4,)
+    assert trades.shape == (4, 4)
+
+    # --- Vérification du BUY ---
+    assert trades[0, 0] == 1          # action BUY
+    assert trades[0, 1] == 100.0      # prix
+    assert trades[0, 2] == 10.0       # 1000 / 100
+    assert trades[0, 3] == 0          # reason = signal
+
+    # --- Vérification de la position ---
+    assert positions[0] == 10
+    assert positions[1] == 10
+    assert positions[2] == 0          # après SELL
+
+    # --- Vérification du SELL ---
+    assert trades[2, 0] == -1         # action SELL
+    assert trades[2, 1] == 100.0
+    assert trades[2, 2] == 10.0
+    assert trades[2, 3] == 0          # reason = signal
+
+    # --- Capital final ---
+    assert portfolio_values[-1] == pytest.approx(1000.0)
+
+def test_backtest_core_stop_loss():
+    prices = np.array([100., 95., 90.])
+    signals = np.array([1, 0, 0])
+
+    portfolio_values, positions, trades = backtest_core(
+        prices,
+        signals,
+        initial_capital=1000.0,
+        position_size=1.0,
+        fee=0.0,
+        stop_loss=0.96,   # déclenché à 95
+        take_profit=0.0
+    )
+
+    # Stop-loss déclenché à l'index 1
+    assert trades[1, 0] == -1
+    assert trades[1, 3] == 1          # reason = stop_loss
+    assert positions[2] == 0
+
 
 def test_calculate_performance_edge_cases():
     engine = BacktestingEngine(strategy=None, data=pd.DataFrame())

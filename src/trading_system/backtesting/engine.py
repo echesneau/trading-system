@@ -4,8 +4,83 @@ import numpy as np
 from numba import njit
 from typing import Dict, Any
 
-@njit
+@njit(parallel=True)
 def backtest_core(prices, signals, initial_capital, position_size, fee, stop_loss, take_profit):
+    """
+    Exécute un backtest vectorisé d'une stratégie de trading long-only.
+
+    La fonction simule l'évolution du capital en fonction de signaux d'achat
+    et de vente, avec gestion des frais de transaction, du stop-loss et du
+    take-profit. Une seule position longue peut être ouverte à la fois.
+
+    Parameters
+    ----------
+    prices : np.ndarray
+        Tableau 1D des prix (ex: prix de clôture).
+        Shape : (n,)
+
+    signals : np.ndarray
+        Tableau 1D des signaux de trading.
+        -  1 : signal d'achat
+        - -1 : signal de vente
+        -  0 : aucun signal
+        Shape : (n,)
+
+    initial_capital : float
+        Capital initial disponible au début du backtest.
+
+    position_size : float
+        Fraction du capital utilisée pour chaque entrée en position
+        (ex: 0.1 pour investir 10 % du capital disponible).
+
+    fee : float
+        Frais de transaction proportionnels (ex: 0.001 pour 0.1 % par trade).
+
+    stop_loss : float
+        Seuil de stop-loss multiplicatif appliqué au prix d'entrée.
+        Exemple : 0.95 signifie une sortie si le prix baisse de 5 %.
+        Si <= 0, le stop-loss est désactivé.
+
+    take_profit : float
+        Seuil de take-profit multiplicatif appliqué au prix d'entrée.
+        Exemple : 1.10 signifie une sortie si le prix augmente de 10 %.
+        Si <= 0, le take-profit est désactivé.
+
+    Returns
+    -------
+    portfolio_values : np.ndarray
+        Valeur totale du portefeuille (capital + position valorisée)
+        à chaque pas de temps.
+        Shape : (n,)
+
+    positions : np.ndarray
+        Nombre d'unités détenues à chaque pas de temps.
+        Shape : (n,)
+
+    trades : np.ndarray
+        Historique des trades exécutés.
+        Shape : (n, 4)
+
+        Colonnes :
+        - trades[:, 0] : action
+            *  1 : achat
+            * -1 : vente
+            *  0 : aucun trade
+        - trades[:, 1] : prix d'exécution
+        - trades[:, 2] : taille de la position (nombre d'unités)
+        - trades[:, 3] : raison de la sortie / entrée
+            * 0 : signal
+            * 1 : stop-loss
+            * 2 : take-profit
+
+    Notes
+    -----
+    - La stratégie est long-only (pas de short).
+    - Une seule position peut être ouverte à la fois.
+    - Les ordres sont exécutés au prix courant (pas de slippage).
+    - La fonction est compilée avec Numba (`@njit`) pour des performances élevées
+      et est compatible avec une exécution parallèle.
+    """
     n = len(prices)
     capital = initial_capital
     position = 0.0
@@ -78,6 +153,7 @@ class BacktestingEngine:
         self.take_profit = take_profit
 
     def run_numba(self) -> Dict[str, Any]:
+        """Exécute le backtest optimisé avec numba et retourne les résultats."""
         prices = self.data["Close"].values
         signals_raw = self.strategy.generate_signals(self.data).values
         dates = self.data.index
