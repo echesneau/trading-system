@@ -1,8 +1,6 @@
 # optimize_parameters.py
 import itertools
-import os
 import warnings
-warnings.filterwarnings("ignore")
 import pandas as pd
 import numpy as np
 import json
@@ -13,7 +11,7 @@ from trading_system.data.loader import load_yfinance_data
 from trading_system.backtesting.engine import BacktestingEngine
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
-
+warnings.filterwarnings("ignore")
 
 def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.005):
     """
@@ -31,7 +29,7 @@ def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.
             position_size=1
         )
 
-        result = engine.run()
+        result = engine.run_numba()
 
         return {
             'params': params,
@@ -57,16 +55,15 @@ def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.
 
 
 def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
-                                 transaction_fee=0.005, max_workers=None):
+                                 transaction_fee=0.005):
     """
     Exécute une grid search parallélisée pour trouver les meilleurs paramètres.
 
     Args:
-        data: Données de marché pour le backtesting
+        raw_data: Données de marché pour le backtesting
         param_grid: Dictionnaire des plages de paramètres à tester
         initial_capital: Capital initial pour le backtest
         transaction_fee: Frais de transaction
-        max_workers: Nombre maximum de processus workers (None = auto-détection)
 
     Returns:
         DataFrame avec les résultats de tous les tests
@@ -82,53 +79,19 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     print(f"Nombre total de combinaisons à tester: {len(all_combinations)}")
     print()
 
-    # Utiliser ProcessPoolExecutor pour paralléliser les backtests
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        # Soumettre toutes les tâches
-        future_to_params = {
-            executor.submit(
-                backtest_wrapper,
-                params,
-                raw_data,
-                initial_capital,
-                transaction_fee
-            ): params for params in all_combinations
-        }
-
-        # Collecter les résultats au fur et à mesure
-        for i, future in enumerate(as_completed(future_to_params)):
-            params = future_to_params[future]
-            try:
-                result = future.result()
-                results.append(result)
-
-                if i % 100 == 0:
-                    print(f"\rTest {i}/{len(all_combinations)} - strategy_score: {result['strategy_score']:.2f}", end='', flush=True)
-                    #print(f"Test {i}/{len(all_combinations)} - Return: {result['total_return']:.2f}", end="\n")
-
-            except Exception as e:
-                print(f"Erreur avec les paramètres {params}: {str(e)}")
-                results.append({
-                    'params': params,
-                    'sharpe_ratio': -np.inf,
-                    'total_return': -np.inf,
-                    'max_drawdown': np.inf,
-                    'annualized_return': -np.inf,
-                    'strategy_score': -np.inf,
-                    'n_trades': 0,
-                    'error': str(e)
-                })
+    for params in all_combinations:
+        results.append(
+            backtest_wrapper(params, raw_data, initial_capital, transaction_fee)
+        )
 
     return pd.DataFrame(results)
 
-
-    return pd.DataFrame(results)
 
 def optimize_one(ticker: str, grid: dict, odir="./"):
     raw_data = load_yfinance_data(
         ticker=ticker,
         start_date="2010-01-01",
-        end_date="2023-01-01",
+        end_date="2024-01-01",
         interval="1d"
     )
     results_df = optimize_parameters_parallel(
@@ -167,8 +130,8 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
     # Tester les meilleurs paramètres sur une période de validation différente
     validation_data = load_yfinance_data(
         ticker=ticker,
-        start_date="2023-01-01",
-        end_date="2025-09-01",
+        start_date="2024-01-01",
+        end_date="2026-02-01",
         interval="1d"
     )
 
@@ -194,6 +157,11 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
     }
     with open(f'{odir}/metadata_opt_{ticker}.json', 'w', encoding='utf-8') as f:
         json.dump(metadata, f, ensure_ascii=False, indent=4)
+
+def run(ticker, param_grid, odir):
+    print("=" * 50)
+    print(f"Optimisation pour le ticker: {ticker}")
+    optimize_one(ticker, grid=param_grid, odir=odir)
 
 if __name__ == "__main__":
     tickers_cac40_list = [
@@ -237,21 +205,34 @@ if __name__ == "__main__":
     # Définir les plages de paramètres à tester
     param_grid = {
         'rsi_window': [7, 10, 14, 21],
-        'rsi_buy': [25, 30, 35],
-        'rsi_sell': [65, 70, 75],
+        # 'rsi_buy': [25, 30, 35],
+        # 'rsi_sell': [65, 70, 75],
+        'rsi_buy': [30, 35],
+        'rsi_sell': [70, 75],
         'macd_fast': [8, 12, 16, 20],
         'macd_slow': [21, 26, 30, 34],
         'macd_signal': [7, 9, 11, 13],
         'bollinger_window': [10, 15, 20, 25],
-        'bollinger_std': [1, 1.5, 2.0]
+        # 'bollinger_std': [1, 1.5, 2.0],
+        'bollinger_std': [1, 1.5]
     }
 
     odir = f"{config_path}/classical_strategy/"
-    for ticker in tickers_cac40_list:
-        print("=" * 50)
-        print(f"Optimisation pour le ticker: {ticker}")
-        optimize_one(ticker, grid=param_grid, odir=odir)
-
+    max_workers = 7
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(run, t, param_grid, odir): t for t in tickers_cac40_list}
+        for future in as_completed(futures):
+            ticker = futures[future]
+            try:
+                future.result()
+                print(f"✅ Terminé pour {ticker}")
+            except Exception as e:
+                print(f"Erreur lors de l'optimisation pour {ticker}: {str(e)}")
+    result = {"nb_ticker": len(tickers_cac40_list),
+              "params": param_grid,
+              "total_time_seconds": t_tot}
+    with open(f'{odir}/summary_optimization.json', 'w', encoding='utf-8') as f:
+        json.dump(result, f, ensure_ascii=False, indent=4)
 
 
 

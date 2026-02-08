@@ -1,13 +1,11 @@
 # optimize_parameters.py
 import itertools
-import os
 import warnings
 import pandas as pd
 import numpy as np
 import json
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from trading_system import config_path
 from trading_system.data.loader import load_yfinance_data
 from trading_system.backtesting.engine import BacktestingEngine
 from trading_system.strategies.classical import ClassicalStrategy
@@ -57,7 +55,7 @@ def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.
 
 
 def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
-                                 transaction_fee=0.005, max_workers=2):
+                                 transaction_fee=0.005):
     """
     Exécute une grid search parallélisée pour trouver les meilleurs paramètres.
 
@@ -66,7 +64,6 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
         param_grid: Dictionnaire des plages de paramètres à tester
         initial_capital: Capital initial pour le backtest
         transaction_fee: Frais de transaction
-        max_workers: Nombre maximum de processus workers (None = auto-détection)
 
     Returns:
         DataFrame avec les résultats de tous les tests
@@ -82,48 +79,50 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     print(f"Nombre total de combinaisons à tester: {len(all_combinations)}")
     print()
 
+    for params in all_combinations:
+        result = backtest_wrapper(params, raw_data, initial_capital, transaction_fee)
+        results.append(result)
+
     # Utiliser ProcessPoolExecutor pour paralléliser les backtests
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        # Soumettre toutes les tâches
-        future_to_params = {
-            executor.submit(
-                backtest_wrapper,
-                params,
-                raw_data,
-                initial_capital,
-                transaction_fee
-            ): params for params in all_combinations
-        }
+    # with ProcessPoolExecutor(max_workers=max_workers) as executor:
+    #     # Soumettre toutes les tâches
+    #     future_to_params = {
+    #         executor.submit(
+    #             backtest_wrapper,
+    #             params,
+    #             raw_data,
+    #             initial_capital,
+    #             transaction_fee
+    #         ): params for params in all_combinations
+    #     }
 
-        # Collecter les résultats au fur et à mesure
-        for i, future in enumerate(as_completed(future_to_params)):
-            params = future_to_params[future]
-            try:
-                result = future.result()
-                results.append(result)
+    #     # Collecter les résultats au fur et à mesure
+    #     for i, future in enumerate(as_completed(future_to_params)):
+    #         params = future_to_params[future]
+    #         try:
+    #             result = future.result()
+    #             results.append(result)
 
-                if i % 100 == 0:
-                    pass
+    #             if i % 100 == 0:
+    #                 pass
                     # print(f"\rTest {i}/{len(all_combinations)} - strategy_score: {result['strategy_score']:.2f}", end='', flush=True)
                     #print(f"Test {i}/{len(all_combinations)} - Return: {result['total_return']:.2f}", end="\n")
 
-            except Exception as e:
-                print(f"Erreur avec les paramètres {params}: {str(e)}")
-                results.append({
-                    'params': params,
-                    'sharpe_ratio': -np.inf,
-                    'total_return': -np.inf,
-                    'max_drawdown': np.inf,
-                    'annualized_return': -np.inf,
-                    'strategy_score': -np.inf,
-                    'n_trades': 0,
-                    'error': str(e)
-                })
+    #         except Exception as e:
+    #             print(f"Erreur avec les paramètres {params}: {str(e)}")
+    #             results.append({
+    #                 'params': params,
+    #                 'sharpe_ratio': -np.inf,
+    #                 'total_return': -np.inf,
+    #                 'max_drawdown': np.inf,
+    #                 'annualized_return': -np.inf,
+    #                 'strategy_score': -np.inf,
+    #                 'n_trades': 0,
+    #                 'error': str(e)
+    #             })
 
     return pd.DataFrame(results)
 
-
-    return pd.DataFrame(results)
 
 def optimize_one(ticker: str, grid: dict, odir="./"):
     raw_data = load_yfinance_data(
@@ -220,7 +219,7 @@ if __name__ == "__main__":
         'bollinger_std': [1, 1.5]
     }
 
-    odir = f"data_optim/numba_backtest/"
+    odir = f"data_optim/opt_indicators/"
     t0 = datetime.now()
     max_workers = 4
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
