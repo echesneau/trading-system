@@ -38,12 +38,11 @@ def calculate_indicators(
     Returns:
         DataFrame original enrichi avec les indicateurs techniques
     """
-    df = data.copy()
     out = {}
     # Vérification des colonnes requises
     required_columns = {'Open', 'High', 'Low', 'Close', 'Volume'}
-    if not required_columns.issubset(df.columns):
-        missing = required_columns - set(df.columns)
+    if not required_columns.issubset(data.columns):
+        missing = required_columns - set(data.columns)
         raise ValueError(f"Données manquantes pour calculer les indicateurs: {missing}")
 
     # Déterminer la taille de fenêtre maximale
@@ -52,8 +51,8 @@ def calculate_indicators(
     max_window = max(windows)
 
     # Vérifier suffisamment de données
-    if len(df) < max_window:
-        raise ValueError(f"Nécessite au moins {max_window} périodes, {len(df)} fournies")
+    if len(data) < max_window:
+        raise ValueError(f"Nécessite au moins {max_window} périodes, {len(data)} fournies")
 
     # 1. Momentum Indicators
     ## RSI avec gestion des NaN initiaux
@@ -61,7 +60,7 @@ def calculate_indicators(
         out['RSI'] = np.nan
     else:
         out['RSI'] = ta.momentum.RSIIndicator(
-            close=df['Close'],
+            close=data['Close'],
             window=rsi_window,
             fillna=False
         ).rsi()
@@ -70,16 +69,16 @@ def calculate_indicators(
         out['MACD'] = np.nan
         out['MACD_Signal'] = np.nan
     else:
-        macd = ta.trend.MACD(close=df['Close'], window_slow=macd_slow, window_fast=macd_fast, window_sign=macd_signal)
+        macd = ta.trend.MACD(close=data['Close'], window_slow=macd_slow, window_fast=macd_fast, window_sign=macd_signal)
         out['MACD'] = macd.macd()
         out['MACD_Signal'] = macd.macd_signal()
 
     ## Stochastic Oscillator
     if stochastic_oscillator:
         out['Stochastic_%K'] = ta.momentum.StochasticOscillator(
-            df['High'], df['Low'], df['Close']).stoch()
+            data['High'], data['Low'], data['Close']).stoch()
         out['Stochastic_%D'] = ta.momentum.StochasticOscillator(
-            df['High'], df['Low'], df['Close']).stoch_signal()
+            data['High'], data['Low'], data['Close']).stoch_signal()
     else:
         out['Stochastic_%K'] = np.nan
         out['Stochastic_%D'] = np.nan
@@ -90,9 +89,9 @@ def calculate_indicators(
         out['ATR'] = np.nan
     else:
         out['ATR'] = ta.volatility.AverageTrueRange(
-            high=df['High'],
-            low=df['Low'],
-            close=df['Close'],
+            high=data['High'],
+            low=data['Low'],
+            close=data['Close'],
             window=atr_window,
             fillna=False
         ).average_true_range()
@@ -104,7 +103,7 @@ def calculate_indicators(
         out['BB_Lower'] = np.nan
     else:
         bb = ta.volatility.BollingerBands(
-            close=df['Close'],
+            close=data['Close'],
             window=bollinger_window,
             window_dev=bollinger_std,
             fillna=False
@@ -116,16 +115,16 @@ def calculate_indicators(
     # 3. Trend Indicators
     ## Exponential Moving Averages (EMA)
     for window in ema_windows:
-        if len(df) >= window:
-            out[f'EMA_{window}'] = ema_indicator(df['Close'], window=window)
+        if len(data) >= window:
+            out[f'EMA_{window}'] = ema_indicator(data['Close'], window=window)
         else:
             out[f'EMA_{window}'] = np.nan
     ## ADX
-    if not adx_window is None and len(df) >= adx_window:
+    if not adx_window is None and len(data) >= adx_window:
         out['ADX'] = ta.trend.ADXIndicator(
-            high=df['High'],
-            low=df['Low'],
-            close=df['Close'],
+            high=data['High'],
+            low=data['Low'],
+            close=data['Close'],
             window=adx_window,
             fillna=False
         ).adx()
@@ -135,23 +134,23 @@ def calculate_indicators(
     # 4. Volume Indicators
     if balance_volume:
         out['OBV'] = ta.volume.OnBalanceVolumeIndicator(
-            df['Close'], df['Volume']).on_balance_volume()
+            data['Close'], data['Volume']).on_balance_volume()
     else:
         out['OBV'] = np.nan
-    if volume_ma_window is not None and len(df) >= volume_ma_window:
-        out['VolMA'] = df['Volume'].rolling(window=volume_ma_window).mean()
+    if volume_ma_window is not None and len(data) >= volume_ma_window:
+        out['VolMA'] = data['Volume'].rolling(window=volume_ma_window).mean()
     else:
         out['VolMA'] = np.nan
 
     # 5. Custom Indicators
     if price_volume_trend:
-        out['Price_Volume_Trend'] = calculate_price_volume_trend(df)
+        out['Price_Volume_Trend'] = calculate_price_volume_trend(data)
     else:
         out['Price_Volume_Trend'] = np.nan
-    out['Daily_Return'] = df['Close'].pct_change()
+    out['Daily_Return'] = data['Close'].pct_change()
 
-    df = df.assign(**out)
-    return df
+    data = data.assign(**out)
+    return data
 
 
 def calculate_price_volume_trend(df: pd.DataFrame) -> pd.Series:
