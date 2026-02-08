@@ -32,21 +32,23 @@ class ModelTrainer:
         from trading_system.features import calculate_indicators
         # Applique les paramètres techniques
         tech_params = self.config.get('technical_params', {})
-        data = calculate_indicators(data, **tech_params)
+        processed_data = calculate_indicators(data, **tech_params)
 
         # Création de la target
         horizon = self.config['target_horizon']
-        data['Target'] = (data['Close'].shift(-horizon) > data['Close']).astype(int)
-        data.dropna(inplace=True)
+        processed_data['Target'] = (processed_data['Close'].shift(-horizon) > processed_data['Close']).astype(int)
+        processed_col = [col for col in processed_data.columns if col not in data.columns]
+        processed_data = processed_data.dropna(how="all",
+                                               subset=processed_col)
 
         # Sélection des features
-        features = data[[
+        features = processed_data[[
             'RSI', 'MACD', 'MACD_Signal',
             'BB_Upper', 'BB_Lower', 'ATR',
             'EMA_20', 'EMA_50'
         ]]
 
-        return features, data['Target']
+        return features, processed_data['Target']
 
     def train(self, data: pd.DataFrame) -> Dict:
         """Entraîne un modèle XGBoost avec validation temporelle"""

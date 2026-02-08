@@ -35,6 +35,8 @@ def process_market_data(
     processed_data = calculate_indicators(raw_data, **config)
 
     # Nettoyage des NaN (dûs aux indicateurs nécessitant une période)
-    processed_data = processed_data.dropna()
+    processed_col = [col for col in processed_data.columns if col not in raw_data.columns]
+    processed_data = processed_data.dropna(how="all",
+                                           subset=processed_col)
 
     return processed_data
