@@ -99,8 +99,8 @@ def test_calculate_performance_gain():
         {"date": pd.Timestamp("2020-01-10"), "value": 120},
     ]
     trades = pd.DataFrame([
-        {"action": "BUY", "price": 100},
-        {"action": "SELL", "price": 120},
+        {"action": 1, "price": 100},
+        {"action": -1, "price": 120},
     ])
 
     result = engine._calculate_performance(values, trades)
@@ -118,8 +118,8 @@ def test_calculate_performance_loss():
         {"date": pd.Timestamp("2020-01-10"), "value": 80},
     ]
     trades = pd.DataFrame([
-        {"action": "BUY", "price": 100},
-        {"action": "SELL", "price": 80},
+        {"action": 1, "price": 100},
+        {"action": -1, "price": 80},
     ])
 
     result = engine._calculate_performance(values, trades)

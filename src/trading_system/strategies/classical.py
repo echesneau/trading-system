@@ -20,7 +20,7 @@ class ClassicalStrategy(BaseStrategy):  # Hérite de BaseStrategy
         self.bollinger_window = bollinger_window
         self.bollinger_std = bollinger_std
 
-    def generate_signals(self, data: pd.DataFrame, to_str: bool = False) -> pd.Series:
+    def generate_signals(self, data: pd.DataFrame) -> pd.Series:
         """
         Génère les signaux de trading (BUY, SELL, HOLD).
 
@@ -49,8 +49,6 @@ class ClassicalStrategy(BaseStrategy):  # Hérite de BaseStrategy
         signals[sell] = -1
 
         signals = pd.Series(signals, index=data.index)
-        if to_str:
-            signals = signals.map({1: 'BUY', -1: 'SELL', 0: 'HOLD'})
         return signals
 
     def get_parameters(self) -> dict:

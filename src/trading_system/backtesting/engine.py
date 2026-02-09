@@ -424,25 +424,24 @@ class BacktestingEngine:
                 "win_loss_ratio": 0.0,
                 "total_profit_by_trades": 0.0
             }
+        actions = trades["action"].values
+        prices = trades["price"].values
         # Séparer buy et sell
-        buy_prices = trades.loc[trades["action"] == "BUY", "price"].reset_index(drop=True)
-        sell_prices = trades.loc[trades["action"] == "SELL", "price"].reset_index(drop=True)
-
-        # Appliquer les frais :
+        # avec frais
         # - le buy coûte plus cher
         # - le sell rapporte moins
-        buy_adj = buy_prices * (1 + fee_rate)
-        sell_adj = sell_prices * (1 - fee_rate)
+        buy_prices = prices[actions == 1] * (1 + fee_rate)
+        sell_prices = prices[actions == -1] * (1 - fee_rate)
 
         # Profit net par trade
-        n = min(len(buy_adj), len(sell_adj))
-        profits = sell_adj.values[:n] - buy_adj.values[:n]
+        n = min(len(buy_prices), len(sell_prices))
+        profits = sell_prices[:n] - buy_prices[:n]
 
         # Statistiques
-        n_wins = (profits > 0).sum()
-        n_losses = (profits <  0).sum()
+        n_wins = np.sum(profits > 0)
+        n_losses = np.sum(profits < 0)
         win_loss_ratio = n_wins / n_losses if n_losses > 0 else float("inf")
-        win_rate = n_wins / (n_wins + n_losses) if (n_wins + n_losses) > 0 else 0
+        win_rate = n_wins / (n_wins + n_losses)
 
         return {
             "profits_by_trades": profits,
