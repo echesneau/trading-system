@@ -95,7 +95,7 @@ class SignalReporter:
                     self.strategy = self.strategy_cls(**config)
 
                 processed_data = calculate_indicators(hist_data, **config)
-                signal_series = self.strategy.generate_signals(processed_data)
+                signal_series = self.strategy.generate_signals(processed_data, to_str=True)
                 signal = signal_series.iloc[-1]  # Prendre le dernier signal
                 price = processed_data['Close'].iloc[-1]
                 date = processed_data.index[-1]

@@ -155,11 +155,8 @@ class BacktestingEngine:
     def run_numba(self) -> Dict[str, Any]:
         """Exécute le backtest optimisé avec numba et retourne les résultats."""
         prices = self.data["Close"].values
-        signals_raw = self.strategy.generate_signals(self.data).values
+        signals = self.strategy.generate_signals(self.data).values
         dates = self.data.index
-
-        signal_map = {"BUY": 1, "SELL": -1}
-        signals = np.array([signal_map.get(s, 0) for s in signals_raw], dtype=np.int8)
 
         portfolio_values, positions, trades = backtest_core(
             prices,

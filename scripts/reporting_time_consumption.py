@@ -256,7 +256,7 @@ if __name__ == "__main__":
         'bollinger_std': [1, 1.5]
     }
 
-    odir = f"data_optim/cache_indicators/"
+    odir = f"data_optim/backtest_numpy/"
     t0 = datetime.now()
     max_workers = 4
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
