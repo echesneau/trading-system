@@ -12,14 +12,52 @@ from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
 warnings.filterwarnings("ignore")
 
+def update_cache(cache, data, params):
+    # RSI
+    if 'rsi_window' in params and f"RSI_{params['rsi_window']}" not in cache:
+        cache[f"RSI_{params['rsi_window']}"] = data[f"RSI"]
+    # MACD
+    macd_key = f"MACD_{params['macd_fast']}_{params['macd_slow']}_{params['macd_signal']}"
+    macd_signal_key = f"MACD_Signal_{params['macd_fast']}_{params['macd_slow']}_{params['macd_signal']}"
+    if "macd_fast" in params and "macd_slow" in params and "macd_signal" in params and macd_key not in cache:
+        cache[macd_key] = data[f"MACD"]
+        cache[macd_signal_key] = data[f"MACD_Signal"]
+    # ATR
+    if 'atr_window' in params and f"ATR_{params['atr_window']}" not in cache:
+        cache[f"ATR_{params['rsi_window']}"] = data[f"ATR"]
+    # Bollinger Bands
+    if "bollinger_window" in params and "bollinger_std" in params and f"BB_Upper_{params['bollinger_window']}_{params['bollinger_std']}" not in cache:
+        cache[f"BB_Upper_{params['bollinger_window']}_{params['bollinger_std']}"] = data[f"BB_Upper"]
+        cache[f"BB_Middle_{params['bollinger_window']}_{params['bollinger_std']}"] = data[f"BB_Middle"]
+        cache[f"BB_Lower_{params['bollinger_window']}_{params['bollinger_std']}"] = data[f"BB_Lower"]
+    # EMA
+    if "ema_windows" in params:
+        for window in params["ema_windows"]:
+            ema_key = f"EMA_{window}"
+            if ema_key not in cache:
+                cache[ema_key] = data[f"EMA_{window}"]
+    # ADX
+    if "adx_window" in params and f"ADX_{params['adx_window']}" not in cache:
+        cache[f"ADX_{params['adx_window']}"] = data[f"ADX"]
+    # OBV
+    if "balance_volume" in params and params['balance_volume'] and "OBV" not in cache:
+        cache["OBV"] = data["OBV"]
+    # VolMa
+    if "volma_window" in params and f"VolMA_{params['volma_window']}" not in cache:
+        cache[f"VolMA_{params['volma_window']}"] = data[f"VolMA"]
+    # Price volume trend
+    if "price_volume_trend" in params and params['price_volume_trend'] and "Price_Volume_Trend" not in cache:
+        cache["Price_Volume_Trend"] = data["Price_Volume_Trend"]
+    return cache
 
-def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.005):
+def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.005, cache={}):
     """
     Fonction wrapper pour exécuter un backtest avec des paramètres spécifiques.
     Cette fonction doit être autonome pour être exécutée dans un processus séparé.
     """
     try:
-        data = calculate_indicators(raw_data, **params)
+        data = calculate_indicators(raw_data, cache=cache,  **params)
+        cache = update_cache(cache, data, params)
         strategy = ClassicalStrategy(**params)
         engine = BacktestingEngine(
             strategy=strategy,
@@ -39,7 +77,7 @@ def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.
             'annualized_return': result['performance']['annualized_return'],
             'strategy_score': result['performance']['strategy_score'],
             'n_trades': len(result['trades']) if 'trades' in result and result['trades'] is not None else 0
-        }
+        }, cache
     except Exception as e:
         print(f"Erreur avec les paramètres {params}: {str(e)}")
         return {
@@ -51,7 +89,7 @@ def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.
             'n_trades': 0,
             'strategy_score':0,
             'error': str(e)
-        }
+        }, cache
 
 
 def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
@@ -78,9 +116,9 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
 
     print(f"Nombre total de combinaisons à tester: {len(all_combinations)}")
     print()
-
+    cache = {}
     for params in all_combinations:
-        result = backtest_wrapper(params, raw_data, initial_capital, transaction_fee)
+        result, cache = backtest_wrapper(params, raw_data, initial_capital, transaction_fee, cache=cache)
         results.append(result)
 
     # Utiliser ProcessPoolExecutor pour paralléliser les backtests
@@ -136,7 +174,6 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
         param_grid=grid,
         initial_capital=10000,
         transaction_fee=0.005,
-        max_workers=3  # None = utilise tous les coeurs disponibles
     )
     # Trouver les meilleures combinaisons selon différentes métriques
     best_sharpe = results_df.loc[results_df['sharpe_ratio'].idxmax()]
@@ -219,7 +256,7 @@ if __name__ == "__main__":
         'bollinger_std': [1, 1.5]
     }
 
-    odir = f"data_optim/opt_indicators/"
+    odir = f"data_optim/cache_indicators/"
     t0 = datetime.now()
     max_workers = 4
     with ProcessPoolExecutor(max_workers=max_workers) as executor:

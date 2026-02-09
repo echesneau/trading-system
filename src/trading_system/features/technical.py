@@ -21,6 +21,7 @@ def calculate_indicators(
         balance_volume: bool = False,
         stochastic_oscillator: bool = False,
         price_volume_trend: bool = False,
+        cache: dict = {},
         **kwargs
 ) -> pd.DataFrame:
     """
@@ -59,19 +60,26 @@ def calculate_indicators(
     if rsi_window is None:
         out['RSI'] = np.nan
     else:
-        out['RSI'] = ta.momentum.RSIIndicator(
-            close=data['Close'],
-            window=rsi_window,
-            fillna=False
-        ).rsi()
+        if f"RSI_{rsi_window}" in cache:
+            out['RSI'] = cache[f"RSI_{rsi_window}"]
+        else:
+            out['RSI'] = ta.momentum.RSIIndicator(
+                close=data['Close'],
+                window=rsi_window,
+                fillna=False
+            ).rsi()
     ## MACD (fenêtres fixes conventionnelles)
     if macd_fast is None or macd_slow is None or macd_signal is None:
         out['MACD'] = np.nan
         out['MACD_Signal'] = np.nan
     else:
-        macd = ta.trend.MACD(close=data['Close'], window_slow=macd_slow, window_fast=macd_fast, window_sign=macd_signal)
-        out['MACD'] = macd.macd()
-        out['MACD_Signal'] = macd.macd_signal()
+        if f"MACD_{macd_fast}_{macd_slow}_{macd_signal}" in cache:
+            out['MACD'] = cache[f"MACD_{macd_fast}_{macd_slow}_{macd_signal}"]
+            out['MACD_Signal'] = cache[f"MACD_Signal_{macd_fast}_{macd_slow}_{macd_signal}"]
+        else:
+            macd = ta.trend.MACD(close=data['Close'], window_slow=macd_slow, window_fast=macd_fast, window_sign=macd_signal)
+            out['MACD'] = macd.macd()
+            out['MACD_Signal'] = macd.macd_signal()
 
     ## Stochastic Oscillator
     if stochastic_oscillator:
@@ -88,13 +96,16 @@ def calculate_indicators(
     if atr_window is None:
         out['ATR'] = np.nan
     else:
-        out['ATR'] = ta.volatility.AverageTrueRange(
-            high=data['High'],
-            low=data['Low'],
-            close=data['Close'],
-            window=atr_window,
-            fillna=False
-        ).average_true_range()
+        if f"ATR_{atr_window}" in cache:
+            out['ATR'] = cache[f"ATR_{atr_window}"]
+        else:
+            out['ATR'] = ta.volatility.AverageTrueRange(
+                high=data['High'],
+                low=data['Low'],
+                close=data['Close'],
+                window=atr_window,
+                fillna=False
+            ).average_true_range()
 
     # Bandes de Bollinger
     if bollinger_window is None:
@@ -102,49 +113,69 @@ def calculate_indicators(
         out['BB_Middle'] = np.nan
         out['BB_Lower'] = np.nan
     else:
-        bb = ta.volatility.BollingerBands(
-            close=data['Close'],
-            window=bollinger_window,
-            window_dev=bollinger_std,
-            fillna=False
-        )
-        out['BB_Upper'] = bb.bollinger_hband()
-        out['BB_Middle'] = bb.bollinger_mavg()
-        out['BB_Lower'] = bb.bollinger_lband()
+        if f"BB_Upper_{bollinger_window}_{bollinger_std}" in cache:
+            out['BB_Upper'] = cache[f"BB_Upper_{bollinger_window}_{bollinger_std}"]
+            out['BB_Middle'] = cache[f"BB_Middle_{bollinger_window}_{bollinger_std}"]
+            out['BB_Lower'] = cache[f"BB_Lower_{bollinger_window}_{bollinger_std}"]
+        else:
+            bb = ta.volatility.BollingerBands(
+                close=data['Close'],
+                window=bollinger_window,
+                window_dev=bollinger_std,
+                fillna=False
+            )
+            out['BB_Upper'] = bb.bollinger_hband()
+            out['BB_Middle'] = bb.bollinger_mavg()
+            out['BB_Lower'] = bb.bollinger_lband()
 
     # 3. Trend Indicators
     ## Exponential Moving Averages (EMA)
     for window in ema_windows:
         if len(data) >= window:
-            out[f'EMA_{window}'] = ema_indicator(data['Close'], window=window)
+            if f"EMA_{window}" in cache:
+                out[f'EMA_{window}'] = cache[f"EMA_{window}"]
+            else:
+                out[f'EMA_{window}'] = ema_indicator(data['Close'], window=window)
         else:
             out[f'EMA_{window}'] = np.nan
     ## ADX
     if not adx_window is None and len(data) >= adx_window:
-        out['ADX'] = ta.trend.ADXIndicator(
-            high=data['High'],
-            low=data['Low'],
-            close=data['Close'],
-            window=adx_window,
-            fillna=False
-        ).adx()
+        if f"ADX_{adx_window}" in cache:
+            out['ADX'] = cache[f"ADX_{adx_window}"]
+        else:
+            out['ADX'] = ta.trend.ADXIndicator(
+                high=data['High'],
+                low=data['Low'],
+                close=data['Close'],
+                window=adx_window,
+                fillna=False
+            ).adx()
     else:
         out['ADX'] = np.nan
 
     # 4. Volume Indicators
     if balance_volume:
-        out['OBV'] = ta.volume.OnBalanceVolumeIndicator(
-            data['Close'], data['Volume']).on_balance_volume()
+        if f"OBV" in cache:
+            out['OBV'] = cache["OBV"]
+        else:
+            out['OBV'] = ta.volume.OnBalanceVolumeIndicator(
+                data['Close'], data['Volume']).on_balance_volume()
     else:
         out['OBV'] = np.nan
     if volume_ma_window is not None and len(data) >= volume_ma_window:
-        out['VolMA'] = data['Volume'].rolling(window=volume_ma_window).mean()
+        if f"VolMA_{volume_ma_window}" in cache:
+            out['VolMA'] = cache[f"VolMA_{volume_ma_window}"]
+        else:
+            out['VolMA'] = data['Volume'].rolling(window=volume_ma_window).mean()
     else:
         out['VolMA'] = np.nan
 
     # 5. Custom Indicators
     if price_volume_trend:
-        out['Price_Volume_Trend'] = calculate_price_volume_trend(data)
+        if f"Price_Volume_Trend" in cache:
+            out['Price_Volume_Trend'] = cache["Price_Volume_Trend"]
+        else:
+            out['Price_Volume_Trend'] = calculate_price_volume_trend(data)
     else:
         out['Price_Volume_Trend'] = np.nan
     out['Daily_Return'] = data['Close'].pct_change()
