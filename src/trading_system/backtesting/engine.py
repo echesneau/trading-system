@@ -188,7 +188,10 @@ class BacktestingEngine:
         return results
 
     def run(self) -> Dict[str, Any]:
-        """Exécute le backtest et retourne les résultats."""
+        """Exécute le backtest et retourne les résultats.
+        * 0 : signal
+            * 1 : stop-loss
+            * 2 : take-profit"""
         # Initialisation des variables
         capital = self.initial_capital
         position = 0
@@ -206,13 +209,13 @@ class BacktestingEngine:
             # Gestion des positions existantes
             if position > 0:
                 # Vérifier signal de vente
-                if signal == 'SELL':
+                if signal == -1:
                     trades.append({
                         'date': date,
-                        'action': 'SELL',
+                        'action': -1,
                         'price': price,
                         'shares': position,
-                        'reason': 'signal'
+                        'reason': 0
                     })
                     capital += position * price * (1 - self.transaction_fee)
                     position = 0
@@ -220,10 +223,10 @@ class BacktestingEngine:
                 elif self.stop_loss and price <= entry_price *  self.stop_loss:
                     trades.append({
                         'date': date,
-                        'action': 'SELL',
+                        'action': -1,
                         'price': price,
                         'shares': position,
-                        'reason': 'stop_loss'
+                        'reason': 1
                     })
                     capital += position * price * (1 - self.transaction_fee)
                     position = 0
@@ -231,17 +234,17 @@ class BacktestingEngine:
                 elif self.take_profit and price >= entry_price * self.take_profit:
                     trades.append({
                         'date': date,
-                        'action': 'SELL',
+                        'action': -1,
                         'price': price,
                         'shares': position,
-                        'reason': 'take_profit'
+                        'reason': 2
                     })
                     capital += position * price * (1 - self.transaction_fee)
                     position = 0
 
 
             # Gestion des nouveaux signaux d'achat
-            if signal == 'BUY' and position == 0 and capital > 0:
+            if signal == 1 and position == 0 and capital > 0:
                 max_invest = capital * self.position_size
                 shares = max_invest // price
 
@@ -253,10 +256,10 @@ class BacktestingEngine:
 
                     trades.append({
                         'date': date,
-                        'action': 'BUY',
+                        'action': 1,
                         'price': price,
                         'shares': shares,
-                        'reason': 'signal'
+                        'reason': 0
                     })
 
             # Calcul de la valeur du portefeuille
@@ -292,18 +295,20 @@ class BacktestingEngine:
             df = portfolio_values
         else:
             df = pd.DataFrame(portfolio_values).set_index('date')
+        # to numpy
+        values = df["value"].to_numpy(dtype=np.float64)
         # Calcul du rendement total
-        start_val = df['value'].iloc[0]
-        end_val = df['value'].iloc[-1]
+        start_val = values[0]
+        end_val = values[-1]
         total_return = (end_val - start_val) / start_val if start_val != 0 else 0.0
 
         # Calcul du drawdown maximum
-        df['peak'] = df['value'].cummax()
-        df['drawdown'] = (df['peak'] - df['value']) / df['peak']
-        max_drawdown = df['drawdown'].max()
+        peaks = np.maximum.accumulate(values)
+        drawdowns = (peaks - values) / peaks
+        max_drawdown = np.max(drawdowns)
 
         # Calcul du ratio de Sharpe (simplifié)
-        returns = df['value'].pct_change().dropna()
+        returns = values[1:] / values[:-1] - 1.0
         sharpe_ratio = returns.mean() / returns.std() if returns.std() != 0 else 0.0
 
         # Calcul du rendement annualisé

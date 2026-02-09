@@ -1,7 +1,12 @@
 import pandas as pd
+from pandas.testing import assert_frame_equal
 from unittest.mock import MagicMock
 
 from trading_system.backtesting import BacktestingEngine
+from trading_system.data.loader import load_yfinance_data
+from trading_system.strategies.classical import ClassicalStrategy
+from trading_system.features.technical import calculate_indicators
+
 
 def test_backtest_engine_basic():
     """Teste le fonctionnement de base du moteur de backtesting."""
@@ -142,3 +147,121 @@ def test_all_buy_signals():
     trades = results['trades']
     # Normalement un seul BUY est exécuté, pas plusieurs d'affilée
     assert trades["action"].tolist().count("BUY") == 1
+
+def test_backtest_classical_strategy_numba(ticker_test):
+    raw_data = load_yfinance_data(
+        ticker=ticker_test,
+        start_date="2022-01-01",
+        end_date="2024-01-01",
+        interval="1d"
+    )
+    params = {
+        "rsi_window":14,
+        "rsi_buy":30,
+        "rsi_sell":70,
+        "macd_fast":12,
+        "macd_slow":26,
+        "macd_signal":9,
+        "bollinger_window":20,
+        'bollinger_std':2,
+    }
+    data = calculate_indicators(raw_data, **params)
+
+    strategy = ClassicalStrategy(**params)
+    engine = BacktestingEngine(
+        strategy=strategy,
+        data=data,
+        initial_capital=1000,
+        transaction_fee=0.05,
+        position_size=1
+    )
+    result = engine.run_numba()
+    for k in ['portfolio', 'trades', 'performance']:
+        assert k in result
+
+    assert isinstance(result['portfolio'], pd.DataFrame)
+    assert isinstance(result['trades'], pd.DataFrame)
+    assert isinstance(result['performance'], dict)
+    assert len(result['trades']) > 0  # Doit avoir généré des trades
+
+def test_backtest_classical_strategy_without_numba(ticker_test):
+    raw_data = load_yfinance_data(
+        ticker=ticker_test,
+        start_date="2022-01-01",
+        end_date="2024-01-01",
+        interval="1d"
+    )
+    params = {
+        "rsi_window":14,
+        "rsi_buy":30,
+        "rsi_sell":70,
+        "macd_fast":12,
+        "macd_slow":26,
+        "macd_signal":9,
+        "bollinger_window":20,
+        'bollinger_std':2,
+    }
+    data = calculate_indicators(raw_data, **params)
+
+    strategy = ClassicalStrategy(**params)
+    engine = BacktestingEngine(
+        strategy=strategy,
+        data=data,
+        initial_capital=1000,
+        transaction_fee=0.05,
+        position_size=1
+    )
+    result = engine.run()
+    for k in ['portfolio', 'trades', 'performance']:
+        assert k in result
+
+    assert isinstance(result['portfolio'], pd.DataFrame)
+    assert isinstance(result['trades'], pd.DataFrame)
+    assert isinstance(result['performance'], dict)
+    assert len(result['trades']) > 0  # Doit avoir généré des trades
+
+def test_backtest_classical_strategy_compare_run(ticker_test):
+    raw_data = load_yfinance_data(
+        ticker=ticker_test,
+        start_date="2022-01-01",
+        end_date="2024-01-01",
+        interval="1d"
+    )
+    params = {
+        "rsi_window":14,
+        "rsi_buy":30,
+        "rsi_sell":70,
+        "macd_fast":12,
+        "macd_slow":26,
+        "macd_signal":9,
+        "bollinger_window":20,
+        'bollinger_std':2,
+    }
+    data = calculate_indicators(raw_data, **params)
+
+    strategy = ClassicalStrategy(**params)
+    engine = BacktestingEngine(
+        strategy=strategy,
+        data=data,
+        initial_capital=1000,
+        transaction_fee=0.05,
+        position_size=1
+    )
+    result = engine.run()
+    result_numba = engine.run_numba()
+    trades = result['trades'].reset_index(drop=True)
+    trades_numba = result_numba['trades'].reset_index(drop=True)
+    trades_numba = trades_numba[trades.columns]
+    assert_frame_equal(
+        trades,
+        trades_numba,
+        check_dtype=False
+    )
+    portfolio = result['portfolio'].reset_index(drop=True)
+    portfolio_numba = result_numba['portfolio'].reset_index(drop=True)
+    portfolio_numba = portfolio_numba[portfolio.columns]
+    assert_frame_equal(
+        portfolio,
+        portfolio_numba,
+        check_dtype=False,
+    )
