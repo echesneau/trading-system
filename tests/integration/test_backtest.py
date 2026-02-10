@@ -18,7 +18,7 @@ def test_backtest_engine_basic():
     # Créer une stratégie mock
     strategy = MagicMock()
     strategy.generate_signals.return_value = pd.Series(
-        ['HOLD', 'BUY', 'HOLD', 'SELL', 'HOLD', 'BUY', 'HOLD', 'SELL'],
+        [0, 1, 0, -1, 0,1,0, -1],
         index=data.index
     )
     
@@ -48,9 +48,9 @@ def test_backtest_engine_basic():
     assert all(col in trades.columns for col in ["action", "price", "shares"])
     
     # Premier trade: achat à 102, vente à 103
-    assert trades.iloc[0]['action'] == 'BUY'
+    assert trades.iloc[0]['action'] == 1
     assert trades.iloc[0]['price'] == 102
-    assert trades.iloc[1]['action'] == 'SELL'
+    assert trades.iloc[1]['action'] == -1
     assert trades.iloc[1]['price'] == 103
 
 def test_position_sizing():
@@ -61,7 +61,7 @@ def test_position_sizing():
     
     strategy = MagicMock()
     strategy.generate_signals.return_value = pd.Series(
-        ['BUY', 'HOLD', 'HOLD', 'SELL']
+        [1, 0, 0, -1]
     )
     
     engine = BacktestingEngine(
@@ -79,7 +79,7 @@ def test_position_sizing():
     assert abs(shares_bought * 100 - 5000) < 1  # 50% de 10000 à 100€
 
     # Vérifie qu'il y a bien un SELL correspondant
-    assert "SELL" in trades["action"].values
+    assert -1 in trades["action"].values
 
 def test_stop_loss_and_take_profit():
     """Teste le déclenchement des stop-loss et take-profit."""
@@ -89,7 +89,7 @@ def test_stop_loss_and_take_profit():
     
     strategy = MagicMock()
     strategy.generate_signals.return_value = pd.Series(
-        ['BUY', 'HOLD', 'HOLD', 'HOLD', 'HOLD']
+        [1, 0, 0, 0, 0]
     )
     
     engine = BacktestingEngine(
@@ -105,9 +105,9 @@ def test_stop_loss_and_take_profit():
     
     # Vérifier que le stop-loss a été déclenché
     assert len(trades) >= 2
-    assert trades.iloc[1]['action'] == 'SELL'
+    assert trades.iloc[1]['action'] == -1
     assert trades.iloc[1]['price'] == 90  # Prix du stop-loss
-    assert trades.iloc[1]['reason'] == 'stop_loss'
+    assert trades.iloc[1]['reason'] == 1
 
 
 def test_no_signals_results_in_no_trades():
@@ -137,7 +137,7 @@ def test_all_buy_signals():
 
     strategy = MagicMock()
     strategy.generate_signals.return_value = pd.Series(
-        ['BUY', 'BUY', 'BUY', 'BUY'],
+        [1, 1, 1, 1],
         index=data.index
     )
 
@@ -146,7 +146,7 @@ def test_all_buy_signals():
 
     trades = results['trades']
     # Normalement un seul BUY est exécuté, pas plusieurs d'affilée
-    assert trades["action"].tolist().count("BUY") == 1
+    assert trades["action"].tolist().count(1) == 1
 
 def test_backtest_classical_strategy_numba(ticker_test):
     raw_data = load_yfinance_data(
