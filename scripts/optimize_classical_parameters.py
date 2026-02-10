@@ -252,8 +252,12 @@ if __name__ == "__main__":
         'macd_slow': [21, 26, 30, 34],
         'macd_signal': [7, 9, 11, 13],
         'bollinger_window': [10, 15, 20, 25],
-        # 'bollinger_std': [1, 1.5, 2.0],
-        'bollinger_std': [1, 1.5]
+        'bollinger_std': [1, 1.5, 2.0],
+        "adx_min": [None, 15, 20, 25],  # faible 15-20, forte 25-40
+        "stock_min": [None, 20, 25],  # inf 25 environ
+        "stock_max": [None, 75, 80],  # sup 75 environ
+        "atr_max": [None, 0.01, 0.03, 0.1],  # entre 0 et 0.05
+        "stochastic_oscillator": [False, True],
     }
 
     odir = f"{config_path}/classical_strategy/"
