@@ -1,8 +1,130 @@
 # src/backtesting/engine.py
 import pandas as pd
 import numpy as np
+from numba import njit
 from typing import Dict, Any
 
+@njit(parallel=True)
+def backtest_core(prices, signals, initial_capital, position_size, fee, stop_loss, take_profit):
+    """
+    Exécute un backtest vectorisé d'une stratégie de trading long-only.
+
+    La fonction simule l'évolution du capital en fonction de signaux d'achat
+    et de vente, avec gestion des frais de transaction, du stop-loss et du
+    take-profit. Une seule position longue peut être ouverte à la fois.
+
+    Parameters
+    ----------
+    prices : np.ndarray
+        Tableau 1D des prix (ex: prix de clôture).
+        Shape : (n,)
+
+    signals : np.ndarray
+        Tableau 1D des signaux de trading.
+        -  1 : signal d'achat
+        - -1 : signal de vente
+        -  0 : aucun signal
+        Shape : (n,)
+
+    initial_capital : float
+        Capital initial disponible au début du backtest.
+
+    position_size : float
+        Fraction du capital utilisée pour chaque entrée en position
+        (ex: 0.1 pour investir 10 % du capital disponible).
+
+    fee : float
+        Frais de transaction proportionnels (ex: 0.001 pour 0.1 % par trade).
+
+    stop_loss : float
+        Seuil de stop-loss multiplicatif appliqué au prix d'entrée.
+        Exemple : 0.95 signifie une sortie si le prix baisse de 5 %.
+        Si <= 0, le stop-loss est désactivé.
+
+    take_profit : float
+        Seuil de take-profit multiplicatif appliqué au prix d'entrée.
+        Exemple : 1.10 signifie une sortie si le prix augmente de 10 %.
+        Si <= 0, le take-profit est désactivé.
+
+    Returns
+    -------
+    portfolio_values : np.ndarray
+        Valeur totale du portefeuille (capital + position valorisée)
+        à chaque pas de temps.
+        Shape : (n,)
+
+    positions : np.ndarray
+        Nombre d'unités détenues à chaque pas de temps.
+        Shape : (n,)
+
+    trades : np.ndarray
+        Historique des trades exécutés.
+        Shape : (n, 4)
+
+        Colonnes :
+        - trades[:, 0] : action
+            *  1 : achat
+            * -1 : vente
+            *  0 : aucun trade
+        - trades[:, 1] : prix d'exécution
+        - trades[:, 2] : taille de la position (nombre d'unités)
+        - trades[:, 3] : raison de la sortie / entrée
+            * 0 : signal
+            * 1 : stop-loss
+            * 2 : take-profit
+
+    Notes
+    -----
+    - La stratégie est long-only (pas de short).
+    - Une seule position peut être ouverte à la fois.
+    - Les ordres sont exécutés au prix courant (pas de slippage).
+    - La fonction est compilée avec Numba (`@njit`) pour des performances élevées
+      et est compatible avec une exécution parallèle.
+    """
+    n = len(prices)
+    capital = initial_capital
+    position = 0.0
+    entry_price = 0.0
+
+    portfolio_values = np.zeros(n)
+    positions = np.zeros(n)
+    trades = np.zeros((n, 4))
+    for i in range(n):
+        price = prices[i]
+        signal = signals[i]
+
+        # --- GESTION POSITION EXISTANTE ---
+        if position > 0:
+            if signal == -1:
+                trades[i] = [-1, price, position, 0] # Action, price, position, reason (0=signal)
+                capital += position * price * (1 - fee)
+                position = 0
+
+            elif stop_loss > 0 and price <= entry_price * stop_loss:
+                trades[i] = [-1, price, position, 1]  # Action, price, position, reason (1=stop_loss)
+                capital += position * price * (1 - fee)
+                position = 0
+
+            elif take_profit > 0 and price >= entry_price * take_profit:
+                trades[i] = [-1, price, position, 2]  # Action, price, position, reason (2=take_profit)
+                capital += position * price * (1 - fee)
+                position = 0
+
+        # --- NOUVEL ACHAT ---
+        if signal == 1 and position == 0 and capital > 0:
+            max_invest = capital * position_size
+            shares = np.floor(max_invest / price)
+
+            if shares > 0:
+                cost = shares * price * (1 + fee)
+                capital -= cost
+                position = shares
+                entry_price = price
+                trades[i] = [1, price, position, 0]  # Action, price, position, reason (0=signal)
+
+        portfolio_values[i] = capital + position * price
+        positions[i] = position
+    return portfolio_values, positions, trades
 
 class BacktestingEngine:
     """Moteur de backtesting pour évaluer les stratégies de trading."""
@@ -30,8 +152,46 @@ class BacktestingEngine:
         self.stop_loss = stop_loss
         self.take_profit = take_profit
 
+    def run_numba(self) -> Dict[str, Any]:
+        """Exécute le backtest optimisé avec numba et retourne les résultats."""
+        prices = self.data["Close"].values
+        signals = self.strategy.generate_signals(self.data).values
+        dates = self.data.index
+
+        portfolio_values, positions, trades = backtest_core(
+            prices,
+            signals,
+            self.initial_capital,
+            self.position_size,
+            self.transaction_fee,
+            self.stop_loss if self.stop_loss else 0.0,
+            self.take_profit if self.take_profit else 0.0,
+        )
+
+        portfolio_df = pd.DataFrame({
+            "date": dates,
+            "value": portfolio_values,
+            "position": positions,
+            "price": prices
+        }, index=dates)
+
+        trades_df = pd.DataFrame(trades, columns=["action", "price", "shares", "reason"])
+        trades_df['date'] = dates
+        trades_df = trades_df[trades_df["action"] != 0]
+
+        results = {
+            "portfolio": portfolio_df,
+            "trades": trades_df,
+            "performance": self._calculate_performance(portfolio_df, trades_df)
+        }
+
+        return results
+
     def run(self) -> Dict[str, Any]:
-        """Exécute le backtest et retourne les résultats."""
+        """Exécute le backtest et retourne les résultats.
+        * 0 : signal
+            * 1 : stop-loss
+            * 2 : take-profit"""
         # Initialisation des variables
         capital = self.initial_capital
         position = 0
@@ -49,13 +209,13 @@ class BacktestingEngine:
             # Gestion des positions existantes
             if position > 0:
                 # Vérifier signal de vente
-                if signal == 'SELL':
+                if signal == -1:
                     trades.append({
                         'date': date,
-                        'action': 'SELL',
+                        'action': -1,
                         'price': price,
                         'shares': position,
-                        'reason': 'signal'
+                        'reason': 0
                     })
                     capital += position * price * (1 - self.transaction_fee)
                     position = 0
@@ -63,10 +223,10 @@ class BacktestingEngine:
                 elif self.stop_loss and price <= entry_price *  self.stop_loss:
                     trades.append({
                         'date': date,
-                        'action': 'SELL',
+                        'action': -1,
                         'price': price,
                         'shares': position,
-                        'reason': 'stop_loss'
+                        'reason': 1
                     })
                     capital += position * price * (1 - self.transaction_fee)
                     position = 0
@@ -74,17 +234,17 @@ class BacktestingEngine:
                 elif self.take_profit and price >= entry_price * self.take_profit:
                     trades.append({
                         'date': date,
-                        'action': 'SELL',
+                        'action': -1,
                         'price': price,
                         'shares': position,
-                        'reason': 'take_profit'
+                        'reason': 2
                     })
                     capital += position * price * (1 - self.transaction_fee)
                     position = 0
 
 
             # Gestion des nouveaux signaux d'achat
-            if signal == 'BUY' and position == 0 and capital > 0:
+            if signal == 1 and position == 0 and capital > 0:
                 max_invest = capital * self.position_size
                 shares = max_invest // price
 
@@ -96,10 +256,10 @@ class BacktestingEngine:
 
                     trades.append({
                         'date': date,
-                        'action': 'BUY',
+                        'action': 1,
                         'price': price,
                         'shares': shares,
-                        'reason': 'signal'
+                        'reason': 0
                     })
 
             # Calcul de la valeur du portefeuille
@@ -131,19 +291,24 @@ class BacktestingEngine:
             }
 
         # Convertir en DataFrame pour faciliter les calculs
-        df = pd.DataFrame(portfolio_values).set_index('date')
+        if isinstance(portfolio_values, pd.DataFrame):
+            df = portfolio_values
+        else:
+            df = pd.DataFrame(portfolio_values).set_index('date')
+        # to numpy
+        values = df["value"].to_numpy(dtype=np.float64)
         # Calcul du rendement total
-        start_val = df['value'].iloc[0]
-        end_val = df['value'].iloc[-1]
+        start_val = values[0]
+        end_val = values[-1]
         total_return = (end_val - start_val) / start_val if start_val != 0 else 0.0
 
         # Calcul du drawdown maximum
-        df['peak'] = df['value'].cummax()
-        df['drawdown'] = (df['peak'] - df['value']) / df['peak']
-        max_drawdown = df['drawdown'].max()
+        peaks = np.maximum.accumulate(values)
+        drawdowns = (peaks - values) / peaks
+        max_drawdown = np.max(drawdowns)
 
         # Calcul du ratio de Sharpe (simplifié)
-        returns = df['value'].pct_change().dropna()
+        returns = values[1:] / values[:-1] - 1.0
         sharpe_ratio = returns.mean() / returns.std() if returns.std() != 0 else 0.0
 
         # Calcul du rendement annualisé
@@ -264,25 +429,24 @@ class BacktestingEngine:
                 "win_loss_ratio": 0.0,
                 "total_profit_by_trades": 0.0
             }
+        actions = trades["action"].values
+        prices = trades["price"].values
         # Séparer buy et sell
-        buy_prices = trades.loc[trades["action"] == "BUY", "price"].reset_index(drop=True)
-        sell_prices = trades.loc[trades["action"] == "SELL", "price"].reset_index(drop=True)
-
-        # Appliquer les frais :
+        # avec frais
         # - le buy coûte plus cher
         # - le sell rapporte moins
-        buy_adj = buy_prices * (1 + fee_rate)
-        sell_adj = sell_prices * (1 - fee_rate)
+        buy_prices = prices[actions == 1] * (1 + fee_rate)
+        sell_prices = prices[actions == -1] * (1 - fee_rate)
 
         # Profit net par trade
-        n = min(len(buy_adj), len(sell_adj))
-        profits = sell_adj.values[:n] - buy_adj.values[:n]
+        n = min(len(buy_prices), len(sell_prices))
+        profits = sell_prices[:n] - buy_prices[:n]
 
         # Statistiques
-        n_wins = (profits > 0).sum()
-        n_losses = (profits <  0).sum()
+        n_wins = np.sum(profits > 0)
+        n_losses = np.sum(profits < 0)
         win_loss_ratio = n_wins / n_losses if n_losses > 0 else float("inf")
-        win_rate = n_wins / (n_wins + n_losses) if (n_wins + n_losses) > 0 else 0
+        win_rate = n_wins / (n_wins + n_losses)
 
         return {
             "profits_by_trades": profits,

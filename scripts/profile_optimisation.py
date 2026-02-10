@@ -5,8 +5,6 @@ import pandas as pd
 import numpy as np
 import json
 from datetime import datetime
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from trading_system import config_path
 from trading_system.data.loader import load_yfinance_data
 from trading_system.backtesting.engine import BacktestingEngine
 from trading_system.strategies.classical import ClassicalStrategy
@@ -99,10 +97,11 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     Exécute une grid search parallélisée pour trouver les meilleurs paramètres.
 
     Args:
-        raw_data: Données de marché pour le backtesting
+        data: Données de marché pour le backtesting
         param_grid: Dictionnaire des plages de paramètres à tester
         initial_capital: Capital initial pour le backtest
         transaction_fee: Frais de transaction
+        max_workers: Nombre maximum de processus workers (None = auto-détection)
 
     Returns:
         DataFrame avec les résultats de tous les tests
@@ -119,12 +118,13 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     print()
 
     cache = {}
-    for params in all_combinations:
+    for i, params in enumerate(all_combinations):
         result, cache = backtest_wrapper(params, raw_data, initial_capital, transaction_fee, cache=cache)
+        if i % 100 == 0:
+            print(f"\rTest {i}/{len(all_combinations)} - strategy_score: {result['strategy_score']:.2f}", end='', flush=True)
+            print(f"Test {i}/{len(all_combinations)} - Return: {result['total_return']:.2f}", end="\n")
         results.append(result)
-
     return pd.DataFrame(results)
-
 
 def optimize_one(ticker: str, grid: dict, odir="./"):
     raw_data = load_yfinance_data(
@@ -137,8 +137,7 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
         raw_data=raw_data,
         param_grid=grid,
         initial_capital=10000,
-        transaction_fee=0.005,
-        max_workers=None  # None = utilise tous les coeurs disponibles
+        transaction_fee=0.005  # None = utilise tous les coeurs disponibles
     )
     # Trouver les meilleures combinaisons selon différentes métriques
     best_sharpe = results_df.loc[results_df['sharpe_ratio'].idxmax()]
@@ -157,12 +156,6 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
             "annualized_return": best_strategy['annualized_return'],
         }
     }
-    print("Meilleur Strategie:")
-    print(f"Paramètres: {best_strategy['params']}")
-    print(f"Sharpe: {best_strategy['sharpe_ratio']:.2f}")
-    print(f"Total Return: {best_strategy['total_return']:.2%}")
-    print(f"Annualized Return: {best_strategy['annualized_return']:.2%}")
-    print(f"Strategy Score: {best_strategy['strategy_score']:.2f}")
 
     # Sauvegarder tous les résultats
     results_df.to_csv(f"{odir}/optimization_results_{ticker}.csv", index=False)
@@ -185,7 +178,7 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
         position_size=1
     )
 
-    validation_result = validation_engine.run()
+    validation_result = validation_engine.run_numba()
     print(f"Performance en validation: {validation_result['performance']['return']:.2%}")
     metadata['validation_results'] = {
         'total_return': validation_result['performance']['return'],
@@ -208,72 +201,30 @@ if __name__ == "__main__":
         "MT.AS",  # ArcelorMittal (coté Amsterdam)
         "CS.PA",  # AXA
         "BNP.PA",  # BNP Paribas
-        "EN.PA",  # Bouygues
-        "CAP.PA",  # Capgemini
-        "CA.PA",  # Carrefour
-        "ACA.PA",  # Crédit Agricole
-        "BN.PA",  # Danone
-        "DSY.PA",  # Dassault Systèmes
-        "ENGI.PA",  # Engie
-        "EL.PA",  # EssilorLuxottica
-        "ERF.PA",  # Eurofins Scientific
-        "RMS.PA",  # Hermès
-        "KER.PA",  # Kering
-        "LR.PA",  # Legrand
-        "OR.PA",  # L’Oréal
-        "MC.PA",  # LVMH
-        "ML.PA",  # Michelin
-        "ORA.PA",  # Orange
-        "RI.PA",  # Pernod Ricard
-        "RNO.PA",  # Renault
-        "SAF.PA",  # Safran
-        "SGO.PA",  # Saint-Gobain
-        "SAN.PA",  # Sanofi
-        "SU.PA",  # Schneider Electric
-        "GLE.PA",  # Société Générale
-        "STMPA.PA",  # STMicroelectronics
-        "TEP.PA",  # Teleperformance
-        "HO.PA",  # Thales
-        "TTE.PA",  # TotalEnergies
-        # "URW.PA",  # Unibail-Rodamco-Westfield --> problème de données
-        "VIE.PA",  # Veolia
-        "DG.PA",  # Vinci
-        "VIV.PA",  # Vivendi
-        "WLN.PA"  # Worldline
     ]
     # Définir les plages de paramètres à tester
     param_grid = {
-        'rsi_window': [7, 10, 14, 21],
-        # 'rsi_buy': [25, 30, 35],
-        # 'rsi_sell': [65, 70, 75],
+        'rsi_window': [7, 21],
         'rsi_buy': [30, 35],
         'rsi_sell': [70, 75],
-        'macd_fast': [8, 12, 16, 20],
-        'macd_slow': [21, 26, 30, 34],
-        'macd_signal': [7, 9, 11, 13],
-        'bollinger_window': [10, 15, 20, 25],
-        # 'bollinger_std': [1, 1.5, 2.0],
+        'macd_fast': [8, 20],
+        'macd_slow': [21, 34],
+        'macd_signal': [7, 13],
+        'bollinger_window': [10, 20],
         'bollinger_std': [1, 1.5]
     }
 
-    odir = f"{config_path}/classical_strategy/"
-    max_workers = 7
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(run, t, param_grid, odir): t for t in tickers_cac40_list}
-        for future in as_completed(futures):
-            ticker = futures[future]
-            try:
-                future.result()
-                print(f"✅ Terminé pour {ticker}")
-            except Exception as e:
-                print(f"Erreur lors de l'optimisation pour {ticker}: {str(e)}")
+    odir = f"data_optim/tt/"
+    t0 = datetime.now()
+    for ticker in tickers_cac40_list:
+        run(ticker, param_grid, odir)
+    tend = datetime.now()
+    t_tot = (tend - t0).total_seconds()
     result = {"nb_ticker": len(tickers_cac40_list),
               "params": param_grid,
               "total_time_seconds": t_tot}
     with open(f'{odir}/summary_optimization.json', 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-
-
 
 
 

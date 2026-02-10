@@ -17,14 +17,20 @@ def test_calculate_indicators_basic():
     }, index=pd.date_range('2023-01-01', periods=30))
 
     # Calculer les indicateurs
-    result = calculate_indicators(data, ema_windows=[5, 10, 20], adx_window=7, )
+    result = calculate_indicators(data, rsi_window=14, atr_window=14,
+                                  adx_window=7, ema_windows=[5, 10, 20],
+                                  bollinger_window=20, bollinger_std=2,
+                                  macd_slow=26, macd_fast=12, macd_signal=9,
+                                  volume_ma_window=20, balance_volume=True,
+                                  stochastic_oscillator=True, price_volume_trend=True
+                                  )
 
     # Vérifier les colonnes ajoutées
     expected_indicators = [
         'RSI', 'MACD', 'MACD_Signal', 'Stochastic_%K', 'Stochastic_%D',
         'ATR', 'BB_Upper', 'BB_Middle', 'BB_Lower',
         'EMA_5', 'EMA_10', 'EMA_20', 'ADX',
-        'OBV', 'VolMA20', 'Price_Volume_Trend', 'Daily_Return'
+        'OBV', 'VolMA', 'Price_Volume_Trend', 'Daily_Return'
     ]
 
     for indicator in expected_indicators:
@@ -49,7 +55,7 @@ def test_rsi_calculation():
         'Volume': [1000 + i * 100 for i in range(30)]
     }, index=pd.date_range('2023-01-01', periods=30))
 
-    result = calculate_indicators(data, ema_windows=[])
+    result = calculate_indicators(data, ema_windows=[], rsi_window=14)
 
     # Après 14 périodes de hausse, RSI devrait être proche de 100
     assert result['RSI'].iloc[-1] > 90
@@ -63,7 +69,7 @@ def test_rsi_calculation():
         'Volume': [1000 + i * 100 for i in range(30)]
     }, index=pd.date_range('2023-01-01', periods=30))
 
-    result = calculate_indicators(data,ema_windows=[])
+    result = calculate_indicators(data,ema_windows=[], rsi_window=14)
     # Après 14 périodes de baisse, RSI devrait être proche de 0
     assert result['RSI'].iloc[-1] < 10
 
@@ -91,7 +97,10 @@ def test_indicator_calculation():
         'Volume': [1000] * 30
     })
 
-    result = calculate_indicators(data, ema_windows=[5, 10, 20], adx_window=7)
+    result = calculate_indicators(data,
+                                  ema_windows=[5, 10, 20], adx_window=7,
+                                  rsi_window=14,
+                                  macd_slow=26, macd_fast=12, macd_signal=9)
 
     # RSI devrait être élevé pour une tendance haussière
     assert result['RSI'].iloc[-1] > 70

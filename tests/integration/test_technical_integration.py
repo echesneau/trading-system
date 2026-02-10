@@ -16,14 +16,19 @@ def test_calculate_indicators_crypto():
     pair = 'BTC/EUR'
     data = load_ccxt_data("BTC/EUR", exchange_name="kraken", interval="1d",
                             start_date="2023-10-01", end_date="2025-10-02")
-    result = calculate_indicators(data, ema_windows=[5, 10, 20], adx_window=7)
+    result = calculate_indicators(data, rsi_window=14, atr_window=14,
+                                  adx_window=7, ema_windows=[5, 10, 20],
+                                  bollinger_window=20, bollinger_std=2,
+                                  macd_slow=26, macd_fast=12, macd_signal=9,
+                                  volume_ma_window=20, balance_volume=True,
+                                  stochastic_oscillator=True, price_volume_trend=True)
     assert not result.empty
     assert len(result) == len(data)
     expected_indicators = [
         'RSI', 'MACD', 'MACD_Signal', 'Stochastic_%K', 'Stochastic_%D',
         'ATR', 'BB_Upper', 'BB_Middle', 'BB_Lower',
         'EMA_5', 'EMA_10', 'EMA_20', 'ADX',
-        'OBV', 'VolMA20', 'Price_Volume_Trend', 'Daily_Return'
+        'OBV', 'VolMA', 'Price_Volume_Trend', 'Daily_Return'
     ]
 
     for indicator in expected_indicators:

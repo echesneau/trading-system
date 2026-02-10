@@ -26,29 +26,29 @@ class ClassicalStrategy(BaseStrategy):  # Hérite de BaseStrategy
 
         Args:
             data: DataFrame contenant les prix et indicateurs
+            to_str: bool
+                to transform int to str (0=HOLD, 1=BUY, -1=SELL) to ("HOLD", "BUY", "SELL")
 
         Returns:
             Series avec les signaux
         """
-        signals = pd.Series('HOLD', index=data.index)
-
-        # Conditions d'achat
-        buy_condition = (
-                (data['RSI'] < self.rsi_buy) &
-                (data['MACD'] > data['MACD_Signal']) &
-                (data['Close'] <= data['BB_Lower'])
+        buy = (
+                (data['RSI'].values < self.rsi_buy) &
+                (data['MACD'].values > data['MACD_Signal'].values) &
+                (data['Close'].values <= data['BB_Lower'].values)
         )
-
-        # Conditions de vente
-        sell_condition = (
-                (data['RSI'] > self.rsi_sell) |
-                (data['MACD'] < data['MACD_Signal']) &
-                (data['Close'] >= data['BB_Upper'])
+        sell = (
+                (data['RSI'].values > self.rsi_sell) |
+                (
+                        (data['MACD'].values < data['MACD_Signal'].values) &
+                        (data['Close'].values >= data['BB_Upper'].values)
+                )
         )
+        signals = np.zeros(len(data), dtype=np.int8)  # 0=HOLD, 1=BUY, -1=SELL
+        signals[buy] = 1
+        signals[sell] = -1
 
-        signals[buy_condition] = 'BUY'
-        signals[sell_condition] = 'SELL'
-
+        signals = pd.Series(signals, index=data.index)
         return signals
 
     def get_parameters(self) -> dict:
