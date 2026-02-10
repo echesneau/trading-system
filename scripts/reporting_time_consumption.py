@@ -253,10 +253,15 @@ if __name__ == "__main__":
         'macd_slow': [21, 34],
         'macd_signal': [7, 13],
         'bollinger_window': [10, 20],
-        'bollinger_std': [1, 1.5]
+        'bollinger_std': [1, 1.5],
+        "adx_min": [None, 20], # faible 15-20, forte 25-40
+        "stock_min": [None, 20], # inf 25 environ
+        "stock_max": [None, 80], # sup 75 environ
+        "atr_max": [None, 0.03], # entre 0 et 0.05
+        "stochastic_oscillator": [False, True],
     }
 
-    odir = f"data_optim/backtest_numpy/"
+    odir = f"data_optim/test_param/"
     t0 = datetime.now()
     max_workers = 4
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
