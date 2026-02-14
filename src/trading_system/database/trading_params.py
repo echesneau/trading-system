@@ -162,4 +162,5 @@ class BestStrategyRepository:
             )
         if df.empty:
             return None
+        df['params_json'] = df['params_json'].apply(json.loads)
         return df.iloc[0]

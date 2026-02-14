@@ -40,7 +40,7 @@ def test_params_are_stored_as_json(repo_strategy, example_optim_results):
 
     row = repo_strategy.fetch_one("ACA.PA")
 
-    params = json.loads(row["params_json"])
+    params = row["params_json"]
     assert params["rsi_window"] == 7
     assert params["bollinger_std"] == 1
 
