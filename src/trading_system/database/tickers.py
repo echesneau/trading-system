@@ -23,7 +23,8 @@ class TickersRepository:
     - simple à tester
     """
 
-    def __init__(self, db_path: str | Path):
+    def __init__(self, db_path: str | Path,
+                 euronext_csv_path: Optional[str | Path] = None):
         """
         Initialise le repository.
 
@@ -31,8 +32,11 @@ class TickersRepository:
         ----------
         db_path : str | Path
             Chemin vers la base SQLite.
+        euronext_csv_path : str | Path, optional
+            Chemin vers le CSV Euronext.
         """
         self.db_path = str(db_path)
+        self.euronext_csv_path = euronext_csv_path
 
     def _connect(self):
         return sqlite3.connect(self.db_path)
@@ -119,7 +123,7 @@ class TickersRepository:
                     updated_at = CURRENT_TIMESTAMP
             """, rows)
 
-    def update_db(self, df: pd.DataFrame) -> None:
+    def update_db(self) -> None:
         """
         Met à jour la base des tickers à partir d'un DataFrame.
 
@@ -129,13 +133,9 @@ class TickersRepository:
 
         Elle est volontairement simple et idempotente.
 
-        Parameters
-        ----------
-        df : pd.DataFrame
-            DataFrame contenant les tickers à synchroniser.
         """
         self.create_table()
-        self.bulk_upsert(df)
+        self.bulk_upsert(self.load_euronext_csv(self.euronext_csv_path))
 
 
     def fetch_all(self) -> pd.DataFrame:
@@ -149,3 +149,76 @@ class TickersRepository:
         """
         with self._connect() as conn:
             return pd.read_sql("SELECT * FROM tickers", conn)
+
+    @staticmethod
+    def load_euronext_csv(
+            csv_path: str | Path,
+            allowed_exchanges: tuple[str, ...] = (
+                    "Euronext Paris",
+                    "Euronext Access Paris",
+            )
+    ) -> pd.DataFrame:
+        """
+        Charge et nettoie un fichier CSV Euronext pour insertion en base.
+
+        Le CSV doit contenir les colonnes :
+        - Company
+        - Ticker
+        - Exchange
+        - Currency
+
+        Les étapes effectuées :
+        - filtrage sur les places boursières autorisées
+        - suppression des lignes incomplètes
+        - renommage et normalisation des colonnes
+        - suppression des doublons sur le ticker
+
+        Parameters
+        ----------
+        csv_path : str or Path
+            Chemin vers le fichier CSV Euronext.
+        allowed_exchanges : tuple of str, optional
+            Liste des places boursières à conserver.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame avec les colonnes normalisées :
+            ["Ticker", "Company", "Market"]
+
+        Raises
+        ------
+        ValueError
+            Si une colonne requise est manquante.
+        """
+        csv_path = Path(csv_path)
+
+        df = pd.read_csv(csv_path)
+
+        required_cols = {"Company", "Ticker", "Exchange"}
+        missing = required_cols - set(df.columns)
+        if missing:
+            raise ValueError(f"Colonnes manquantes dans le CSV : {missing}")
+
+        # Filtrage des marchés
+        df = df[df["Exchange"].isin(allowed_exchanges)]
+
+        # Nettoyage
+        df = df[["Ticker", "Company", "Exchange"]].dropna()
+
+        # Normalisation
+        df = df.rename(columns={
+            "Exchange": "Market"
+        })
+
+        # Nettoyage des chaînes
+        df["Ticker"] = df["Ticker"].str.strip()
+        df["Company"] = df["Company"].str.strip()
+        df["Market"] = df["Market"].str.strip()
+
+        # Suppression des doublons
+        df = df.drop_duplicates(subset="Ticker", keep="last")
+
+        df = df.reset_index(drop=True)
+
+        return df

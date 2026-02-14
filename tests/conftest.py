@@ -66,6 +66,32 @@ def trained_model_artifacts(test_data, model_trainer):
 def temp_db(tmp_path):
     return tmp_path / "test.db"
 
+@pytest.fixture
+def euronext_csv(tmp_path):
+    csv_path = tmp_path / "euronext.csv"
+
+    df = pd.DataFrame({
+        "Company": [
+            "Crédit Agricole",
+            "Bitcoin Corp",
+        ],
+        "Ticker": [
+            "ACA.PA",
+            "BTCUSD"
+        ],
+        "Exchange": [
+            "Euronext Paris",
+            "Crypto"
+        ],
+        "Currency": [
+            "EUR",
+            "USD"
+        ]
+    })
+
+    df.to_csv(csv_path, index=False)
+    return csv_path
+
 @pytest.fixture()
-def repo_tickers(temp_db):
-    return TickersRepository(temp_db)
+def repo_tickers(temp_db, euronext_csv):
+    return TickersRepository(temp_db, euronext_csv_path=euronext_csv)
