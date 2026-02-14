@@ -4,6 +4,7 @@ import numpy as np
 
 from trading_system.ml.trainer import ModelTrainer
 from trading_system.data.loader import load_yfinance_data
+from trading_system.database.tickers import TickersRepository
 
 @pytest.fixture(scope="session")
 def sample_data():
@@ -60,3 +61,11 @@ def trained_model_artifacts(test_data, model_trainer):
     assert len(artifacts['feature_names']) > 0
 
     return artifacts
+
+@pytest.fixture()
+def temp_db(tmp_path):
+    return tmp_path / "test.db"
+
+@pytest.fixture()
+def repo_tickers(temp_db):
+    return TickersRepository(temp_db)
