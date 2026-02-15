@@ -186,6 +186,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0  # Important pour setuptools-scm
+        lfs: true
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
