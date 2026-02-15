@@ -1,6 +1,6 @@
 import pandas as pd
 import sqlite3
-from typing import Optional
+from typing import Optional, Union
 from pathlib import Path
 from trading_system.database import db_path, config_path
 
@@ -23,8 +23,8 @@ class TickersRepository:
     - simple à tester
     """
 
-    def __init__(self, db_path: str | Path,
-                 euronext_csv_path: Optional[str | Path] = None):
+    def __init__(self, db_path: Union[str, Path],
+                 euronext_csv_path: Optional[Union[str, Path]] = None):
         """
         Initialise le repository.
 
@@ -152,7 +152,7 @@ class TickersRepository:
 
     @staticmethod
     def load_euronext_csv(
-            csv_path: str | Path,
+            csv_path: Union[str, Path],
             allowed_exchanges: tuple[str, ...] = (
                     "Euronext Paris",
                     "Euronext Access Paris",

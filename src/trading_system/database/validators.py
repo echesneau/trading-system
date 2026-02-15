@@ -1,6 +1,6 @@
 import sqlite3
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union
 from datetime import datetime
 import pandas as pd
 
@@ -12,7 +12,7 @@ class StrategyValidationRepository:
     est jugée exploitable sur la dernière période de validation.
     """
 
-    def __init__(self, db_path: str | Path):
+    def __init__(self, db_path: Union[str, Path]):
         self.db_path = str(db_path)
 
     def _connect(self):

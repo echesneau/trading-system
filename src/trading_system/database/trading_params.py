@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sqlite3
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Union
 
 import pandas as pd
 
@@ -20,7 +20,7 @@ class BestStrategyRepository:
     La table est volontairement simple et idempotente.
     """
 
-    def __init__(self, db_path: str | Path):
+    def __init__(self, db_path: Union[str, Path]):
         """
         Initialise le repository.
 
