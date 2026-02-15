@@ -137,10 +137,12 @@ class BestStrategyRepository:
         pd.DataFrame
         """
         with self._connect() as conn:
-            return pd.read_sql_query(
+            df = pd.read_sql_query(
                 "SELECT * FROM best_strategy_params",
                 conn
             )
+            df['params_json'] = df['params_json'].apply(json.loads)
+            return df
 
     def fetch_one(self, ticker: str) -> Optional[pd.Series]:
         """
