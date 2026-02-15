@@ -16,6 +16,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - suppression de la parallelisation pour les calculs du grid search
 - optimisation du code en passant des fonctions en numpy au lieu de pandas pour accélérer les calculs
 ## Ajouté
+- base de données SQLite pour stocker les stickers et les paramètres de trading
 - ajout de conditions de génération de signaux paramétrables pour les stratégies classiques
 - Ajout d'un cache avec les indicateurs déjà calculés lors du grid search pour optimiser les stratégies de trading 
 - Ajout d'une fonction de backtest en numba pour accélérer les calculs de performance des stratégies de trading

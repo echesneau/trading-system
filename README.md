@@ -6,15 +6,70 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Système de trading algorithmique avancé combinant **machine learning** et **analyse technique** pour la Bourse de Paris. Développé en Python avec une architecture modulaire et professionnelle.
+Système de trading algorithmique **orienté recherche quantitative**, combinant  
+**analyse technique**, **optimisation de paramètres** et **backtesting haute performance**  
+pour les marchés actions (Euronext Paris) et extensible à d’autres univers.
+
+Le projet met l’accent sur :
+- la **reproductibilité**
+- la **performance (NumPy / Numba)**
+- une **architecture data claire (SQLite)**
+- des **tests systématiques**
+
+---
 
 ## ✨ Fonctionnalités
 
 ### 🤖 Stratégies de Trading
-- **🔍 Stratégie Hybride** : Combinaison de modèles ML (XGBoost) et indicateurs techniques
-- **📊 Stratégie Classique** : RSI, MACD, Bollinger Bands, et analyse technique pure
-- **🎯 Backtesting Avancé** : Métriques de performance complètes (Sharpe, Drawdown, etc.)
+- **Stratégies techniques paramétrables**
+  - RSI, MACD, Bandes de Bollinger, EMA, ATR, ADX…
+- **Stratégie hybride (optionnelle)**
+  - Combinaison règles techniques + modèle ML (XGBoost / sklearn)
+- **Génération de signaux vectorisée**
+  - Signaux numériques (`-1 / 0 / 1`) optimisés pour Numba
 
+---
+### ⚡ Backtesting Haute Performance
+- **Cœur de backtest compilé avec Numba**
+- Gestion :
+  - frais de transaction
+  - stop-loss / take-profit
+  - position sizing
+- Calcul rapide de :
+  - rendement total & annualisé
+  - maximum drawdown
+  - ratio de Sharpe
+  - statistiques de trades
+- Séparation claire :
+  - **train**
+  - **validation out-of-sample**
+
+---
+
+### 🗃️ Base de Données SQLite
+Le projet s’appuie sur une base SQLite versionnée (ou régénérable) :
+
+#### Tables principales
+- **`tickers`**
+  - univers d’investissement (ticker, société, marché)
+- **`best_strategy_params`**
+  - meilleurs paramètres issus de l’optimisation
+- **`strategy_validation`**
+  - validation finale de la stratégie (rentable ou non)
+  - raison explicite (drawdown excessif, Sharpe insuffisant, etc.)
+
+➡️ Architecture **idempotente** :  
+relancer un pipeline ne duplique jamais les données.
+
+---
+
+### 📊 Optimisation & Validation
+- Recherche de paramètres (grid search / random / custom)
+- Conservation **uniquement du meilleur jeu de paramètres**
+- Validation sur période indépendante
+- Score de stratégie configurable
+
+---
 ### 📈 Data Pipeline
 - **📡 Intégration Yahoo Finance** : Données temps réel et historiques
 - **⚡ Calcul d'Indicateurs** : 20+ indicateurs techniques (RSI, MACD, ATR, EMA, etc.)
@@ -88,6 +143,7 @@ trading-system/
 │   ├── backtesting/          # Moteur de backtesting
 │   ├── strategies/           # Stratégies de trading
 │   ├── data/                 # Data pipeline et connecteurs
+│   ├── database/             # Gestion de la base de données SQLite
 │   ├── features/             # Feature engineering
 │   └── ml/                   # Machine learning
 ├── tests/                    # Suite de tests complète
