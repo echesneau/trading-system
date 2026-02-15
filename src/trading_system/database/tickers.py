@@ -198,7 +198,7 @@ class TickersRepository:
         required_cols = {"Company", "Ticker", "Exchange"}
         missing = required_cols - set(df.columns)
         if missing:
-            raise ValueError(f"Colonnes manquantes dans le CSV : {missing}")
+            raise ValueError(f"Colonnes manquantes dans le CSV : {missing}\n Existing columns: {set(df.columns)}")
 
         # Filtrage des marchés
         df = df[df["Exchange"].isin(allowed_exchanges)]
