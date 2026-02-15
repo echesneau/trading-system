@@ -6,11 +6,13 @@ import numpy as np
 import json
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from trading_system import config_path
 from trading_system.data.loader import load_yfinance_data
 from trading_system.backtesting.engine import BacktestingEngine
+from trading_system.database.trading_params import BestStrategyRepository
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
+from trading_system.database import db_path, euronext_csv
+from trading_system.database.tickers import TickersRepository
 warnings.filterwarnings("ignore")
 
 def update_cache(cache, data, params):
@@ -126,7 +128,7 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     return pd.DataFrame(results)
 
 
-def optimize_one(ticker: str, grid: dict, odir="./"):
+def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_path)):
     raw_data = load_yfinance_data(
         ticker=ticker,
         start_date="2010-01-01",
@@ -137,8 +139,7 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
         raw_data=raw_data,
         param_grid=grid,
         initial_capital=10000,
-        transaction_fee=0.005,
-        max_workers=None  # None = utilise tous les coeurs disponibles
+        transaction_fee=0.005  # None = utilise tous les coeurs disponibles
     )
     # Trouver les meilleures combinaisons selon différentes métriques
     best_sharpe = results_df.loc[results_df['sharpe_ratio'].idxmax()]
@@ -164,8 +165,6 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
     print(f"Annualized Return: {best_strategy['annualized_return']:.2%}")
     print(f"Strategy Score: {best_strategy['strategy_score']:.2f}")
 
-    # Sauvegarder tous les résultats
-    results_df.to_csv(f"{odir}/optimization_results_{ticker}.csv", index=False)
     # Tester les meilleurs paramètres sur une période de validation différente
     validation_data = load_yfinance_data(
         ticker=ticker,
@@ -194,60 +193,28 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
         "strategy_score": validation_result['performance']['strategy_score'],
         "annualized_return": validation_result['performance']['annualized_return'],
     }
-    with open(f'{odir}/metadata_opt_{ticker}.json', 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, ensure_ascii=False, indent=4)
+    database.upsert(metadata)
 
-def run(ticker, param_grid, odir):
+def run(ticker, param_grid, db):
     print("=" * 50)
     print(f"Optimisation pour le ticker: {ticker}")
-    optimize_one(ticker, grid=param_grid, odir=odir)
+    optimize_one(ticker, grid=param_grid, database=db)
 
 if __name__ == "__main__":
-    tickers_cac40_list = [
-        "AIR.PA",  # Airbus
-        "MT.AS",  # ArcelorMittal (coté Amsterdam)
-        "CS.PA",  # AXA
-        "BNP.PA",  # BNP Paribas
-        "EN.PA",  # Bouygues
-        "CAP.PA",  # Capgemini
-        "CA.PA",  # Carrefour
-        "ACA.PA",  # Crédit Agricole
-        "BN.PA",  # Danone
-        "DSY.PA",  # Dassault Systèmes
-        "ENGI.PA",  # Engie
-        "EL.PA",  # EssilorLuxottica
-        "ERF.PA",  # Eurofins Scientific
-        "RMS.PA",  # Hermès
-        "KER.PA",  # Kering
-        "LR.PA",  # Legrand
-        "OR.PA",  # L’Oréal
-        "MC.PA",  # LVMH
-        "ML.PA",  # Michelin
-        "ORA.PA",  # Orange
-        "RI.PA",  # Pernod Ricard
-        "RNO.PA",  # Renault
-        "SAF.PA",  # Safran
-        "SGO.PA",  # Saint-Gobain
-        "SAN.PA",  # Sanofi
-        "SU.PA",  # Schneider Electric
-        "GLE.PA",  # Société Générale
-        "STMPA.PA",  # STMicroelectronics
-        "TEP.PA",  # Teleperformance
-        "HO.PA",  # Thales
-        "TTE.PA",  # TotalEnergies
-        # "URW.PA",  # Unibail-Rodamco-Westfield --> problème de données
-        "VIE.PA",  # Veolia
-        "DG.PA",  # Vinci
-        "VIV.PA",  # Vivendi
-        "WLN.PA"  # Worldline
-    ]
+    tickers_db = TickersRepository(db_path, euronext_csv_path=euronext_csv)
+    tickers_db.update_db()
+    tickers_df = tickers_db.fetch_all()
+    tickers_df = tickers_df[tickers_df['market'].isin(["Euronext Paris", "Euronext Access Paris"])]
+    params_db = BestStrategyRepository(db_path)
+
+    other_tickers = ['MT.AS']
+    missing_tickers = ["STMPA.PA"]
+
     # Définir les plages de paramètres à tester
     param_grid = {
         'rsi_window': [7, 10, 14, 21],
-        # 'rsi_buy': [25, 30, 35],
-        # 'rsi_sell': [65, 70, 75],
-        'rsi_buy': [30, 35],
-        'rsi_sell': [70, 75],
+        'rsi_buy': [None, 25, 30, 35],
+        'rsi_sell': [None, 65, 70, 75],
         'macd_fast': [8, 12, 16, 20],
         'macd_slow': [21, 26, 30, 34],
         'macd_signal': [7, 9, 11, 13],
@@ -259,11 +226,9 @@ if __name__ == "__main__":
         "atr_max": [None, 0.01, 0.03, 0.1],  # entre 0 et 0.05
         "stochastic_oscillator": [False, True],
     }
-
-    odir = f"{config_path}/classical_strategy/"
-    max_workers = 7
+    max_workers = 5
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(run, t, param_grid, odir): t for t in tickers_cac40_list}
+        futures = {executor.submit(run, t, param_grid, params_db): t for t in tickers_df['ticker'].tolist() }
         for future in as_completed(futures):
             ticker = futures[future]
             try:
@@ -271,11 +236,7 @@ if __name__ == "__main__":
                 print(f"✅ Terminé pour {ticker}")
             except Exception as e:
                 print(f"Erreur lors de l'optimisation pour {ticker}: {str(e)}")
-    result = {"nb_ticker": len(tickers_cac40_list),
-              "params": param_grid,
-              "total_time_seconds": t_tot}
-    with open(f'{odir}/summary_optimization.json', 'w', encoding='utf-8') as f:
-        json.dump(result, f, ensure_ascii=False, indent=4)
+
 
 
 
