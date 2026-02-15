@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 from unittest.mock import MagicMock
+
+from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.strategies.hybrid import HybridStrategy
 
 def test_hybrid_strategy_buy_signal():
@@ -145,3 +147,95 @@ def test_hybrid_strategy_sell_signal():
     })
     signals = strategy.generate_signals(data)
     assert signals.iloc[0] == 'SELL'
+
+def test_cond_disabled_and_does_not_block_buy():
+    data = pd.DataFrame({
+        "RSI": [20, 50, 80],
+        "MACD": [1.0, -1.0, 0.5],
+        "MACD_Signal": [0.0, 0.0, 0.0],
+        "Close": [90, 100, 110],
+        "BB_Lower": [95, 95, 95],
+        "BB_Upper": [105, 105, 105],
+        "ADX": [25, 25, 25],
+        "Stochastic_%K": [np.nan, np.nan, np.nan],
+        "Stochastic_%D": [np.nan, np.nan, np.nan],
+        "ATR": [3, 3, 3],
+    })
+    strat = ClassicalStrategy(rsi_buy=None, rsi_sell=70)
+    signals = strat.generate_signals(data)
+    # RSI=None ne doit PAS empêcher un BUY
+    # index 0 : MACD > signal & Close < BB_Lower
+    assert signals.iloc[0] == 1
+
+def test_cond_disabled_or_does_not_trigger_sell_everywhere():
+    data = pd.DataFrame({
+        "RSI": [20, 50, 80],
+        "MACD": [1.0, -1.0, 0.5],
+        "MACD_Signal": [0.0, 0.0, 0.0],
+        "Close": [90, 100, 110],
+        "BB_Lower": [95, 95, 95],
+        "BB_Upper": [105, 105, 105],
+        "ADX": [25, 25, 25],
+        "Stochastic_%K": [np.nan, np.nan, np.nan],
+        "Stochastic_%D": [np.nan, np.nan, np.nan],
+        "ATR": [3, 3, 3],
+    })
+
+    strat = ClassicalStrategy(
+        rsi_buy=30,
+        rsi_sell=None     # désactivé dans un OR
+    )
+
+    signals = strat.generate_signals(data)
+
+    # Avant le fix : tout était SELL (-1)
+    # Après le fix : SELL seulement quand l'autre branche est vraie
+    assert signals.iloc[0] != -1
+    assert signals.iloc[1] != -1
+
+def test_sell_triggered_by_macd_and_bb():
+    data = pd.DataFrame({
+        "RSI": [20, 50, 80],
+        "MACD": [1.0, -1.0, 0.5],
+        "MACD_Signal": [0.0, 0.0, 0.0],
+        "Close": [90, 106, 110],
+        "BB_Lower": [95, 95, 95],
+        "BB_Upper": [105, 105, 105],
+        "ADX": [25, 25, 25],
+        "Stochastic_%K": [np.nan, np.nan, np.nan],
+        "Stochastic_%D": [np.nan, np.nan, np.nan],
+        "ATR": [3, 3, 3],
+    })
+
+    strat = ClassicalStrategy(
+        rsi_buy=30,
+        rsi_sell=None
+    )
+    signals = strat.generate_signals(data)
+
+    # index 1 :
+    # MACD < signal AND Close > BB_Upper → SELL
+    assert signals.iloc[1] == -1
+
+def test_signal_values_are_valid():
+    data = pd.DataFrame({
+        "RSI": [20, 50, 80],
+        "MACD": [1.0, -1.0, 0.5],
+        "MACD_Signal": [0.0, 0.0, 0.0],
+        "Close": [90, 100, 110],
+        "BB_Lower": [95, 95, 95],
+        "BB_Upper": [105, 105, 105],
+        "ADX": [25, 25, 25],
+        "Stochastic_%K": [np.nan, np.nan, np.nan],
+        "Stochastic_%D": [np.nan, np.nan, np.nan],
+        "ATR": [3, 3, 3],
+    })
+    strat = ClassicalStrategy(
+        rsi_buy=30,
+        rsi_sell=70
+    )
+
+    signals = strat.generate_signals(data)
+
+    assert set(signals.unique()).issubset({-1, 0, 1})
+    assert len(signals) == len(data)
