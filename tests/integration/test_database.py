@@ -9,6 +9,7 @@ from scripts.profile_optimisation import backtest_wrapper
 from trading_system.backtesting.engine import BacktestingEngine
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
+from scripts.run_backtest_validator import is_valid
 
 def test_integration_load_real_euronext_csv(tmp_path):
     repo = TickersRepository(
@@ -114,3 +115,38 @@ def test_integration_update_params_db(temp_db, example_optim_results):
     assert result["params_json"] == metadata["params"]
     assert result["train_total_return"] == metadata['train_results']["total_return"]
     assert result["val_total_return"] == metadata['validation_results']["total_return"]
+
+def test_integration_validators_db(repo_validation):
+    ticker = 'AIR.PA'
+    params = {
+        'rsi_window': 21,
+        'rsi_buy': 30,
+        'rsi_sell': 70,
+        'macd_fast': 8,
+        'macd_slow': 21,
+        'macd_signal': 13,
+        'bollinger_window': 10,
+        'bollinger_std': 1
+    }
+    raw_data = load_yfinance_data(
+        ticker=ticker,
+        start_date="2023-01-01",
+        end_date="2025-01-01",
+        interval="1d"
+    )
+    data = calculate_indicators(raw_data, **params)
+    strategy = ClassicalStrategy(**params)
+    engine = BacktestingEngine(
+        strategy=strategy,
+        data=data,
+        initial_capital=1000,
+        transaction_fee=0.05,
+        position_size=1
+    )
+    result = engine.run()
+    valid = is_valid(result)
+    repo_validation.upsert(ticker, valid["valid"], valid["reason"])
+    fetched = repo_validation.fetch_all()
+    assert len(fetched) == 1
+    fetched = repo_validation.fetch_one(ticker)
+    assert fetched["valid"] == valid["valid"]

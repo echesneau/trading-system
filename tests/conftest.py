@@ -6,6 +6,7 @@ from trading_system.ml.trainer import ModelTrainer
 from trading_system.data.loader import load_yfinance_data
 from trading_system.database.tickers import TickersRepository
 from trading_system.database.trading_params import BestStrategyRepository
+from trading_system.database.validators import StrategyValidationRepository
 
 @pytest.fixture(scope="session")
 def sample_data():
@@ -131,3 +132,7 @@ def example_optim_results():
             "annualized_return": 0.009
         }
     }
+
+@pytest.fixture()
+def repo_validation(temp_db):
+    return StrategyValidationRepository(temp_db)
