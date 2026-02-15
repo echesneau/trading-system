@@ -83,7 +83,7 @@ def test_bulk_upsert_missing_columns_raises(repo_tickers):
 def test_load_euronext_csv_filters_and_normalizes(euronext_csv, tmp_path):
     repo = TickersRepository(
         db_path=tmp_path / "test.db",
-        euronext_csv_path=euronext_csv
+        euronext_csv_categ=euronext_csv
     )
 
     df = repo.load_euronext_csv(euronext_csv)
@@ -97,13 +97,13 @@ def test_load_euronext_csv_filters_and_normalizes(euronext_csv, tmp_path):
 
     row = df.iloc[0]
     assert row["Ticker"] == "ACA.PA"
-    assert row["Company"] == "Crédit Agricole"
-    assert row["Market"] == "Euronext Paris"
+    assert row["Company"] == "Credit Agricole"
+    assert row["Market"] == "Euronext_cat_A"
 
 def test_load_euronext_csv_drops_unused_columns(euronext_csv, tmp_path):
     repo = TickersRepository(
         db_path=tmp_path / "test.db",
-        euronext_csv_path=euronext_csv
+        euronext_csv_categ=euronext_csv
     )
 
     df = repo.load_euronext_csv(euronext_csv)

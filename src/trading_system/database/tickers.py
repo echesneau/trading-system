@@ -24,7 +24,8 @@ class TickersRepository:
     """
 
     def __init__(self, db_path: Union[str, Path],
-                 euronext_csv_path: Optional[Union[str, Path]] = None):
+                 euronext_csv_categ: Optional[Union[str, Path]] = None,
+                 euronext_csv_growth_access_path: Optional[Union[str, Path]] = None):
         """
         Initialise le repository.
 
@@ -32,11 +33,12 @@ class TickersRepository:
         ----------
         db_path : str | Path
             Chemin vers la base SQLite.
-        euronext_csv_path : str | Path, optional
+        euronext_csv_categ_path : str | Path, optional
             Chemin vers le CSV Euronext.
         """
         self.db_path = str(db_path)
-        self.euronext_csv_path = euronext_csv_path
+        self.euronext_csv_categ_path = euronext_csv_categ
+        self.euronext_csv_growth_access_path = euronext_csv_growth_access_path
 
     def _connect(self):
         return sqlite3.connect(self.db_path)
@@ -135,7 +137,10 @@ class TickersRepository:
 
         """
         self.create_table()
-        self.bulk_upsert(self.load_euronext_csv(self.euronext_csv_path))
+        if self.euronext_csv_categ_path is not None:
+            self.bulk_upsert(self.load_euronext_csv(self.euronext_csv_categ_path))
+        if self.euronext_csv_growth_access_path is not None:
+            self.bulk_upsert(self.load_euronext_csv(self.euronext_csv_growth_access_path))
 
 
     def fetch_all(self) -> pd.DataFrame:
@@ -154,23 +159,25 @@ class TickersRepository:
     def load_euronext_csv(
             csv_path: Union[str, Path],
             allowed_exchanges: tuple[str, ...] = (
-                    "Euronext Paris",
-                    "Euronext Access Paris",
+                    "A", "B", "C",
+                    "Euronext Growth",
+                    "Euronext Access",
             )
     ) -> pd.DataFrame:
         """
         Charge et nettoie un fichier CSV Euronext pour insertion en base.
 
         Le CSV doit contenir les colonnes :
-        - Company
-        - Ticker
-        - Exchange
-        - Currency
+        - Nom de l'entreprise
+        - Code court
+        - Compartiment
 
         Les étapes effectuées :
         - filtrage sur les places boursières autorisées
         - suppression des lignes incomplètes
         - renommage et normalisation des colonnes
+        - renommage des Comportiments
+        - renommage des tickers
         - suppression des doublons sur le ticker
 
         Parameters
@@ -193,28 +200,38 @@ class TickersRepository:
         """
         csv_path = Path(csv_path)
 
-        df = pd.read_csv(csv_path)
+        df = pd.read_csv(csv_path, sep=";", encoding="latin-1")
 
-        required_cols = {"Company", "Ticker", "Exchange"}
+        required_cols = {"Nom de l'entreprise", "Code court", "Compartiment"}
         missing = required_cols - set(df.columns)
         if missing:
             raise ValueError(f"Colonnes manquantes dans le CSV : {missing}\n Existing columns: {set(df.columns)}")
 
         # Filtrage des marchés
-        df = df[df["Exchange"].isin(allowed_exchanges)]
+        df = df[df["Compartiment"].isin(allowed_exchanges)]
 
         # Nettoyage
-        df = df[["Ticker", "Company", "Exchange"]].dropna()
+        df = df[["Nom de l'entreprise", "Code court", "Compartiment"]].dropna()
 
         # Normalisation
         df = df.rename(columns={
-            "Exchange": "Market"
+            "Compartiment": "Market",
+            "Nom de l'entreprise": "Company",
+            "Code court": "Ticker"
         })
 
         # Nettoyage des chaînes
         df["Ticker"] = df["Ticker"].str.strip()
         df["Company"] = df["Company"].str.strip()
         df["Market"] = df["Market"].str.strip()
+
+        # Ajouter .PA aux tickers
+        df["Ticker"] = df["Ticker"].astype(str) + ".PA"
+        df["Market"] = df["Market"].replace({
+            "A": "Euronext_cat_A",
+            "B": "Euronext_cat_B",
+            "C": "Euronext_cat_C"
+        })
 
         # Suppression des doublons
         df = df.drop_duplicates(subset="Ticker", keep="last")

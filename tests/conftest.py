@@ -73,16 +73,16 @@ def euronext_csv(tmp_path):
     csv_path = tmp_path / "euronext.csv"
 
     df = pd.DataFrame({
-        "Company": [
-            "Crédit Agricole",
+        "Nom de l'entreprise": [
+            "Credit Agricole",
             "Bitcoin Corp",
         ],
-        "Ticker": [
-            "ACA.PA",
+        "Code court": [
+            "ACA",
             "BTCUSD"
         ],
-        "Exchange": [
-            "Euronext Paris",
+        "Compartiment": [
+            "A",
             "Crypto"
         ],
         "Currency": [
@@ -91,12 +91,12 @@ def euronext_csv(tmp_path):
         ]
     })
 
-    df.to_csv(csv_path, index=False)
+    df.to_csv(csv_path, index=False, sep=";")
     return csv_path
 
 @pytest.fixture()
 def repo_tickers(temp_db, euronext_csv):
-    return TickersRepository(temp_db, euronext_csv_path=euronext_csv)
+    return TickersRepository(temp_db, euronext_csv_categ=euronext_csv)
 
 @pytest.fixture()
 def repo_strategy(temp_db):

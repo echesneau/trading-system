@@ -3,7 +3,7 @@ import pandas as pd
 
 from trading_system.database.tickers import TickersRepository
 from trading_system.database.trading_params import BestStrategyRepository
-from trading_system.database import euronext_csv
+from trading_system.database import euronext_csv_category, euronext_csv_growth_access
 from trading_system.data.loader import load_yfinance_data
 from scripts.profile_optimisation import backtest_wrapper
 from trading_system.backtesting.engine import BacktestingEngine
@@ -11,13 +11,13 @@ from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
 from scripts.run_backtest_validator import is_valid
 
-def test_integration_load_real_euronext_csv(tmp_path):
+def test_integration_load_real_euronext_csv_categ(tmp_path):
     repo = TickersRepository(
         db_path=tmp_path / "test.db",
-        euronext_csv_path=euronext_csv
+        euronext_csv_categ=euronext_csv_category
     )
 
-    df = repo.load_euronext_csv(euronext_csv)
+    df = repo.load_euronext_csv(euronext_csv_category)
 
     # ---- Sanity checks ----
     assert not df.empty
@@ -26,17 +26,37 @@ def test_integration_load_real_euronext_csv(tmp_path):
     # ---- Invariants métier ----
     assert df["Ticker"].notna().all()
     assert df["Company"].notna().all()
-    assert (df["Market"].isin(["Euronext Paris", "Euronext Access Paris"])).all()
+    assert (df["Market"].isin(["Euronext_cat_A", "Euronext_cat_B", "Euronext_cat_C"])).all()
 
     # ---- Cohérence ----
     assert df["Ticker"].is_unique
 
+def test_integration_load_real_euronext_csv_growth(tmp_path):
+    repo = TickersRepository(
+        db_path=tmp_path / "test.db",
+        euronext_csv_categ=euronext_csv_growth_access
+    )
+
+    df = repo.load_euronext_csv(euronext_csv_growth_access)
+
+    # ---- Sanity checks ----
+    assert not df.empty
+    assert set(df.columns) == {"Ticker", "Company", "Market"}
+
+    # ---- Invariants métier ----
+    assert df["Ticker"].notna().all()
+    assert df["Company"].notna().all()
+    assert (df["Market"].isin(["Euronext Growth", "Euronext Access"])).all()
+
+    # ---- Cohérence ----
+    assert df["Ticker"].is_unique
 def test_integration_update_db_real_csv(tmp_path):
     db_path = tmp_path / "euronext.db"
 
     repo = TickersRepository(
         db_path=db_path,
-        euronext_csv_path=euronext_csv
+        euronext_csv_categ=euronext_csv_category,
+        euronext_csv_growth_access_path=euronext_csv_growth_access
     )
 
     repo.update_db()
@@ -49,7 +69,9 @@ def test_integration_update_db_real_csv(tmp_path):
 
     # Invariants
     assert result["ticker"].is_unique
-    assert (result["market"].isin(["Euronext Paris", "Euronext Access Paris"])).all()
+    assert (result["market"].isin([
+        "Euronext Growth", "Euronext Access", "Euronext_cat_A", "Euronext_cat_B", "Euronext_cat_C"]
+    )).all()
 
 def test_integration_update_params_db(temp_db, example_optim_results):
     repo = BestStrategyRepository(temp_db)
