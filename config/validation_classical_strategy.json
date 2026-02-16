@@ -49,7 +49,7 @@
     },
     "RI.PA": {
         "valid": false,
-        "reason": "Low Return, Not enough trades"
+        "reason": "Not enough trades"
     },
     "LR.PA": {
         "valid": true,
@@ -124,8 +124,8 @@
         "reason": "OK"
     },
     "CAP.PA": {
-        "valid": false,
-        "reason": "Low Return"
+        "valid": true,
+        "reason": "OK"
     },
     "VIV.PA": {
         "valid": false,
