@@ -60,8 +60,8 @@ def test_bulk_upsert(repo_tickers):
 
 
 def test_update_db_is_idempotent(repo_tickers, tmp_path):
-    repo_tickers.update_db()
-    repo_tickers.update_db()  # appel multiple volontaire
+    repo_tickers.update_db(crypto=False)
+    repo_tickers.update_db(crypto=False)  # appel multiple volontaire
 
     result = repo_tickers.fetch_all()
 

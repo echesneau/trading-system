@@ -70,7 +70,10 @@ def test_integration_update_db_real_csv(tmp_path):
     # Invariants
     assert result["ticker"].is_unique
     assert (result["market"].isin([
-        "Euronext Growth", "Euronext Access", "Euronext_cat_A", "Euronext_cat_B", "Euronext_cat_C"]
+        "Euronext Growth", "Euronext Access",
+        "Euronext_cat_A", "Euronext_cat_B", "Euronext_cat_C",
+        "Crypto_EUR", "Crypto_USDT"
+    ]
     )).all()
 
 def test_integration_update_params_db(temp_db, example_optim_results):

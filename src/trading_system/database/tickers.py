@@ -1,3 +1,4 @@
+import ccxt
 import pandas as pd
 import sqlite3
 from typing import Optional, Union
@@ -125,7 +126,7 @@ class TickersRepository:
                     updated_at = CURRENT_TIMESTAMP
             """, rows)
 
-    def update_db(self) -> None:
+    def update_db(self, crypto=True) -> None:
         """
         Met à jour la base des tickers à partir d'un DataFrame.
 
@@ -141,7 +142,8 @@ class TickersRepository:
             self.bulk_upsert(self.load_euronext_csv(self.euronext_csv_categ_path))
         if self.euronext_csv_growth_access_path is not None:
             self.bulk_upsert(self.load_euronext_csv(self.euronext_csv_growth_access_path))
-
+        if crypto:
+            self.bulk_upsert(self.load_crypto_tickers_ccxt())
 
     def fetch_all(self) -> pd.DataFrame:
         """
@@ -154,6 +156,22 @@ class TickersRepository:
         """
         with self._connect() as conn:
             return pd.read_sql("SELECT * FROM tickers", conn)
+
+    def get_all_euronext_tickers(self) -> list:
+        """
+        Récupère tous les tickers Euronext.
+
+        Returns
+        -------
+        list
+            liste des tickers filtrés pour les marchés Euronext.
+        """
+        market = [
+        "Euronext Growth", "Euronext Access", "Euronext_cat_A", "Euronext_cat_B", "Euronext_cat_C"]
+        all_tickers = self.fetch_all()
+        mask = all_tickers["market"].isin(market)
+        return all_tickers.loc[mask, 'ticker'].tolist()
+
 
     @staticmethod
     def load_euronext_csv(
@@ -238,4 +256,19 @@ class TickersRepository:
 
         df = df.reset_index(drop=True)
 
+        return df
+
+    @staticmethod
+    def load_crypto_tickers_ccxt():
+        exchange = ccxt.binance()
+        markets = exchange.load_markets()
+        # Liste des symboles dispo
+        pairs = list(markets.keys())
+        pairs_euro = [pair for pair in pairs if pair.endswith("/EUR")]
+        pair_usd = [pair for pair in pairs if pair.endswith("/USDT")]
+        df = pd.DataFrame({
+            'Ticker': pairs_euro + pair_usd,
+            "Company": pairs_euro + pair_usd,
+            "Market": ["Crypto_EUR"] * len(pairs_euro) + ["Crypto_USDT"] * len(pair_usd)
+        })
         return df
