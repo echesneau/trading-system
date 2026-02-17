@@ -41,11 +41,11 @@ jobs:
 
     - name: Commit and push validation results
       run: |
-        if git diff --quiet --exit-code config/validation_classical_strategy.json; then
+        if git diff --quiet --exit-code config/validator.db; then
           echo "Aucun changement dans le fichier de validation."
         else
           echo "Changements détectés, création du commit..."
-          git add config/validation_classical_strategy.json
+          git add config/validator.db
           git commit -m "chore: weekly validation update [skip ci]"
           git push
           echo "Fichier de validation commité et poussé!"
@@ -84,11 +84,11 @@ jobs:
 
       - name: Commit and push validation results
         run: |
-          if git diff --quiet --exit-code config/validation_classical_strategy_crypto.json; then
+          if git diff --quiet --exit-code config/validator.db; then
             echo "Aucun changement dans le fichier de validation."
           else
             echo "Changements détectés, création du commit..."
-            git add config/validation_classical_strategy_crypto.json
+            git add config/validator.db
             git commit -m "chore: weekly validation update [skip ci]"
             git push
             echo "Fichier de validation commité et poussé!"
