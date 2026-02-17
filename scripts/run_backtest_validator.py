@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from trading_system import config_path
 from trading_system.data.loader import get_all_ticker_parameters_from_config, load_yfinance_data
+from trading_system.database.tickers import TickersRepository
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
 from trading_system.backtesting.engine import BacktestingEngine
@@ -28,9 +29,13 @@ def is_valid(result, min_performance=0.02, max_drawdown=-20.0, min_trades=2, min
 
 if __name__ == "__main__":
     # get all metadata files
+    tickers_db = TickersRepository(db_path)
     params_db = BestStrategyRepository(db_path)
     validators_params = StrategyValidationRepository(validator_db_path)
     configs = params_db.fetch_all()
+    tickers = tickers_db.get_all_euronext_tickers()
+    mask = configs['ticker'].isin(tickers)
+    configs = configs.loc[mask]
     validation_period = 365  # 1 an de validation
     initial_capital = 10000
     transaction_fee = 0.005  # 0.5% par transaction
