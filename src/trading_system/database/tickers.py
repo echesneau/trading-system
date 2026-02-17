@@ -172,6 +172,19 @@ class TickersRepository:
         mask = all_tickers["market"].isin(market)
         return all_tickers.loc[mask, 'ticker'].tolist()
 
+    def get_all_crypto_tickers(self) -> list:
+        """
+        Récupère tous les tickers Crypto.
+
+        Returns
+        -------
+        list
+            liste des tickers filtrés pour les marchés Crypto.
+        """
+        market = ["Crypto_EUR", "Crypto_USDT"]
+        all_tickers = self.fetch_all()
+        mask = all_tickers["market"].isin(market)
+        return all_tickers.loc[mask, 'ticker'].tolist()
 
     @staticmethod
     def load_euronext_csv(
