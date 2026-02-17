@@ -3,7 +3,6 @@ import itertools
 import warnings
 import pandas as pd
 import numpy as np
-import json
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from trading_system.data.loader import load_yfinance_data
@@ -230,7 +229,7 @@ if __name__ == "__main__":
         # "atr_max": [None, 0.01, 0.03, 0.1],  # entre 0 et 0.05
         # "stochastic_oscillator": [False, True],
     }
-    max_workers = 4
+    max_workers = 6
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(run, t, param_grid, params_db): t for t in all_tickers['ticker'].tolist() }
         for future in as_completed(futures):
