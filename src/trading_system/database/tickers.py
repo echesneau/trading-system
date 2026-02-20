@@ -273,7 +273,8 @@ class TickersRepository:
 
     @staticmethod
     def load_crypto_tickers_ccxt():
-        exchange = ccxt.binance()
+        exchange_class = getattr(ccxt, 'kraken')
+        exchange = exchange_class()
         markets = exchange.load_markets()
         # Liste des symboles dispo
         pairs = list(markets.keys())
