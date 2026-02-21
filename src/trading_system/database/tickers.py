@@ -181,7 +181,7 @@ class TickersRepository:
         list
             liste des tickers filtrés pour les marchés Crypto.
         """
-        market = ["Crypto_EUR", "Crypto_USDT"]
+        market = ["Crypto_EUR", "Crypto_USDT", "Crypto_USD"]
         all_tickers = self.fetch_all()
         mask = all_tickers["market"].isin(market)
         return all_tickers.loc[mask, 'ticker'].tolist()
@@ -279,10 +279,11 @@ class TickersRepository:
         # Liste des symboles dispo
         pairs = list(markets.keys())
         pairs_euro = [pair for pair in pairs if pair.endswith("/EUR")]
-        pair_usd = [pair for pair in pairs if pair.endswith("/USDT")]
+        pair_usdt = [pair for pair in pairs if pair.endswith("/USDT")]
+        pair_usd = [pair for pair in pairs if pair.endswith("/USD")]
         df = pd.DataFrame({
-            'Ticker': pairs_euro + pair_usd,
-            "Company": pairs_euro + pair_usd,
-            "Market": ["Crypto_EUR"] * len(pairs_euro) + ["Crypto_USDT"] * len(pair_usd)
+            'Ticker': pairs_euro + pair_usdt + pair_usd,
+            "Company": pairs_euro + pair_usdt + pair_usd,
+            "Market": ["Crypto_EUR"] * len(pairs_euro) + ["Crypto_USDT"] * len(pair_usdt) + ["Crypto_USD"] * len(pair_usd)
         })
         return df

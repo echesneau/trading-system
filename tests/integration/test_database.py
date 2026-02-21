@@ -72,7 +72,7 @@ def test_integration_update_db_real_csv(tmp_path):
     assert (result["market"].isin([
         "Euronext Growth", "Euronext Access",
         "Euronext_cat_A", "Euronext_cat_B", "Euronext_cat_C",
-        "Crypto_EUR", "Crypto_USDT"
+        "Crypto_EUR", "Crypto_USDT",  "Crypto_USD"
     ]
     )).all()
 
