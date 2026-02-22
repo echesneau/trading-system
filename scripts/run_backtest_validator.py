@@ -1,8 +1,7 @@
-import json
 from datetime import datetime, timedelta
 
-from trading_system import config_path
-from trading_system.data.loader import get_all_ticker_parameters_from_config, load_yfinance_data
+
+from trading_system.data.loader import load_yfinance_data
 from trading_system.database.tickers import TickersRepository
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
