@@ -2,7 +2,7 @@ name: Dayly Classical Strategy Scan
 
 on:
   schedule:
-    - cron: '0 16 * * 1-5'
+    - cron: '0 17 * * 1-5'
   workflow_dispatch:      # Exécution manuelle
 
 jobs:
