@@ -78,20 +78,21 @@ class StrategyValidationRepository:
             "validated_at": row["validated_at"],
         }
 
-    def fetch_all(self) -> List[Dict]:
+    def fetch_all(self) -> pd.DataFrame:
         self.create_table()
 
         df = pd.read_sql(
             "SELECT * FROM strategy_validation",
             self._connect()
         )
-
-        return [
-            {
-                "ticker": row["ticker"],
-                "valid": bool(row["valid"]),
-                "reason": row["reason"],
-                "validated_at": row["validated_at"],
-            }
-            for row in df.to_dict(orient="records")
-        ]
+        df["valid"] = df["valid"].astype(bool)
+        return df
+        # return [
+        #     {
+        #         "ticker": row["ticker"],
+        #         "valid": bool(row["valid"]),
+        #         "reason": row["reason"],
+        #         "validated_at": row["validated_at"],
+        #     }
+        #     for row in df.to_dict(orient="records")
+        # ]

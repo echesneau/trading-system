@@ -54,7 +54,7 @@ def test_fetch_all(repo_validation):
 
     assert len(results) == 2
 
-    tickers = {r["ticker"] for r in results}
+    tickers = set(results['ticker'].tolist())
     assert tickers == {"ACA.PA", "BNP.PA"}
 
 def test_valid_is_boolean(repo_validation):
