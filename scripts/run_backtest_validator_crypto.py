@@ -46,6 +46,7 @@ if __name__ == "__main__":
     start_date = (end_date - timedelta(days=validation_period + 50)).strftime('%Y-%m-%d')  # +50 pour les indicateurs
     end_date = end_date.strftime('%Y-%m-%d')
     for _, row in configs.iterrows():
+        print(f"Validating {row['ticker']}...")
         ticker = row['ticker']
         params = row['params_json']
         try:
