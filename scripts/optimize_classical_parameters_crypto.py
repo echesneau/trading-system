@@ -130,14 +130,31 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
 
 
     return pd.DataFrame(results)
+def get_exchange_from_ticker(ticker: str) -> str:
+    try :
+        min_kraken = load_ccxt_data(pair=ticker, exchange_name="kraken",
+                             start_date="2000-01-02",interval="1d").index.min()
+    except :
+        min_kraken = datetime.now()
+    try:
+        min_binance = load_ccxt_data(pair=ticker, exchange_name="binance",
+                             start_date="2000-01-02",interval="1d").index.min()
+    except :
+        min_binance = datetime.now()
+    if min_kraken<min_binance:
+        loader = "kraken"
+    else:
+        loader = "binance"
+    return loader
 
 def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_path)):
+
     raw_data = load_ccxt_data(
         ticker,
-        exchange_name="binance",
+        exchange_name=get_exchange_from_ticker(ticker),
         interval="1d",
         start_date="2000-01-02",
-        end_date="2023-01-01",
+        end_date="2025-09-01",
         limit=None)
     results_df = optimize_parameters_parallel(
         raw_data=raw_data,
@@ -173,10 +190,10 @@ def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_p
     # Tester les meilleurs paramètres sur une période de validation différente
     validation_data = load_ccxt_data(
         ticker,
-        exchange_name="binance",
+        exchange_name="kraken",
         interval="1d",
-        start_date="2023-01-01",
-        end_date="2025-09-01",
+        start_date="2025-09-01",
+        end_date="2026-06-01",
         limit=None)
 
     # Valider les meilleurs paramètres
