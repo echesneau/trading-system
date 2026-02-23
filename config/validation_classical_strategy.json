@@ -16,8 +16,8 @@
         "reason": "OK"
     },
     "SAN.PA": {
-        "valid": false,
-        "reason": "Low Return"
+        "valid": true,
+        "reason": "OK"
     },
     "RNO.PA": {
         "valid": false,
@@ -48,16 +48,16 @@
         "reason": "OK"
     },
     "RI.PA": {
-        "valid": false,
-        "reason": "Not enough trades"
+        "valid": true,
+        "reason": "OK"
     },
     "LR.PA": {
         "valid": true,
         "reason": "OK"
     },
     "OR.PA": {
-        "valid": false,
-        "reason": "Not enough trades"
+        "valid": true,
+        "reason": "OK"
     },
     "BNP.PA": {
         "valid": false,
