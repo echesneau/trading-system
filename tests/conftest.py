@@ -4,6 +4,9 @@ import numpy as np
 
 from trading_system.ml.trainer import ModelTrainer
 from trading_system.data.loader import load_yfinance_data
+from trading_system.database.tickers import TickersRepository
+from trading_system.database.trading_params import BestStrategyRepository
+from trading_system.database.validators import StrategyValidationRepository
 
 @pytest.fixture(scope="session")
 def sample_data():
@@ -60,3 +63,76 @@ def trained_model_artifacts(test_data, model_trainer):
     assert len(artifacts['feature_names']) > 0
 
     return artifacts
+
+@pytest.fixture()
+def temp_db(tmp_path):
+    return tmp_path / "test.db"
+
+@pytest.fixture
+def euronext_csv(tmp_path):
+    csv_path = tmp_path / "euronext.csv"
+
+    df = pd.DataFrame({
+        "Nom de l'entreprise": [
+            "Credit Agricole",
+            "Bitcoin Corp",
+        ],
+        "Code court": [
+            "ACA",
+            "BTCUSD"
+        ],
+        "Compartiment": [
+            "A",
+            "Crypto"
+        ],
+        "Currency": [
+            "EUR",
+            "USD"
+        ]
+    })
+
+    df.to_csv(csv_path, index=False, sep=";")
+    return csv_path
+
+@pytest.fixture()
+def repo_tickers(temp_db, euronext_csv):
+    return TickersRepository(temp_db, euronext_csv_categ=euronext_csv)
+
+@pytest.fixture()
+def repo_strategy(temp_db):
+    return BestStrategyRepository(temp_db)
+
+@pytest.fixture
+def example_optim_results():
+    return {
+        "ticker": "ACA.PA",
+        "date": "2026-02-02 00:06:11",
+        "params": {
+            "rsi_window": 7,
+            "rsi_buy": 35,
+            "rsi_sell": 75,
+            "macd_fast": 16,
+            "macd_slow": 26,
+            "macd_signal": 13,
+            "bollinger_window": 10,
+            "bollinger_std": 1
+        },
+        "train_results": {
+            "sharpe_ratio": 0.05,
+            "total_return": 5.48,
+            "max_drawdown": 0.29,
+            "strategy_score": 0.23,
+            "annualized_return": 0.14
+        },
+        "validation_results": {
+            "total_return": 0.019,
+            "sharpe_ratio": 0.026,
+            "max_drawdown": 0.025,
+            "strategy_score": 0.155,
+            "annualized_return": 0.009
+        }
+    }
+
+@pytest.fixture()
+def repo_validation(temp_db):
+    return StrategyValidationRepository(temp_db)

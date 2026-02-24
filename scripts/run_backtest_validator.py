@@ -1,11 +1,14 @@
-import json
 from datetime import datetime, timedelta
 
-from trading_system import config_path
-from trading_system.data.loader import get_all_ticker_parameters_from_config, load_yfinance_data
+
+from trading_system.data.loader import load_yfinance_data
+from trading_system.database.tickers import TickersRepository
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
 from trading_system.backtesting.engine import BacktestingEngine
+from trading_system.database import db_path, validator_db_path
+from trading_system.database.trading_params import BestStrategyRepository
+from trading_system.database.validators import StrategyValidationRepository
 
 def is_valid(result, min_performance=0.02, max_drawdown=-20.0, min_trades=2, min_trades_earn_rate=0.75):
     valid = True
@@ -25,17 +28,23 @@ def is_valid(result, min_performance=0.02, max_drawdown=-20.0, min_trades=2, min
 
 if __name__ == "__main__":
     # get all metadata files
-    output_path = f"{config_path}/validation_classical_strategy.json"
-    config_path = f"{config_path}/classical_strategy/"
-    config = get_all_ticker_parameters_from_config(config_path)
+    tickers_db = TickersRepository(db_path)
+    params_db = BestStrategyRepository(db_path)
+    validators_params = StrategyValidationRepository(validator_db_path)
+    configs = params_db.fetch_all()
+    tickers = tickers_db.get_all_euronext_tickers()
+    mask = configs['ticker'].isin(tickers)
+    configs = configs.loc[mask]
     validation_period = 365  # 1 an de validation
     initial_capital = 10000
     transaction_fee = 0.005  # 0.5% par transaction
     end_date = datetime.now().date()
     start_date = (end_date - timedelta(days=validation_period + 50)).strftime('%Y-%m-%d')  # +50 pour les indicateurs
     end_date = end_date.strftime('%Y-%m-%d')
-    valid = {}
-    for ticker, params in config.items():
+    for _, row in configs.iterrows():
+        print(f"Validating {row['ticker']}...")
+        ticker = row['ticker']
+        params = row['params_json']
         raw_data = load_yfinance_data(
         ticker=ticker,
         start_date=start_date,
@@ -51,7 +60,5 @@ if __name__ == "__main__":
             position_size=1
         )
         result = engine.run()
-        valid[ticker] = is_valid(result)
-    # Sauvegarder le fichier
-    with open(output_path, 'w') as f:
-        json.dump(valid, f, indent=4)
+        valid = is_valid(result)
+        validators_params.upsert(ticker, valid['valid'], valid['reason'])

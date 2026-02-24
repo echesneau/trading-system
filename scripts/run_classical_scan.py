@@ -1,12 +1,15 @@
 import os
 import json
 
-from trading_system import config_path
-from trading_system.data.loader import get_all_ticker_parameters_from_config, load_validation_results
 from trading_system.notifications.email_sender import EmailSender
 from trading_system.notifications.reporter import SignalReporter
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.data import load_yfinance_data
+from trading_system.database import db_path, validator_db_path
+from trading_system.database.trading_params import BestStrategyRepository
+from trading_system.database.validators import StrategyValidationRepository
+from trading_system.database.tickers import TickersRepository
+
 
 TO_EMAILS = json.loads(os.getenv("REAL_EMAIL_TO_PROD", {}))
 REAL_EMAIL_LOGIN = os.getenv("REAL_EMAIL_LOGIN")
@@ -27,14 +30,17 @@ email_sender = EmailSender(
 
 if __name__ == "__main__":
     print("🔎 Début du scan quotidien...")
-    classical_config_path = f"{config_path}/classical_strategy/"
-    validator_path = f"{config_path}/validation_classical_strategy.json"
-    # read all parameters
-    config = get_all_ticker_parameters_from_config(classical_config_path)
-    # read status: if parameters are validated or not
-    validator = load_validation_results(validator_path)
-    # filter only validated parameters
-    config = {k: v for k, v in config.items() if k in validator and validator[k]['valid'] == True}
+    tickers_db = TickersRepository(db_path)
+    params_db = BestStrategyRepository(db_path)
+    validators_db = StrategyValidationRepository(validator_db_path)
+    tickers = tickers_db.get_all_euronext_tickers()
+    valid_tickers = validators_db.fetch_all()
+    mask = valid_tickers['ticker'].isin(tickers)
+    valid_tickers = valid_tickers.loc[mask]
+    valid_tickers = valid_tickers[valid_tickers['valid']]['ticker'].tolist()
+    config = {ticker: params_db.fetch_one(ticker)["params_json"]
+              for ticker in valid_tickers}
+
     # Générer le rapport
     reporter = SignalReporter(strategy=ClassicalStrategy, data_loader=load_yfinance_data)
     report = reporter.generate_daily_report(list(config.keys()), config, max_window_range=100)

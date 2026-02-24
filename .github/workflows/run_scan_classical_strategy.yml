@@ -2,7 +2,7 @@ name: Dayly Classical Strategy Scan
 
 on:
   schedule:
-    - cron: '0 16 * * 1-5'
+    - cron: '0 17 * * 1-5'
   workflow_dispatch:      # Exécution manuelle
 
 jobs:
@@ -20,6 +20,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        lfs: true
 
     - name: Set up Python
       uses: actions/setup-python@v4

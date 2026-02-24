@@ -66,6 +66,7 @@ class SignalReporter:
             end_date = (dt.datetime.now().date()+dt.timedelta(days=1)).strftime('%Y-%m-%d')
 
         for ticker in tickers:
+            print(f"🔍 Analyse de {ticker}...")
             try:
                 # 1. Charger les données HISTORIQUES pour le ticker
                 hist_data = self.data_loader(
