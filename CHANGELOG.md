@@ -10,7 +10,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
-## HEAD - 2026-02-DD
+## [0.6.0] - 2026-02-24
 ## Modifié
 - complexification des conditions de génération de signaux pour les stratégies classiques
 - suppression de la parallelisation pour les calculs du grid search
