@@ -56,7 +56,7 @@ class ClassicalStrategy(BaseStrategy):  # Hérite de BaseStrategy
 
         def cond_stochastic_sell(k, d, stock_max, default=True):
             # Si k ou stock_max sont nan → retourne default
-            if np.all(np.isnan(k)) or np.isnan(stock_max):
+            if np.all(np.isnan(k)) or pd.isnull(stock_max):
                 return np.full_like(k, default, dtype=bool)
 
             return (k < d) & (k > stock_max)
