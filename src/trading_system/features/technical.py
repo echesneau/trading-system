@@ -13,7 +13,7 @@ def calculate_indicators(
         adx_window: int = None,
         ema_windows: List[int] = [],
         bollinger_window: int = None,
-        bollinger_std: int = 2,
+        bollinger_std: int = None,
         macd_slow: int = None,
         macd_fast: int = None,
         macd_signal: int = None,
@@ -108,7 +108,7 @@ def calculate_indicators(
             ).average_true_range()
 
     # Bandes de Bollinger
-    if bollinger_window is None:
+    if bollinger_window is None or bollinger_std is None:
         out['BB_Upper'] = np.nan
         out['BB_Middle'] = np.nan
         out['BB_Lower'] = np.nan

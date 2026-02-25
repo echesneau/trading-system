@@ -10,12 +10,17 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## HEAD 
+### debug
+- stock max null in cond_stochastic_sell
+- accept bollinger_std null
+
 ## [0.6.0] - 2026-02-24
-## Modifié
+### Modifié
 - complexification des conditions de génération de signaux pour les stratégies classiques
 - suppression de la parallelisation pour les calculs du grid search
 - optimisation du code en passant des fonctions en numpy au lieu de pandas pour accélérer les calculs
-## Ajouté
+### Ajouté
 - base de données SQLite pour stocker les stickers et les paramètres de trading
 - ajout de conditions de génération de signaux paramétrables pour les stratégies classiques
 - Ajout d'un cache avec les indicateurs déjà calculés lors du grid search pour optimiser les stratégies de trading 
