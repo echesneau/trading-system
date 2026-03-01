@@ -3,6 +3,7 @@ import itertools
 import warnings
 import pandas as pd
 import numpy as np
+import math
 import json
 from datetime import datetime
 from trading_system.data.loader import load_yfinance_data
@@ -111,14 +112,14 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     # Générer toutes les combinaisons de paramètres
     keys = param_grid.keys()
     values = param_grid.values()
-    all_combinations = [dict(zip(keys, combination))
-                        for combination in itertools.product(*values)]
+    n_combinations = math.prod(len(v) for v in param_grid.values())
 
-    print(f"Nombre total de combinaisons à tester: {len(all_combinations)}")
+    print(f"Nombre total de combinaisons à tester: {n_combinations}")
     print()
 
     cache = {}
-    for i, params in enumerate(all_combinations):
+    for combination in itertools.product(*values):
+        params = dict(zip(keys, combination))
         result, cache = backtest_wrapper(params, raw_data, initial_capital, transaction_fee, cache=cache)
         if i % 100 == 0:
             print(f"\rTest {i}/{len(all_combinations)} - strategy_score: {result['strategy_score']:.2f}", end='', flush=True)
@@ -199,19 +200,24 @@ if __name__ == "__main__":
     tickers_cac40_list = [
         "AIR.PA",  # Airbus
         "MT.AS",  # ArcelorMittal (coté Amsterdam)
-        "CS.PA",  # AXA
-        "BNP.PA",  # BNP Paribas
+        #"CS.PA",  # AXA
+        #"BNP.PA",  # BNP Paribas
     ]
     # Définir les plages de paramètres à tester
     param_grid = {
         'rsi_window': [7, 21],
-        'rsi_buy': [30, 35],
+        'rsi_buy': [None, 30, 35],
         'rsi_sell': [70, 75],
         'macd_fast': [8, 20],
         'macd_slow': [21, 34],
         'macd_signal': [7, 13],
-        'bollinger_window': [10, 20],
-        'bollinger_std': [1, 1.5]
+        'bollinger_window': [None, 10, 20],
+        'bollinger_std': [None, 1, 1.5],
+        "adx_min": [None, 20],
+        "stock_min": [None, 20],
+        "stock_max": [None, 80],
+        "atr_max": [None, 0.1],
+        "stochastic_oscillator": [False, True]
     }
 
     odir = f"data_optim/tt/"

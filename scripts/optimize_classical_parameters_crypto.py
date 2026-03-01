@@ -3,6 +3,7 @@ import itertools
 import warnings
 import pandas as pd
 import numpy as np
+import math
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from trading_system.data.loader import load_ccxt_data
@@ -115,14 +116,14 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     # Générer toutes les combinaisons de paramètres
     keys = param_grid.keys()
     values = param_grid.values()
-    all_combinations = [dict(zip(keys, combination))
-                        for combination in itertools.product(*values)]
+    n_combinations = math.prod(len(v) for v in param_grid.values())
 
-    print(f"Nombre total de combinaisons à tester: {len(all_combinations)}")
+    print(f"Nombre total de combinaisons à tester: {n_combinations}")
     print()
 
     cache = {}
-    for params in all_combinations:
+    for combination in itertools.product(*values):
+        params = dict(zip(keys, combination))
         result, cache = backtest_wrapper(params, raw_data, initial_capital, transaction_fee, cache=cache)
         results.append(result)
 

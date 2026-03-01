@@ -1,6 +1,7 @@
 # optimize_parameters.py
 import itertools
 import warnings
+import math
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -113,14 +114,14 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     # Générer toutes les combinaisons de paramètres
     keys = param_grid.keys()
     values = param_grid.values()
-    all_combinations = [dict(zip(keys, combination))
-                        for combination in itertools.product(*values)]
+    n_combinations = math.prod(len(v) for v in param_grid.values())
 
-    print(f"Nombre total de combinaisons à tester: {len(all_combinations)}")
+    print(f"Nombre total de combinaisons à tester: {n_combinations}")
     print()
 
     cache = {}
-    for params in all_combinations:
+    for combination  in itertools.product(*values):
+        params = dict(zip(keys, combination))
         result, cache = backtest_wrapper(params, raw_data, initial_capital, transaction_fee, cache=cache)
         results.append(result)
 
@@ -223,13 +224,13 @@ if __name__ == "__main__":
         'macd_signal': [7, 9, 11, 13],
         'bollinger_window': [10, 15, 20, 25],
         'bollinger_std': [1, 1.5, 2.0],
-        # "adx_min": [None, 15, 20, 25],  # faible 15-20, forte 25-40
-        # "stock_min": [None, 20, 25],  # inf 25 environ
-        # "stock_max": [None, 75, 80],  # sup 75 environ
+        "adx_min": [None, 15, 20, 25],  # faible 15-20, forte 25-40
+        "stock_min": [None, 20, 25],  # inf 25 environ
+        "stock_max": [None, 75, 80],  # sup 75 environ
         # "atr_max": [None, 0.01, 0.03, 0.1],  # entre 0 et 0.05
         # "stochastic_oscillator": [False, True],
     }
-    max_workers = 6
+    max_workers = 7
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(run, t, param_grid, params_db): t for t in all_tickers['ticker'].tolist() }
         for future in as_completed(futures):

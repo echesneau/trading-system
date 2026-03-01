@@ -3,6 +3,7 @@ import itertools
 import warnings
 import pandas as pd
 import numpy as np
+import math
 import json
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -111,53 +112,16 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     # Générer toutes les combinaisons de paramètres
     keys = param_grid.keys()
     values = param_grid.values()
-    all_combinations = [dict(zip(keys, combination))
-                        for combination in itertools.product(*values)]
+    n_combinations = math.prod(len(v) for v in param_grid.values())
 
-    print(f"Nombre total de combinaisons à tester: {len(all_combinations)}")
+    print(f"Nombre total de combinaisons à tester: {n_combinations}")
     print()
+
     cache = {}
-    for params in all_combinations:
+    for combination in itertools.product(*values):
+        params = dict(zip(keys, combination))
         result, cache = backtest_wrapper(params, raw_data, initial_capital, transaction_fee, cache=cache)
         results.append(result)
-
-    # Utiliser ProcessPoolExecutor pour paralléliser les backtests
-    # with ProcessPoolExecutor(max_workers=max_workers) as executor:
-    #     # Soumettre toutes les tâches
-    #     future_to_params = {
-    #         executor.submit(
-    #             backtest_wrapper,
-    #             params,
-    #             raw_data,
-    #             initial_capital,
-    #             transaction_fee
-    #         ): params for params in all_combinations
-    #     }
-
-    #     # Collecter les résultats au fur et à mesure
-    #     for i, future in enumerate(as_completed(future_to_params)):
-    #         params = future_to_params[future]
-    #         try:
-    #             result = future.result()
-    #             results.append(result)
-
-    #             if i % 100 == 0:
-    #                 pass
-                    # print(f"\rTest {i}/{len(all_combinations)} - strategy_score: {result['strategy_score']:.2f}", end='', flush=True)
-                    #print(f"Test {i}/{len(all_combinations)} - Return: {result['total_return']:.2f}", end="\n")
-
-    #         except Exception as e:
-    #             print(f"Erreur avec les paramètres {params}: {str(e)}")
-    #             results.append({
-    #                 'params': params,
-    #                 'sharpe_ratio': -np.inf,
-    #                 'total_return': -np.inf,
-    #                 'max_drawdown': np.inf,
-    #                 'annualized_return': -np.inf,
-    #                 'strategy_score': -np.inf,
-    #                 'n_trades': 0,
-    #                 'error': str(e)
-    #             })
 
     return pd.DataFrame(results)
 
