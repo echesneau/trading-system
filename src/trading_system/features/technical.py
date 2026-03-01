@@ -11,7 +11,7 @@ def calculate_indicators(
         rsi_window: int = None,
         atr_window: int = None,
         adx_window: int = None,
-        ema_windows: List[int] = [],
+        ema_windows: List[int] = None,
         bollinger_window: int = None,
         bollinger_std: int = None,
         macd_slow: int = None,
@@ -21,7 +21,7 @@ def calculate_indicators(
         balance_volume: bool = False,
         stochastic_oscillator: bool = False,
         price_volume_trend: bool = False,
-        cache: dict = {},
+        cache: dict = None,
         **kwargs
 ) -> pd.DataFrame:
     """
@@ -39,7 +39,10 @@ def calculate_indicators(
     Returns:
         DataFrame original enrichi avec les indicateurs techniques
     """
-    out = {}
+    if ema_windows is None:
+        ema_windows = []
+    if cache is None:
+        cache = {}
     # Vérification des colonnes requises
     required_columns = {'Open', 'High', 'Low', 'Close', 'Volume'}
     if not required_columns.issubset(data.columns):
@@ -55,16 +58,22 @@ def calculate_indicators(
     if len(data) < max_window:
         raise ValueError(f"Nécessite au moins {max_window} périodes, {len(data)} fournies")
 
+    close = data['Close']
+    high = data['High']
+    low = data['Low']
+    volume = data['Volume']
+    out = {}
     # 1. Momentum Indicators
     ## RSI avec gestion des NaN initiaux
     if rsi_window is None:
         out['RSI'] = np.nan
     else:
-        if f"RSI_{rsi_window}" in cache:
-            out['RSI'] = cache[f"RSI_{rsi_window}"]
+        key = f"RSI_{rsi_window}"
+        if key in cache:
+            out['RSI'] = cache[key]
         else:
             out['RSI'] = ta.momentum.RSIIndicator(
-                close=data['Close'],
+                close=close,
                 window=rsi_window,
                 fillna=False
             ).rsi()
@@ -73,20 +82,21 @@ def calculate_indicators(
         out['MACD'] = np.nan
         out['MACD_Signal'] = np.nan
     else:
-        if f"MACD_{macd_fast}_{macd_slow}_{macd_signal}" in cache:
-            out['MACD'] = cache[f"MACD_{macd_fast}_{macd_slow}_{macd_signal}"]
-            out['MACD_Signal'] = cache[f"MACD_Signal_{macd_fast}_{macd_slow}_{macd_signal}"]
+        key_macd = f"MACD_{macd_fast}_{macd_slow}_{macd_signal}"
+        key_signal = f"MACD_Signal_{macd_fast}_{macd_slow}_{macd_signal}"
+        if key_macd in cache:
+            out['MACD'] = cache[key_macd]
+            out['MACD_Signal'] = cache[key_signal]
         else:
-            macd = ta.trend.MACD(close=data['Close'], window_slow=macd_slow, window_fast=macd_fast, window_sign=macd_signal)
+            macd = ta.trend.MACD(close=close, window_slow=macd_slow, window_fast=macd_fast, window_sign=macd_signal)
             out['MACD'] = macd.macd()
             out['MACD_Signal'] = macd.macd_signal()
 
     ## Stochastic Oscillator
     if stochastic_oscillator:
-        out['Stochastic_%K'] = ta.momentum.StochasticOscillator(
-            data['High'], data['Low'], data['Close']).stoch()
-        out['Stochastic_%D'] = ta.momentum.StochasticOscillator(
-            data['High'], data['Low'], data['Close']).stoch_signal()
+        stoch = ta.momentum.StochasticOscillator(high, low, close)
+        out['Stochastic_%K'] = stoch.stoch()
+        out['Stochastic_%D'] = stoch.stoch_signal()
     else:
         out['Stochastic_%K'] = np.nan
         out['Stochastic_%D'] = np.nan
@@ -96,13 +106,14 @@ def calculate_indicators(
     if atr_window is None:
         out['ATR'] = np.nan
     else:
-        if f"ATR_{atr_window}" in cache:
-            out['ATR'] = cache[f"ATR_{atr_window}"]
+        key = f"ATR_{atr_window}"
+        if key in cache:
+            out['ATR'] = cache[key]
         else:
             out['ATR'] = ta.volatility.AverageTrueRange(
-                high=data['High'],
-                low=data['Low'],
-                close=data['Close'],
+                high=high,
+                low=low,
+                close=close,
                 window=atr_window,
                 fillna=False
             ).average_true_range()
@@ -113,13 +124,16 @@ def calculate_indicators(
         out['BB_Middle'] = np.nan
         out['BB_Lower'] = np.nan
     else:
-        if f"BB_Upper_{bollinger_window}_{bollinger_std}" in cache:
-            out['BB_Upper'] = cache[f"BB_Upper_{bollinger_window}_{bollinger_std}"]
-            out['BB_Middle'] = cache[f"BB_Middle_{bollinger_window}_{bollinger_std}"]
-            out['BB_Lower'] = cache[f"BB_Lower_{bollinger_window}_{bollinger_std}"]
+        key_u = f"BB_Upper_{bollinger_window}_{bollinger_std}"
+        key_m = f"BB_Middle_{bollinger_window}_{bollinger_std}"
+        key_l = f"BB_Lower_{bollinger_window}_{bollinger_std}"
+        if key_u in cache:
+            out['BB_Upper'] = cache[key_u]
+            out['BB_Middle'] = cache[key_m]
+            out['BB_Lower'] = cache[key_l]
         else:
             bb = ta.volatility.BollingerBands(
-                close=data['Close'],
+                close=close,
                 window=bollinger_window,
                 window_dev=bollinger_std,
                 fillna=False
@@ -135,7 +149,7 @@ def calculate_indicators(
             if f"EMA_{window}" in cache:
                 out[f'EMA_{window}'] = cache[f"EMA_{window}"]
             else:
-                out[f'EMA_{window}'] = ema_indicator(data['Close'], window=window)
+                out[f'EMA_{window}'] = ema_indicator(close, window=window)
         else:
             out[f'EMA_{window}'] = np.nan
     ## ADX
@@ -144,9 +158,9 @@ def calculate_indicators(
             out['ADX'] = cache[f"ADX_{adx_window}"]
         else:
             out['ADX'] = ta.trend.ADXIndicator(
-                high=data['High'],
-                low=data['Low'],
-                close=data['Close'],
+                high=high,
+                low=low,
+                close=close,
                 window=adx_window,
                 fillna=False
             ).adx()
@@ -159,14 +173,14 @@ def calculate_indicators(
             out['OBV'] = cache["OBV"]
         else:
             out['OBV'] = ta.volume.OnBalanceVolumeIndicator(
-                data['Close'], data['Volume']).on_balance_volume()
+                close, volume).on_balance_volume()
     else:
         out['OBV'] = np.nan
     if volume_ma_window is not None and len(data) >= volume_ma_window:
         if f"VolMA_{volume_ma_window}" in cache:
             out['VolMA'] = cache[f"VolMA_{volume_ma_window}"]
         else:
-            out['VolMA'] = data['Volume'].rolling(window=volume_ma_window).mean()
+            out['VolMA'] = volume.rolling(window=volume_ma_window).mean()
     else:
         out['VolMA'] = np.nan
 
@@ -178,9 +192,13 @@ def calculate_indicators(
             out['Price_Volume_Trend'] = calculate_price_volume_trend(data)
     else:
         out['Price_Volume_Trend'] = np.nan
-    out['Daily_Return'] = data['Close'].pct_change()
+    if "Daily_Return" in cache:
+        out['Daily_Return'] = cache["Daily_Return"]
+    else:
+        out['Daily_Return'] = close.pct_change()
 
-    data = data.assign(**out)
+    # data = data.assign(**out)
+    data[list(out.keys())] = pd.DataFrame(out, index=data.index)
     return data
 
 
