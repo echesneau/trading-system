@@ -48,6 +48,8 @@ def update_cache(cache, data, params):
     # Price volume trend
     if "price_volume_trend" in params and params['price_volume_trend'] and "Price_Volume_Trend" not in cache:
         cache["Price_Volume_Trend"] = data["Price_Volume_Trend"]
+    if "Daily_Return" not in cache:
+        cache["Daily_Return"] = data["Daily_Return"]
     return cache
 
 def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.005, cache={}):
@@ -187,8 +189,8 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
         "strategy_score": validation_result['performance']['strategy_score'],
         "annualized_return": validation_result['performance']['annualized_return'],
     }
-    with open(f'{odir}/metadata_opt_{ticker}.json', 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, ensure_ascii=False, indent=4)
+    #with open(f'{odir}/metadata_opt_{ticker}.json', 'w', encoding='utf-8') as f:
+    #    json.dump(metadata, f, ensure_ascii=False, indent=4)
 
 def run(ticker, param_grid, odir):
     print("=" * 50)
@@ -198,7 +200,7 @@ def run(ticker, param_grid, odir):
 if __name__ == "__main__":
     tickers_cac40_list = [
         "AIR.PA",  # Airbus
-        "MT.AS",  # ArcelorMittal (coté Amsterdam)
+        # "MT.AS",  # ArcelorMittal (coté Amsterdam)
         #"CS.PA",  # AXA
         #"BNP.PA",  # BNP Paribas
     ]
@@ -228,8 +230,8 @@ if __name__ == "__main__":
     result = {"nb_ticker": len(tickers_cac40_list),
               "params": param_grid,
               "total_time_seconds": t_tot}
-    with open(f'{odir}/summary_optimization.json', 'w', encoding='utf-8') as f:
-        json.dump(result, f, ensure_ascii=False, indent=4)
+    # with open(f'{odir}/summary_optimization.json', 'w', encoding='utf-8') as f:
+    #     json.dump(result, f, ensure_ascii=False, indent=4)
 
 
 

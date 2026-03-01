@@ -49,6 +49,8 @@ def update_cache(cache, data, params):
     # Price volume trend
     if "price_volume_trend" in params and params['price_volume_trend'] and "Price_Volume_Trend" not in cache:
         cache["Price_Volume_Trend"] = data["Price_Volume_Trend"]
+    if "Daily_Return" not in cache:
+        cache["Daily_Return"] = data["Daily_Return"]
     return cache
 
 def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.005, cache={}):
