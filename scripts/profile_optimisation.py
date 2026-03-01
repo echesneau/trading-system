@@ -118,14 +118,21 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     print()
 
     cache = {}
+    best_result = {
+        'params': {},
+        'sharpe_ratio': -np.inf,
+        'total_return': -np.inf,
+        'max_drawdown': np.inf,
+        'annualized_return': -np.inf,
+        'strategy_score': -np.inf,
+        'n_trades': 0
+    }
     for combination in itertools.product(*values):
         params = dict(zip(keys, combination))
         result, cache = backtest_wrapper(params, raw_data, initial_capital, transaction_fee, cache=cache)
-        if i % 100 == 0:
-            print(f"\rTest {i}/{len(all_combinations)} - strategy_score: {result['strategy_score']:.2f}", end='', flush=True)
-            print(f"Test {i}/{len(all_combinations)} - Return: {result['total_return']:.2f}", end="\n")
-        results.append(result)
-    return pd.DataFrame(results)
+        if result['strategy_score'] > best_result['strategy_score']:
+            best_result = result
+    return best_result
 
 def optimize_one(ticker: str, grid: dict, odir="./"):
     raw_data = load_yfinance_data(
@@ -134,32 +141,24 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
         end_date="2024-01-01",
         interval="1d"
     )
-    results_df = optimize_parameters_parallel(
+    best_result = optimize_parameters_parallel(
         raw_data=raw_data,
         param_grid=grid,
         initial_capital=10000,
         transaction_fee=0.005  # None = utilise tous les coeurs disponibles
     )
-    # Trouver les meilleures combinaisons selon différentes métriques
-    best_sharpe = results_df.loc[results_df['sharpe_ratio'].idxmax()]
-    best_return = results_df.loc[results_df['total_return'].idxmax()]
-    best_drawdown = results_df.loc[results_df['max_drawdown'].idxmin()]
-    best_strategy = results_df.loc[results_df['strategy_score'].idxmax()]
     metadata = {
         "ticker": ticker,
         'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'params': best_strategy['params'],
+        'params': best_result['params'],
         'train_results': {
-            'sharpe_ratio': best_strategy['sharpe_ratio'],
-            'total_return': best_strategy['total_return'],
-            'max_drawdown': best_strategy['max_drawdown'],
-            "strategy_score": best_strategy['strategy_score'],
-            "annualized_return": best_strategy['annualized_return'],
+            'sharpe_ratio': best_result['sharpe_ratio'],
+            'total_return': best_result['total_return'],
+            'max_drawdown': best_result['max_drawdown'],
+            "strategy_score": best_result['strategy_score'],
+            "annualized_return": best_result['annualized_return'],
         }
     }
-
-    # Sauvegarder tous les résultats
-    results_df.to_csv(f"{odir}/optimization_results_{ticker}.csv", index=False)
     # Tester les meilleurs paramètres sur une période de validation différente
     validation_data = load_yfinance_data(
         ticker=ticker,
@@ -169,8 +168,8 @@ def optimize_one(ticker: str, grid: dict, odir="./"):
     )
 
     # Valider les meilleurs paramètres
-    data = calculate_indicators(validation_data, **best_strategy['params'])
-    best_strategy_engine = ClassicalStrategy(**best_strategy['params'])
+    data = calculate_indicators(validation_data, **best_result['params'])
+    best_strategy_engine = ClassicalStrategy(**best_result['params'])
     validation_engine = BacktestingEngine(
         strategy=best_strategy_engine,
         data=data,
