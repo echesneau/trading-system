@@ -51,6 +51,7 @@ jobs:
           echo "Fichier de validation commité et poussé!"
         fi
   validate-classical-strategies-crypto:
+    needs: validate-classical-strategies
     runs-on: ubuntu-22.04
     permissions:
       contents: write
