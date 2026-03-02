@@ -10,6 +10,10 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## [0.6.2] - 2026-03-02
+### debug
+- modification du CI validation pour pouvoir push sur les deux jobs
+
 ## [0.6.1] - 2026-02-26 
 ### debug
 - stock max null in cond_stochastic_sell
