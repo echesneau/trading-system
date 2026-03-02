@@ -11,7 +11,7 @@ from trading_system.backtesting.engine import BacktestingEngine
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
 from trading_system.database.trading_params import BestStrategyRepository
-from trading_system.database import db_path, euronext_csv_category, euronext_csv_growth_access
+from trading_system.database import db_path_dev, euronext_csv_category, euronext_csv_growth_access
 from trading_system.database.tickers import TickersRepository
 
 warnings.filterwarnings("ignore")
@@ -159,7 +159,7 @@ def get_exchange_from_ticker(ticker: str) -> str:
         loader = "binance"
     return loader
 
-def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_path)):
+def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_path_dev)):
 
     raw_data = load_ccxt_data(
         ticker,
@@ -235,13 +235,13 @@ if __name__ == "__main__":
         "BTC/EUR", 'ETH/EUR', 'XRP/EUR', 'ADA/EUR', 'XLM/EUR', 'ATOM/EUR', #  'ETC/EUR'
         "BTC/USDT", 'ETH/USDT', 'XRP/USDT', 'ADA/USDT', 'XLM/USDT', 'ETC/USDT', 'ATOM/USDT'
     ]
-    tickers_db = TickersRepository(db_path, euronext_csv_categ=euronext_csv_category,
+    tickers_db = TickersRepository(db_path_dev, euronext_csv_categ=euronext_csv_category,
                                    euronext_csv_growth_access_path=euronext_csv_growth_access)
     tickers_db.update_db()
     tickers_df = tickers_db.fetch_all()
     tickers_eur_df = tickers_df[tickers_df['market'].isin(["Crypto_EUR"])]
     tickers_usd_df = tickers_df[tickers_df['market'].isin(["Crypto_USDT"])]
-    params_db = BestStrategyRepository(db_path)
+    params_db = BestStrategyRepository(db_path_dev)
 
     all_tickers = pd.concat([tickers_eur_df, tickers_usd_df])
     # Définir les plages de paramètres à tester

@@ -11,7 +11,7 @@ from trading_system.backtesting.engine import BacktestingEngine
 from trading_system.database.trading_params import BestStrategyRepository
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
-from trading_system.database import db_path, euronext_csv_category, euronext_csv_growth_access
+from trading_system.database import db_path_dev, euronext_csv_category, euronext_csv_growth_access
 from trading_system.database.tickers import TickersRepository
 warnings.filterwarnings("ignore")
 
@@ -139,7 +139,7 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     return best_result
 
 
-def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_path)):
+def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_path_dev)):
     raw_data = load_yfinance_data(
         ticker=ticker,
         start_date="2010-01-01",
@@ -207,14 +207,14 @@ def run(ticker, param_grid, db):
     optimize_one(ticker, grid=param_grid, database=db)
 
 if __name__ == "__main__":
-    tickers_db = TickersRepository(db_path, euronext_csv_categ=euronext_csv_category,
+    tickers_db = TickersRepository(db_path_dev, euronext_csv_categ=euronext_csv_category,
                                    euronext_csv_growth_access_path=euronext_csv_growth_access)
     tickers_db.update_db()
     tickers_df = tickers_db.fetch_all()
     tickers_a_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_A"])]
     tickers_b_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_B"])]
     tickers_c_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_C"])]
-    params_db = BestStrategyRepository(db_path)
+    params_db = BestStrategyRepository(db_path_dev)
 
     all_tickers = pd.concat([tickers_a_df, tickers_b_df, tickers_c_df])
     other_tickers = ['MT.AS']
@@ -222,19 +222,19 @@ if __name__ == "__main__":
 
     # Définir les plages de paramètres à tester
     param_grid = {
-        'rsi_window': [7, 10, 14, 21],
-        'rsi_buy': [25, 30, 35],
-        'rsi_sell': [65, 70, 75],
-        'macd_fast': [8, 12, 16, 20],
-        'macd_slow': [21, 26, 30, 34],
-        'macd_signal': [7, 9, 11, 13],
-        'bollinger_window': [10, 15, 20, 25],
-        'bollinger_std': [1, 1.5, 2.0],
-        "adx_min": [None, 15, 20, 25],  # faible 15-20, forte 25-40
+        'rsi_window': [7, 10],
+        'rsi_buy': [None, 25, 35],
+        'rsi_sell': [None, 65, 75],
+        'macd_fast': [8, 16, 20],
+        'macd_slow': [21, 30, 34],
+        'macd_signal': [None, 7, 13],
+        'bollinger_window': [None, 10, 15, 20],
+        'bollinger_std': [1, 1.5],
+        "adx_min": [None, 15, 20],  # faible 15-20, forte 25-40
         "stock_min": [None, 20, 25],  # inf 25 environ
         "stock_max": [None, 75, 80],  # sup 75 environ
         # "atr_max": [None, 0.01, 0.03, 0.1],  # entre 0 et 0.05
-        # "stochastic_oscillator": [False, True],
+        "stochastic_oscillator": [False, True],
     }
     max_workers = 7
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
