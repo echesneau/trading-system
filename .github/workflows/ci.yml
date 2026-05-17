@@ -257,15 +257,22 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Run safety check
+    - name: Install security tools
       run: |
-        pip install safety
-        safety scan --output screen
+        python -m pip install --upgrade pip
+        pip install pip-audit bandit ruff
+
+    - name: Run pip-audit
+      run: |
+        pip-audit
 
     - name: Run bandit
       run: |
-        pip install bandit
         bandit -r src/ -ll
+
+    - name: Run ruff
+      run: |
+        ruff check src/ 
 
   build:
     name: Build Package
