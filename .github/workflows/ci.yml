@@ -261,6 +261,7 @@ jobs:
       run: |
         pip install safety
         safety scan --output text
+
     - name: Run bandit
       run: |
         pip install bandit
