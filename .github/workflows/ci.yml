@@ -260,7 +260,7 @@ jobs:
     - name: Run safety check
       run: |
         pip install safety
-        safety scan --output text
+        safety scan --output screen
 
     - name: Run bandit
       run: |
