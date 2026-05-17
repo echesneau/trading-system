@@ -257,15 +257,17 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Run safety check
+    - name: Install security tools
       run: |
-        pip install safety
-        pip install "typer<0.17.0"  # Pour éviter un problème de compatibilité avec safety
-        safety check --full-report
+        python -m pip install --upgrade pip
+        pip install pip-audit bandit
+
+    - name: Run pip-audit
+      run: |
+        pip-audit
 
     - name: Run bandit
       run: |
-        pip install bandit
         bandit -r src/ -ll
 
   build:
