@@ -10,6 +10,10 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## [0.6.3] - 2026-05-18
+### Modifié
+- Suppression de Carmat (ALCAR.PA) de la liste des tickers : liquidation de la société
+- 
 ## [0.6.2] - 2026-03-02
 ### debug
 - modification du CI validation pour pouvoir push sur les deux jobs
