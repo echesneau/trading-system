@@ -119,3 +119,34 @@ def test_load_euronext_csv_missing_columns(tmp_path):
 
     with pytest.raises(ValueError):
         repo.load_euronext_csv(csv_path)
+
+def test_get_all_european_stock_exchange(tmp_path, euronext_csv):
+    repo = TickersRepository(
+        db_path=tmp_path / "test.db",
+        euronext_csv_categ=euronext_csv
+    )
+    df = repo._get_all_european_stock_exchange()
+    for col in ['exchange', 'exchangeLabel', 'countryLabel']:
+        assert col in df.columns
+
+    for country in df['countryLabel'].unique():
+        assert country in ['Allemagne', 'Belgique', 'Espagne', 'Estonie', 'Finlande',
+                           'France', 'Grèce', 'Irlande', 'Italie', 'Lettonie', 'Lituanie',
+                           'Luxembourg', 'Norvège', 'Pays-Bas', 'Portugal', 'Royaume-Uni',
+                           'Suisse']
+
+    for exchange in ['Euronext', 'bourse de Bruxelles', 'Bourse des valeurs de Madrid',
+                     'Euronext Paris', 'CAC Small', 'Euronext Growth Paris', 'Euronext Dublin', "Bourse d'Italie",
+                     "bourse d'Oslo", 'Euronext Growth Oslo', 'Euronext Amsterdam', 'Euronext Growth',
+                     'Euronext Lisbon', 'bourse de Londres']:
+        assert exchange in df['exchangeLabel'].unique()
+
+def test__get_all_european_stock_exchange_wikidata_code(tmp_path, euronext_csv):
+    repo = TickersRepository(
+        db_path=tmp_path / "test.db",
+        euronext_csv_categ=euronext_csv
+    )
+    result = repo._get_all_european_stock_exchange_wikidata_code()
+    assert len(result) > 0
+    for code in ['Q842108', 'Q617426', 'Q2385849', 'Q107188657', 'Q107188622', 'Q478720']:
+        assert code in result

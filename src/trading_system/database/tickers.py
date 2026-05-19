@@ -3,6 +3,8 @@ import pandas as pd
 import sqlite3
 from typing import Optional, Union
 from pathlib import Path
+import requests
+from trading_system.database.utils import sparql_to_dataframe
 from trading_system.database import db_path, config_path
 
 
@@ -40,6 +42,7 @@ class TickersRepository:
         self.db_path = str(db_path)
         self.euronext_csv_categ_path = euronext_csv_categ
         self.euronext_csv_growth_access_path = euronext_csv_growth_access_path
+        self.wikidata_endpoint = "https://query.wikidata.org/sparql"
 
     def _connect(self):
         return sqlite3.connect(self.db_path)
@@ -156,6 +159,43 @@ class TickersRepository:
         """
         with self._connect() as conn:
             return pd.read_sql("SELECT * FROM tickers", conn)
+
+    def _get_all_european_stock_exchange(self):
+        headers = {
+            "User-Agent": "euronext-universe-builder/1.0"
+        }
+        query = """
+        SELECT DISTINCT ?exchange ?exchangeLabel ?countryLabel WHERE {
+        # Entreprises qui ont un ticker (donc cotées)
+        ?company p:P414 ?statement .
+        ?statement ps:P414 ?exchange .
+        ?statement pq:P249 ?ticker .
+        
+        # Exclure les indices
+        FILTER NOT EXISTS { ?company wdt:P31 wd:Q223371 }
+        
+        # Pays du marché boursier
+        OPTIONAL { ?exchange wdt:P17 ?country . }
+        
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }
+        FILTER(?country IN (wd:Q142, wd:Q55, wd:Q31, wd:Q27, wd:Q39, wd:Q38, wd:Q183, wd:Q29, wd:Q191, wd:Q33, wd:Q41, wd:Q211, wd:Q37, wd:Q32, wd:Q20, wd:Q45, wd:Q145))
+        }
+        ORDER BY ?countryLabel
+        """
+        r = requests.get(
+            self.wikidata_endpoint,
+            params={"query": query, "format": "json"},
+            headers=headers,
+            timeout=180
+        )
+        result_df = sparql_to_dataframe(r.json())
+        return result_df
+
+    def _get_all_european_stock_exchange_wikidata_code(self):
+        df_exchange = self._get_all_european_stock_exchange()
+        exchange = df_exchange['exchange']
+        code = exchange.str.split('/').str[-1].unique()
+        return code.tolist()
 
     def get_all_euronext_tickers(self) -> list:
         """
