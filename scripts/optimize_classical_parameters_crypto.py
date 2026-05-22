@@ -246,21 +246,21 @@ if __name__ == "__main__":
     all_tickers = pd.concat([tickers_eur_df, tickers_usd_df])
     # Définir les plages de paramètres à tester
     param_grid = {
-        'rsi_window': [7, 10, 14, 21],
-        'rsi_buy': [25, 30, 35],
-        'rsi_sell': [65, 70, 75],
-        'macd_fast': [8, 12, 16, 20],
-        'macd_slow': [21, 26, 30, 34],
-        'macd_signal': [7, 9, 11, 13],
-        'bollinger_window': [10, 15, 20, 25],
-        'bollinger_std': [1, 1.5, 2.0],
-        # "adx_min": [None, 15, 20, 25],  # faible 15-20, forte 25-40
-        # "stock_min": [None, 20, 25],  # inf 25 environ
-        # "stock_max": [None, 75, 80],  # sup 75 environ
+        'rsi_window': [7, 10],
+        'rsi_buy': [None, 25, 35],
+        'rsi_sell': [None, 65, 75],
+        'macd_fast': [8, 16, 20],
+        'macd_slow': [21, 30, 34],
+        'macd_signal': [None, 7, 13],
+        'bollinger_window': [None, 10, 15, 20],
+        'bollinger_std': [1, 1.5],
+        "adx_min": [None, 15, 20],  # faible 15-20, forte 25-40
+        "stock_min": [None, 20, 25],  # inf 25 environ
+        "stock_max": [None, 75, 80],  # sup 75 environ
         # "atr_max": [None, 0.01, 0.03, 0.1],  # entre 0 et 0.05
-        # "stochastic_oscillator": [False, True],
+        "stochastic_oscillator": [False, True],
     }
-    max_workers = 6
+    max_workers = 14
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(run, t, param_grid, params_db): t for t in all_tickers['ticker'].tolist()}
         for future in as_completed(futures):
