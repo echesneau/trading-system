@@ -129,7 +129,7 @@ class TickersRepository:
                     updated_at = CURRENT_TIMESTAMP
             """, rows)
 
-    def update_db(self, crypto=True) -> None:
+    def update_db(self, crypto=True, wikidata=True) -> None:
         """
         Met à jour la base des tickers à partir d'un DataFrame.
 
@@ -145,6 +145,8 @@ class TickersRepository:
             self.bulk_upsert(self.load_euronext_csv(self.euronext_csv_categ_path))
         if self.euronext_csv_growth_access_path is not None:
             self.bulk_upsert(self.load_euronext_csv(self.euronext_csv_growth_access_path))
+        if wikidata:
+            self.bulk_upsert(self.load_european_tickers_wikidata())
         if crypto:
             self.bulk_upsert(self.load_crypto_tickers_ccxt())
 
