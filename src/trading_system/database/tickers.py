@@ -4,7 +4,7 @@ import sqlite3
 from typing import Optional, Union
 from pathlib import Path
 import requests
-from trading_system.database.utils import sparql_to_dataframe
+from trading_system.database.utils import sparql_to_dataframe, convert_exhange_wikidata_to_yahoo, add_yahoo_suffix
 from trading_system.database import db_path, config_path
 
 
@@ -225,6 +225,54 @@ class TickersRepository:
         all_tickers = self.fetch_all()
         mask = all_tickers["market"].isin(market)
         return all_tickers.loc[mask, 'ticker'].tolist()
+
+    def load_european_tickers_wikidata(self):
+        stock_exchange_codes = self._get_all_european_stock_exchange_wikidata_code()
+        values_block = " ".join(f"wd:{qid}" for qid in stock_exchange_codes)
+        headers = {
+            "User-Agent": "euronext-universe-builder/1.0"
+        }
+        query = f"""
+        SELECT ?company ?companyLabel ?exchangeLabel ?ticker ?isin ?countryLabel WHERE {{
+
+          VALUES ?exchange {{ {values_block} }}
+
+          ?company p:P414 ?statement .
+          ?statement ps:P414 ?exchange .
+          ?statement pq:P249 ?ticker .
+
+          FILTER NOT EXISTS {{ ?company wdt:P31 wd:Q2058941 }}  # exclure indices
+
+          OPTIONAL {{ ?company wdt:P946 ?isin . }}
+          OPTIONAL {{ ?company wdt:P17 ?country . }}
+
+          SERVICE wikibase:label {{ bd:serviceParam wikibase:language "fr,en". }}
+        }}
+        ORDER BY ?exchangeLabel ?companyLabel
+        """
+        r = requests.get(
+            self.wikidata_endpoint,
+            params={"query": query, "format": "json"},
+            headers=headers,
+            timeout=180
+        )
+        df = sparql_to_dataframe(r.json())
+        # Rename exchangeLabel
+        df = convert_exhange_wikidata_to_yahoo(df)
+        # remove rows where yahoo market is NULL
+        df = df[pd.notnull(df['yahoo_market'])]
+        # Add yahoo finance suffix
+        df = add_yahoo_suffix(df)
+        # remove unused col
+        df = df[['Ticker_Yahoo', "companyLabel", "exchangeLabel"]]
+        # Rename colname
+        df = df.rename(columns={
+            "exchangeLabel": "Market",
+            "companyLabel": "Company",
+            "Ticker_Yahoo": "Ticker"
+        })
+        df = df.drop_duplicates(subset=["Ticker"], keep="first")
+        return df
 
     @staticmethod
     def load_euronext_csv(

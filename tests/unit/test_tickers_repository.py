@@ -150,3 +150,16 @@ def test__get_all_european_stock_exchange_wikidata_code(tmp_path, euronext_csv):
     assert len(result) > 0
     for code in ['Q842108', 'Q617426', 'Q2385849', 'Q107188657', 'Q107188622', 'Q478720']:
         assert code in result
+
+def test_load_european_tickers_wikidata(tmp_path, euronext_csv):
+    repo = TickersRepository(
+        db_path=tmp_path / "test.db",
+        euronext_csv_categ=euronext_csv
+    )
+    result = repo.load_european_tickers_wikidata()
+    # ---- Assertions structure ----
+    assert isinstance(result, pd.DataFrame)
+    assert set(result.columns) == {"Ticker", "Company", "Market"}
+    assert len(result) > 0
+
+    assert len(result['Ticker'].unique()) == len(result)
