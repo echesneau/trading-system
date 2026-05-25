@@ -262,9 +262,11 @@ class TickersRepository:
         )
         df = sparql_to_dataframe(r.json())
         print(f"{'='*20}DF after request{'='*20}")
+        print(df)
         # Rename exchangeLabel
         df = convert_exhange_wikidata_to_yahoo(df)
         print(f"{'=' * 20}DF after converter{'=' * 20}")
+        print(df)
         # remove rows where yahoo market is NULL
         df = df[pd.notnull(df['yahoo_market'])]
         # Add yahoo finance suffix
