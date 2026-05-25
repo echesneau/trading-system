@@ -262,6 +262,7 @@ class TickersRepository:
         )
         df = sparql_to_dataframe(r.json())
         print(f"{'='*20}DF after request{'='*20}")
+        print(df.columns)
         print(df)
         # Rename exchangeLabel
         df = convert_exhange_wikidata_to_yahoo(df)
