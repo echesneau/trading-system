@@ -28,9 +28,6 @@ def convert_exhange_wikidata_to_yahoo(df: pd.DataFrame,
     """
     # Load Mapper
     mapper = pd.read_csv(mapper_path, sep=",")
-    print(f"{'=' * 20}Mapper DF{'=' * 20}")
-    print(mapper.columns)
-    print(mapper)
     # merged
     df = df.merge(mapper, on="exchangeLabel", how='left')
     return df

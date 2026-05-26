@@ -231,8 +231,6 @@ class TickersRepository:
     def load_european_tickers_wikidata(self):
         stock_exchange_codes = self._get_all_european_stock_exchange_wikidata_code()
         values_block = " ".join(f"wd:{qid}" for qid in stock_exchange_codes)
-        print("="*30)
-        print(values_block)
         headers = {
             "User-Agent": "euronext-universe-builder/1.0"
         }
@@ -261,13 +259,8 @@ class TickersRepository:
             timeout=180
         )
         df = sparql_to_dataframe(r.json())
-        print(f"{'='*20}DF after request{'='*20}")
-        print(df.columns)
-        print(df)
         # Rename exchangeLabel
         df = convert_exhange_wikidata_to_yahoo(df)
-        print(f"{'=' * 20}DF after converter{'=' * 20}")
-        print(df)
         # remove rows where yahoo market is NULL
         df = df[pd.notnull(df['yahoo_market'])]
         # Add yahoo finance suffix
