@@ -129,6 +129,30 @@ class TickersRepository:
                     updated_at = CURRENT_TIMESTAMP
             """, rows)
 
+    def delete_ticker(self, ticker: str, confirm: bool = True) -> None:
+        """
+        Méthode pour supprimer un ticker de la db.
+
+        Parameters
+        ----------
+        ticker: str
+            ticker à supprimer
+        confirm : bool, optional
+            Si True, demande une confirmation manuelle dans le terminal.
+            Si False, supprime directement (utile pour les tests ou le CI).
+        Returns
+        -------
+        None
+        """
+        if confirm:
+            user_input = input(f"Supprimer le ticker '{ticker}' ? (y/yes pour confirmer) : ").strip().lower()
+            if user_input.lower() not in ("y", "yes"):
+                print("Suppression annulée.")
+                return
+        with self._connect() as conn:
+            conn.execute("DELETE FROM tickers WHERE ticker = ?", (ticker,))
+
+
     def update_db(self, crypto=True, wikidata=True) -> None:
         """
         Met à jour la base des tickers à partir d'un DataFrame.

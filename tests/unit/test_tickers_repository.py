@@ -30,6 +30,36 @@ def test_upsert_insert(repo_tickers):
     assert df.loc[0, "company"] == "Crédit Agricole"
     assert df.loc[0, "market"] == "Paris"
 
+def test_delete_ticker(repo_tickers):
+    repo_tickers.create_table()
+
+    repo_tickers.upsert(
+        ticker="ACA.PA",
+        company="Crédit Agricole",
+        market="Paris"
+    )
+    repo_tickers.delete_ticker("ACA.PA", confirm=False)
+    df = repo_tickers.fetch_all()
+    assert len(df) == 0
+
+    repo_tickers.upsert(
+        ticker="ACA.PA",
+        company="Crédit Agricole",
+        market="Paris"
+    )
+    repo_tickers.upsert(
+        ticker="TOTO.PA",
+        company="test",
+        market="Paris"
+    )
+    repo_tickers.delete_ticker("ACA.PA", confirm=False)
+    df = repo_tickers.fetch_all()
+    assert len(df) == 1
+    assert df.loc[0, "ticker"] == "TOTO.PA"
+
+    repo_tickers.delete_ticker("ACA.PA", confirm=False)
+
+
 def test_upsert_update_existing(repo_tickers):
     repo_tickers.create_table()
 
