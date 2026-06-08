@@ -4,8 +4,9 @@ import json
 import sqlite3
 from pathlib import Path
 from typing import Dict, Any, Optional, Union
-
 import pandas as pd
+
+from trading_system.database.tickers import TickersRepository
 
 
 class BestStrategyRepository:
@@ -189,3 +190,33 @@ class BestStrategyRepository:
                 return
         with self._connect() as conn:
             conn.execute("DELETE FROM best_strategy_params WHERE ticker = ?", (ticker,))
+
+    def validate_existing_tickers(self, tickers_db: TickersRepository, confirm: bool = True)  -> None:
+        """
+        Vérifie que les tickers en base sont toujours valides, sinon le supprime
+
+        Parameters
+        ----------
+        tickers_db: TickersRepository
+            Repository with available tickers
+        confirm : bool, optional
+            Si True, demande une confirmation manuelle dans le terminal.
+            Si False, supprime directement (utile pour les tests ou le CI).
+        Returns
+        -------
+        None
+        """
+        tickers_df = tickers_db.fetch_all()
+        tickers_available = tickers_df["ticker"].unique()
+
+        df = self.fetch_all()
+
+        to_delete = []
+
+        for _, row in df.iterrows():
+            ticker = row["ticker"]
+            if ticker not in tickers_available:
+                to_delete.append(ticker)
+
+        for ticker in to_delete:
+            self.delete_ticker(ticker, confirm=confirm)
