@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 
 from trading_system.database.tickers import TickersRepository
+from trading_system.database.utils import check_crypto, check_yahoo
 
 def test_create_table(repo_tickers):
     repo_tickers.create_table()
@@ -29,6 +30,36 @@ def test_upsert_insert(repo_tickers):
     assert df.loc[0, "ticker"] == "ACA.PA"
     assert df.loc[0, "company"] == "Crédit Agricole"
     assert df.loc[0, "market"] == "Paris"
+
+def test_delete_ticker(repo_tickers):
+    repo_tickers.create_table()
+
+    repo_tickers.upsert(
+        ticker="ACA.PA",
+        company="Crédit Agricole",
+        market="Paris"
+    )
+    repo_tickers.delete_ticker("ACA.PA", confirm=False)
+    df = repo_tickers.fetch_all()
+    assert len(df) == 0
+
+    repo_tickers.upsert(
+        ticker="ACA.PA",
+        company="Crédit Agricole",
+        market="Paris"
+    )
+    repo_tickers.upsert(
+        ticker="TOTO.PA",
+        company="test",
+        market="Paris"
+    )
+    repo_tickers.delete_ticker("ACA.PA", confirm=False)
+    df = repo_tickers.fetch_all()
+    assert len(df) == 1
+    assert df.loc[0, "ticker"] == "TOTO.PA"
+
+    repo_tickers.delete_ticker("ACA.PA", confirm=False)
+
 
 def test_upsert_update_existing(repo_tickers):
     repo_tickers.create_table()
@@ -163,3 +194,44 @@ def test_load_european_tickers_wikidata(tmp_path, euronext_csv):
     assert len(result) > 0
 
     assert len(result['Ticker'].unique()) == len(result)
+
+def test_check_crypto():
+    valid_ticker = "BTC/EUR"
+    invalid_ticker = "FAKE/TOTO"
+    assert check_crypto(valid_ticker)
+    assert not check_crypto(invalid_ticker)
+
+def test_check_yahoo():
+    valid_ticker = "ACA.PA"
+    invalid_ticker = "FAKE.TOTO"
+    assert check_yahoo(valid_ticker)
+    assert not check_yahoo(invalid_ticker)
+
+def test_validate_existing_tickers_tickersrepo(repo_tickers):
+    repo_tickers.create_table()
+
+    repo_tickers.upsert(
+        ticker="ACA.PA",
+        company="Crédit Agricole",
+        market="Paris"
+    )
+    repo_tickers.upsert(
+        ticker="FAKE.TOTO",
+        company="Fake",
+        market="Paris"
+    )
+    repo_tickers.upsert(
+        ticker="BTC/EUR",
+        company="BTC/EUR",
+        market="Crypto_EUR"
+    )
+    repo_tickers.upsert(
+        ticker="FAKE/TOTO",
+        company="Fake",
+        market="Crypto_USD"
+    )
+    repo_tickers.validate_existing_tickers(confirm=False)
+    df = repo_tickers.fetch_all()
+    assert len(df) == 2
+    for ticker in ['BTC/EUR', "ACA.PA"]:
+        assert ticker in df['ticker'].unique()

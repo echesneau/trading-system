@@ -38,6 +38,23 @@ def test_upsert_update_existing(repo_validation):
     assert result["valid"] is False
     assert result["reason"] == "Drawdown trop élevé"
 
+def test_delete_ticker(repo_validation):
+    repo_validation.upsert("ACA.PA", True, "OK")
+
+    repo_validation.delete_ticker("ACA.PA", confirm=False)
+    df = repo_validation.fetch_all()
+    assert len(df) == 0
+
+    repo_validation.upsert("ACA.PA", True, "OK")
+    repo_validation.upsert("TOTO.PA", True, "OK")
+
+    repo_validation.delete_ticker("ACA.PA", confirm=False)
+    df = repo_validation.fetch_all()
+    assert len(df) == 1
+    assert df.loc[0, "ticker"] == "TOTO.PA"
+
+    repo_validation.delete_ticker("ACA.PA", confirm=False)
+
 def test_upsert_is_idempotent(repo_validation):
     repo_validation.upsert("ACA.PA", True, "OK")
     repo_validation.upsert("ACA.PA", True, "OK")
@@ -69,3 +86,26 @@ def test_reason_can_be_none(repo_validation):
     result = repo_validation.fetch_one("ACA.PA")
 
     assert result["reason"] is None
+
+def test_validate_existing_tickers(repo_validation, repo_tickers):
+    repo_validation.upsert("ACA.PA", True, "OK")
+    repo_validation.upsert("BTC/EUR", True, "OK")
+    repo_validation.upsert("FAKE.TOTO", True, "OK")
+
+    repo_tickers.create_table()
+    repo_tickers.upsert(
+        ticker="ACA.PA",
+        company="Crédit Agricole",
+        market="Paris"
+    )
+    repo_tickers.upsert(
+        ticker="BTC/EUR",
+        company="BTC/EUR",
+        market="Crypto_EUR"
+    )
+
+    repo_validation.validate_existing_tickers(repo_tickers, confirm=False)
+    df = repo_validation.fetch_all()
+    assert len(df) == 2
+    for ticker in ['ACA.PA', 'BTC/EUR']:
+        assert ticker in df["ticker"].values

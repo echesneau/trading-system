@@ -4,8 +4,9 @@ import json
 import sqlite3
 from pathlib import Path
 from typing import Dict, Any, Optional, Union
-
 import pandas as pd
+
+from trading_system.database.tickers import TickersRepository
 
 
 class BestStrategyRepository:
@@ -166,3 +167,52 @@ class BestStrategyRepository:
             return None
         df['params_json'] = df['params_json'].apply(json.loads)
         return df.iloc[0]
+
+    def delete_ticker(self, ticker: str, confirm: bool = True) -> None:
+        """
+        Méthode pour supprimer un ticker de la db.
+
+        Parameters
+        ----------
+        ticker: str
+            ticker à supprimer
+        confirm : bool, optional
+            Si True, demande une confirmation manuelle dans le terminal.
+            Si False, supprime directement (utile pour les tests ou le CI).
+        Returns
+        -------
+        None
+        """
+        if confirm:
+            user_input = input(f"Supprimer le ticker '{ticker}' ? (y/yes pour confirmer) : ").strip().lower()
+            if user_input.lower() not in ("y", "yes"):
+                print("Suppression annulée.")
+                return
+        with self._connect() as conn:
+            conn.execute("DELETE FROM best_strategy_params WHERE ticker = ?", (ticker,))
+
+    def validate_existing_tickers(self, tickers_db: TickersRepository, confirm: bool = True)  -> None:
+        """
+        Vérifie que les tickers en base sont toujours valides, sinon le supprime
+
+        Parameters
+        ----------
+        tickers_db: TickersRepository
+            Repository with available tickers
+        confirm : bool, optional
+            Si True, demande une confirmation manuelle dans le terminal.
+            Si False, supprime directement (utile pour les tests ou le CI).
+        Returns
+        -------
+        None
+        """
+        tickers_df = tickers_db.fetch_all()
+        tickers_available = tickers_df["ticker"].unique()
+
+        df = self.fetch_all()
+
+        for _, row in df.iterrows():
+            ticker = row["ticker"]
+            if ticker not in tickers_available:
+                self.delete_ticker(ticker, confirm=confirm)
+
