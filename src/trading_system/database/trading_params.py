@@ -166,3 +166,26 @@ class BestStrategyRepository:
             return None
         df['params_json'] = df['params_json'].apply(json.loads)
         return df.iloc[0]
+
+    def delete_ticker(self, ticker: str, confirm: bool = True) -> None:
+        """
+        Méthode pour supprimer un ticker de la db.
+
+        Parameters
+        ----------
+        ticker: str
+            ticker à supprimer
+        confirm : bool, optional
+            Si True, demande une confirmation manuelle dans le terminal.
+            Si False, supprime directement (utile pour les tests ou le CI).
+        Returns
+        -------
+        None
+        """
+        if confirm:
+            user_input = input(f"Supprimer le ticker '{ticker}' ? (y/yes pour confirmer) : ").strip().lower()
+            if user_input.lower() not in ("y", "yes"):
+                print("Suppression annulée.")
+                return
+        with self._connect() as conn:
+            conn.execute("DELETE FROM best_strategy_params WHERE ticker = ?", (ticker,))

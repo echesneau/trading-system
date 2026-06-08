@@ -35,6 +35,22 @@ def test_upsert_updates_existing_row(repo_strategy, example_optim_results):
     assert len(df) == 1
     assert df.loc[0, "train_strategy_score"] == 0.99
 
+def test_delete_ticker(repo_strategy, example_optim_results):
+    example_optim_results_2 = example_optim_results.copy()
+    example_optim_results_2["ticker"] = "TOTO.PA"
+    repo_strategy.upsert(example_optim_results)
+    repo_strategy.delete_ticker("ACA.PA", confirm=False)
+    df = repo_strategy.fetch_all()
+    assert len(df) == 0
+
+    repo_strategy.upsert(example_optim_results)
+
+    repo_strategy.upsert(example_optim_results_2)
+    repo_strategy.delete_ticker("ACA.PA", confirm=False)
+    df = repo_strategy.fetch_all()
+    assert len(df) == 1
+    assert df.loc[0, "ticker"] == "TOTO.PA"
+
 def test_params_are_stored_as_json(repo_strategy, example_optim_results):
     repo_strategy.upsert(example_optim_results)
 
