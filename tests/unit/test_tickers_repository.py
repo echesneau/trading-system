@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 
 from trading_system.database.tickers import TickersRepository
+from trading_system.database.utils import check_crypto, check_yahoo
 
 def test_create_table(repo_tickers):
     repo_tickers.create_table()
@@ -193,3 +194,15 @@ def test_load_european_tickers_wikidata(tmp_path, euronext_csv):
     assert len(result) > 0
 
     assert len(result['Ticker'].unique()) == len(result)
+
+def test_check_crypto():
+    valid_ticker = "BTC/EUR"
+    invalid_ticker = "FAKE/TOTO"
+    assert check_crypto(valid_ticker)
+    assert not check_crypto(invalid_ticker)
+
+def test_check_yahoo():
+    valid_ticker = "ACA.PA"
+    invalid_ticker = "FAKE.TOTO"
+    assert check_yahoo(valid_ticker)
+    assert not check_yahoo(invalid_ticker)
