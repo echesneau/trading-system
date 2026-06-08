@@ -211,12 +211,8 @@ class BestStrategyRepository:
 
         df = self.fetch_all()
 
-        to_delete = []
-
         for _, row in df.iterrows():
             ticker = row["ticker"]
             if ticker not in tickers_available:
-                to_delete.append(ticker)
+                self.delete_ticker(ticker, confirm=confirm)
 
-        for ticker in to_delete:
-            self.delete_ticker(ticker, confirm=confirm)

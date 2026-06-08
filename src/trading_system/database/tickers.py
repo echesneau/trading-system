@@ -190,8 +190,6 @@ class TickersRepository:
         """
         df = self.fetch_all()
 
-        to_delete = []
-
         for _, row in df.iterrows():
             ticker = row["ticker"]
             market = row["market"]
@@ -204,9 +202,7 @@ class TickersRepository:
                 is_valid = check_yahoo(ticker)
 
             if not is_valid:
-                to_delete.append(ticker)
-        for ticker in to_delete:
-            self.delete_ticker(ticker, confirm=confirm)
+                self.delete_ticker(ticker, confirm=confirm)
 
     def fetch_all(self) -> pd.DataFrame:
         """
