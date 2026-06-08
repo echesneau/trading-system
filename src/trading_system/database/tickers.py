@@ -4,7 +4,8 @@ import sqlite3
 from typing import Optional, Union
 from pathlib import Path
 import requests
-from trading_system.database.utils import sparql_to_dataframe, convert_exhange_wikidata_to_yahoo, add_yahoo_suffix
+from trading_system.database.utils import (sparql_to_dataframe, convert_exhange_wikidata_to_yahoo, add_yahoo_suffix,
+                                           check_crypto, check_yahoo)
 from trading_system.database import db_path, config_path
 
 
@@ -173,6 +174,39 @@ class TickersRepository:
             self.bulk_upsert(self.load_european_tickers_wikidata())
         if crypto:
             self.bulk_upsert(self.load_crypto_tickers_ccxt())
+
+    def validate_existing_tickers(self, confirm: bool = True)  -> None:
+        """
+        Vérifie que les tickers en base sont toujours valides, sinon le supprime
+
+        Parameters
+        ----------
+        confirm : bool, optional
+            Si True, demande une confirmation manuelle dans le terminal.
+            Si False, supprime directement (utile pour les tests ou le CI).
+        Returns
+        -------
+        None
+        """
+        df = self.fetch_all()
+
+        to_delete = []
+
+        for _, row in df.iterrows():
+            ticker = row["ticker"]
+            market = row["market"]
+
+            is_valid = True
+
+            if market.startswith("Crypto"):
+                is_valid = check_crypto(ticker)
+            else:
+                is_valid = check_yahoo(ticker)
+
+            if not is_valid:
+                to_delete.append(ticker)
+        for ticker in to_delete:
+            self.delete_ticker(ticker, confirm=confirm)
 
     def fetch_all(self) -> pd.DataFrame:
         """

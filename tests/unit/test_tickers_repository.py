@@ -206,3 +206,32 @@ def test_check_yahoo():
     invalid_ticker = "FAKE.TOTO"
     assert check_yahoo(valid_ticker)
     assert not check_yahoo(invalid_ticker)
+
+def test_validate_existing_tickers_tickersrepo(repo_tickers):
+    repo_tickers.create_table()
+
+    repo_tickers.upsert(
+        ticker="ACA.PA",
+        company="Crédit Agricole",
+        market="Paris"
+    )
+    repo_tickers.upsert(
+        ticker="FAKE.TOTO",
+        company="Fake",
+        market="Paris"
+    )
+    repo_tickers.upsert(
+        ticker="BTC/EUR",
+        company="BTC/EUR",
+        market="Crypto_EUR"
+    )
+    repo_tickers.upsert(
+        ticker="FAKE/TOTO",
+        company="Fake",
+        market="Crypto_USD"
+    )
+    repo_tickers.validate_existing_tickers(confirm=False)
+    df = repo_tickers.fetch_all()
+    assert len(df) == 2
+    for ticker in ['BTC/EUR', "ACA.PA"]:
+        assert ticker in df['ticker'].unique()
