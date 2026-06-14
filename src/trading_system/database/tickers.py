@@ -3,6 +3,9 @@ import pandas as pd
 import sqlite3
 from typing import Optional, Union
 from pathlib import Path
+import requests
+from trading_system.database.utils import (sparql_to_dataframe, convert_exhange_wikidata_to_yahoo, add_yahoo_suffix,
+                                           check_crypto, check_yahoo)
 from trading_system.database import db_path, config_path
 
 
@@ -40,6 +43,7 @@ class TickersRepository:
         self.db_path = str(db_path)
         self.euronext_csv_categ_path = euronext_csv_categ
         self.euronext_csv_growth_access_path = euronext_csv_growth_access_path
+        self.wikidata_endpoint = "https://query.wikidata.org/sparql"
 
     def _connect(self):
         return sqlite3.connect(self.db_path)
@@ -126,7 +130,31 @@ class TickersRepository:
                     updated_at = CURRENT_TIMESTAMP
             """, rows)
 
-    def update_db(self, crypto=True) -> None:
+    def delete_ticker(self, ticker: str, confirm: bool = True) -> None:
+        """
+        Méthode pour supprimer un ticker de la db.
+
+        Parameters
+        ----------
+        ticker: str
+            ticker à supprimer
+        confirm : bool, optional
+            Si True, demande une confirmation manuelle dans le terminal.
+            Si False, supprime directement (utile pour les tests ou le CI).
+        Returns
+        -------
+        None
+        """
+        if confirm:
+            user_input = input(f"Supprimer le ticker '{ticker}' ? (y/yes pour confirmer) : ").strip().lower()
+            if user_input.lower() not in ("y", "yes"):
+                print("Suppression annulée.")
+                return
+        with self._connect() as conn:
+            conn.execute("DELETE FROM tickers WHERE ticker = ?", (ticker,))
+
+
+    def update_db(self, crypto=True, wikidata=True) -> None:
         """
         Met à jour la base des tickers à partir d'un DataFrame.
 
@@ -142,8 +170,39 @@ class TickersRepository:
             self.bulk_upsert(self.load_euronext_csv(self.euronext_csv_categ_path))
         if self.euronext_csv_growth_access_path is not None:
             self.bulk_upsert(self.load_euronext_csv(self.euronext_csv_growth_access_path))
+        if wikidata:
+            self.bulk_upsert(self.load_european_tickers_wikidata())
         if crypto:
             self.bulk_upsert(self.load_crypto_tickers_ccxt())
+
+    def validate_existing_tickers(self, confirm: bool = True)  -> None:
+        """
+        Vérifie que les tickers en base sont toujours valides, sinon le supprime
+
+        Parameters
+        ----------
+        confirm : bool, optional
+            Si True, demande une confirmation manuelle dans le terminal.
+            Si False, supprime directement (utile pour les tests ou le CI).
+        Returns
+        -------
+        None
+        """
+        df = self.fetch_all()
+
+        for _, row in df.iterrows():
+            ticker = row["ticker"]
+            market = row["market"]
+
+            is_valid = True
+
+            if market.startswith("Crypto"):
+                is_valid = check_crypto(ticker)
+            else:
+                is_valid = check_yahoo(ticker)
+
+            if not is_valid:
+                self.delete_ticker(ticker, confirm=confirm)
 
     def fetch_all(self) -> pd.DataFrame:
         """
@@ -156,6 +215,43 @@ class TickersRepository:
         """
         with self._connect() as conn:
             return pd.read_sql("SELECT * FROM tickers", conn)
+
+    def _get_all_european_stock_exchange(self):
+        headers = {
+            "User-Agent": "euronext-universe-builder/1.0"
+        }
+        query = """
+        SELECT DISTINCT ?exchange ?exchangeLabel ?countryLabel WHERE {
+        # Entreprises qui ont un ticker (donc cotées)
+        ?company p:P414 ?statement .
+        ?statement ps:P414 ?exchange .
+        ?statement pq:P249 ?ticker .
+        
+        # Exclure les indices
+        FILTER NOT EXISTS { ?company wdt:P31 wd:Q223371 }
+        
+        # Pays du marché boursier
+        OPTIONAL { ?exchange wdt:P17 ?country . }
+        
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "fr,en". }
+        FILTER(?country IN (wd:Q142, wd:Q55, wd:Q31, wd:Q27, wd:Q39, wd:Q38, wd:Q183, wd:Q29, wd:Q191, wd:Q33, wd:Q41, wd:Q211, wd:Q37, wd:Q32, wd:Q20, wd:Q45, wd:Q145))
+        }
+        ORDER BY ?countryLabel
+        """
+        r = requests.get(
+            self.wikidata_endpoint,
+            params={"query": query, "format": "json"},
+            headers=headers,
+            timeout=180
+        )
+        result_df = sparql_to_dataframe(r.json())
+        return result_df
+
+    def _get_all_european_stock_exchange_wikidata_code(self):
+        df_exchange = self._get_all_european_stock_exchange()
+        exchange = df_exchange['exchange']
+        code = exchange.str.split('/').str[-1].unique()
+        return code.tolist()
 
     def get_all_euronext_tickers(self) -> list:
         """
@@ -185,6 +281,54 @@ class TickersRepository:
         all_tickers = self.fetch_all()
         mask = all_tickers["market"].isin(market)
         return all_tickers.loc[mask, 'ticker'].tolist()
+
+    def load_european_tickers_wikidata(self):
+        stock_exchange_codes = self._get_all_european_stock_exchange_wikidata_code()
+        values_block = " ".join(f"wd:{qid}" for qid in stock_exchange_codes)
+        headers = {
+            "User-Agent": "euronext-universe-builder/1.0"
+        }
+        query = f"""
+        SELECT ?company ?companyLabel ?exchangeLabel ?ticker ?isin ?countryLabel WHERE {{
+
+          VALUES ?exchange {{ {values_block} }}
+
+          ?company p:P414 ?statement .
+          ?statement ps:P414 ?exchange .
+          ?statement pq:P249 ?ticker .
+
+          FILTER NOT EXISTS {{ ?company wdt:P31 wd:Q2058941 }}  # exclure indices
+
+          OPTIONAL {{ ?company wdt:P946 ?isin . }}
+          OPTIONAL {{ ?company wdt:P17 ?country . }}
+
+          SERVICE wikibase:label {{ bd:serviceParam wikibase:language "fr,en". }}
+        }}
+        ORDER BY ?exchangeLabel ?companyLabel
+        """
+        r = requests.get(
+            self.wikidata_endpoint,
+            params={"query": query, "format": "json"},
+            headers=headers,
+            timeout=180
+        )
+        df = sparql_to_dataframe(r.json())
+        # Rename exchangeLabel
+        df = convert_exhange_wikidata_to_yahoo(df)
+        # remove rows where yahoo market is NULL
+        df = df[pd.notnull(df['yahoo_market'])]
+        # Add yahoo finance suffix
+        df = add_yahoo_suffix(df)
+        # remove unused col
+        df = df[['Ticker_Yahoo', "companyLabel", "exchangeLabel"]]
+        # Rename colname
+        df = df.rename(columns={
+            "exchangeLabel": "Market",
+            "companyLabel": "Company",
+            "Ticker_Yahoo": "Ticker"
+        })
+        df = df.drop_duplicates(subset=["Ticker"], keep="first")
+        return df
 
     @staticmethod
     def load_euronext_csv(

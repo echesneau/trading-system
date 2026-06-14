@@ -213,7 +213,7 @@ def load_ccxt_data(
     start_date: Optional[Union[str, pd.Timestamp]] = None,
     end_date: Optional[Union[str, pd.Timestamp]] = None,
     limit = None,
-    pause: float = 1.2
+    pause: float = 0.2
 ) -> pd.DataFrame:
     """
     Charge les données OHLCV depuis un exchange via ccxt.
