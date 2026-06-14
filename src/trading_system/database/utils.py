@@ -76,6 +76,8 @@ def check_crypto(ticker: str) -> bool:
         return len(data) > 0
     except BadSymbol :
         return False
+    except ValueError:
+        return False
 
 def check_yahoo(ticker: str) -> bool:
     """
