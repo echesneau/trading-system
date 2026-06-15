@@ -1,6 +1,7 @@
 from datetime import datetime
 import pandas as pd
 
+from trading_system import config_path
 from trading_system.database.tickers import TickersRepository
 from trading_system.database.trading_params import BestStrategyRepository
 from trading_system.database import euronext_csv_category, euronext_csv_growth_access
@@ -52,7 +53,14 @@ def test_integration_load_real_euronext_csv_growth(tmp_path):
     assert df["Ticker"].is_unique
 def test_integration_update_db_real_csv(tmp_path):
     db_path = tmp_path / "euronext.db"
-
+    mapper_path = f"{config_path}/wikidata_yahoo_mapping.csv"
+    mapper = pd.read_csv(mapper_path, sep=",")
+    market_expected = list(mapper['exchangeLabel'].unique())
+    market_expected += [
+        "Euronext Growth", "Euronext Access",
+        "Euronext_cat_A", "Euronext_cat_B", "Euronext_cat_C",
+        "Crypto_EUR", "Crypto_USDT",  "Crypto_USD"
+    ]
     repo = TickersRepository(
         db_path=db_path,
         euronext_csv_categ=euronext_csv_category,
@@ -69,12 +77,7 @@ def test_integration_update_db_real_csv(tmp_path):
 
     # Invariants
     assert result["ticker"].is_unique
-    assert (result["market"].isin([
-        "Euronext Growth", "Euronext Access",
-        "Euronext_cat_A", "Euronext_cat_B", "Euronext_cat_C",
-        "Crypto_EUR", "Crypto_USDT",  "Crypto_USD"
-    ]
-    )).all()
+    assert (result["market"].isin(market_expected)).all()
 
 def test_integration_update_params_db(temp_db, example_optim_results):
     repo = BestStrategyRepository(temp_db)
