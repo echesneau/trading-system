@@ -11,7 +11,7 @@ if __name__ == "__main__":
     validators_db = StrategyValidationRepository(validator_db_path)
 
     # Validate DB
-    tickers_db.validate_existing_tickers(confirm=True)
-    params_db.validate_existing_tickers(tickers_db)
-    validators_db.validate_existing_tickers(tickers_db)
+    tickers_db.validate_existing_tickers(confirm=False)
+    params_db.validate_existing_tickers(tickers_db, confirm=False)
+    validators_db.validate_existing_tickers(tickers_db, confirm=False)
 
