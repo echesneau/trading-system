@@ -9,6 +9,6 @@ if __name__ == "__main__":
     params_db = BestStrategyRepository(db_path_dev)
 
     # Validate DB
-    tickers_db.validate_existing_tickers(confirm=True)
-    params_db.validate_existing_tickers(tickers_db)
+    tickers_db.validate_existing_tickers(confirm=False)
+    params_db.validate_existing_tickers(tickers_db, confirm=False)
 
