@@ -265,7 +265,7 @@ class TickersRepository:
         market = [
         "Euronext Growth", "Euronext Access", "Euronext_cat_A", "Euronext_cat_B", "Euronext_cat_C"]
         all_tickers = self.fetch_all()
-        mask = all_tickers["market"].isin(market)
+        mask = ~all_tickers['market'].str.startswith('Crypto')
         return all_tickers.loc[mask, 'ticker'].tolist()
 
     def get_all_crypto_tickers(self) -> list:
@@ -277,9 +277,9 @@ class TickersRepository:
         list
             liste des tickers filtrés pour les marchés Crypto.
         """
-        market = ["Crypto_EUR", "Crypto_USDT", "Crypto_USD"]
+
         all_tickers = self.fetch_all()
-        mask = all_tickers["market"].isin(market)
+        mask = all_tickers['market'].str.startswith('Crypto')
         return all_tickers.loc[mask, 'ticker'].tolist()
 
     def load_european_tickers_wikidata(self):
