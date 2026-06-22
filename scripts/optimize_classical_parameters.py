@@ -143,7 +143,7 @@ def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_p
     raw_data = load_yfinance_data(
         ticker=ticker,
         start_date="2010-01-01",
-        end_date="2024-01-01",
+        end_date="2024-12-31",
         interval="1d"
     )
     best_result = optimize_parameters_parallel(
@@ -174,8 +174,8 @@ def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_p
     # Tester les meilleurs paramètres sur une période de validation différente
     validation_data = load_yfinance_data(
         ticker=ticker,
-        start_date="2024-01-01",
-        end_date="2026-02-01",
+        start_date="2025-01-01",
+        end_date="2026-06-01",
         interval="1d"
     )
 
@@ -209,14 +209,15 @@ def run(ticker, param_grid, db):
 if __name__ == "__main__":
     tickers_db = TickersRepository(db_path_dev, euronext_csv_categ=euronext_csv_category,
                                    euronext_csv_growth_access_path=euronext_csv_growth_access)
-    tickers_db.update_db()
-    tickers_df = tickers_db.fetch_all()
-    tickers_a_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_A"])]
-    tickers_b_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_B"])]
-    tickers_c_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_C"])]
+    # tickers_db.update_db()
+    tickers = tickers_db.get_all_euronext_tickers()
+    # tickers_df = tickers_db.fetch_all()
+    # tickers_a_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_A"])]
+    # tickers_b_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_B"])]
+    # tickers_c_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_C"])]
     params_db = BestStrategyRepository(db_path_dev)
 
-    all_tickers = pd.concat([tickers_a_df, tickers_b_df, tickers_c_df])
+    # all_tickers = pd.concat([tickers_a_df, tickers_b_df, tickers_c_df])
     other_tickers = ['MT.AS']
     missing_tickers = ["STMPA.PA"]
 
@@ -236,9 +237,9 @@ if __name__ == "__main__":
         # "atr_max": [None, 0.01, 0.03, 0.1],  # entre 0 et 0.05
         "stochastic_oscillator": [False, True],
     }
-    max_workers = 7
+    max_workers = 14
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(run, t, param_grid, params_db): t for t in all_tickers['ticker'].tolist() }
+        futures = {executor.submit(run, t, param_grid, params_db): t for t in sorted(tickers) }
         for future in as_completed(futures):
             ticker = futures[future]
             try:
