@@ -19,19 +19,15 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Important pour setuptools-scm
-
       - name: Setup UV
         uses: astral-sh/setup-uv@v6
-
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
             python-version: ${{ env.PYTHON_VERSION }}
-
       - name: Install dependencies
         run: |
           uv sync --extra dev --extra test
-
       - name: Run unit tests
         run: |
           uv run pytest tests/unit/ -v --no-cov
@@ -53,21 +49,18 @@ jobs:
         with:
           fetch-depth: 0  # Important pour setuptools-scm
           lfs: true
-
-      - name: Download virtual environment
-        uses: actions/download-artifact@v6
+      - name: Setup UV
+        uses: astral-sh/setup-uv@v6
+      - name: Setup Python
+        uses: actions/setup-python@v6
         with:
-          name: python-venv
-
-      - name: Restore virtual environment
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
         run: |
-          tar -xzf venv.tar.gz
-          rm venv.tar.gz
-
+          uv sync --extra dev --extra test
       - name: Run tests
         run: |
-          source venv/bin/activate
-          pytest tests/integration/ -v  --no-cov
+          uv run pytest tests/integration/ -v  --no-cov
 
   coverage:
     name: All tests with coverage
@@ -86,21 +79,18 @@ jobs:
         with:
           fetch-depth: 0  # Important pour setuptools-scm
           lfs: true
-
-      - name: Download virtual environment
-        uses: actions/download-artifact@v6
+      - name: Setup UV
+        uses: astral-sh/setup-uv@v6
+      - name: Setup Python
+        uses: actions/setup-python@v6
         with:
-          name: python-venv
-
-      - name: Restore virtual environment
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
         run: |
-          tar -xzf venv.tar.gz
-          rm venv.tar.gz
-
+          uv sync --extra dev --extra test
       - name: Run all tests with coverage
         run: |
-          source venv/bin/activate
-          pytest tests/ -v --cov=trading_system --cov-report=xml --tb=short
+          uv run pytest tests/ -v --cov=trading_system --cov-report=xml --tb=short
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -122,7 +112,7 @@ jobs:
       GITHUB_SHA: ${{ github.sha }}
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         os: [ubuntu-22.04]
 
     steps:
@@ -131,20 +121,18 @@ jobs:
       with:
         fetch-depth: 0  # Important pour setuptools-scm
         lfs: true
-
+    - name: Setup UV
+      uses: astral-sh/setup-uv@v6
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
-        cache: 'pip'
-
     - name: Install dependencies
       run: |
-        pip install -e .[dev,test]
-
+        uv sync --extra dev --extra test
     - name: Run all tests
       run: |
-        pytest tests/ -v --tb=short
+        uv run pytest tests/ -v --tb=short
 
   lint:
     name: Linting and Code Quality
@@ -156,35 +144,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v6
 
-    - name: Download virtual environment
-      uses: actions/download-artifact@v6
+    - name: Setup UV
+      uses: astral-sh/setup-uv@v6
+    - name: Set up Python ${{ env.python-version }}
+      uses: actions/setup-python@v6
       with:
-        name: python-venv
-
-    - name: Restore virtual environment
-      run: |
-        tar -xzf venv.tar.gz
-        rm venv.tar.gz
-
+        python-version: ${{ env.python-version }}
     - name: Run flake8 (warning only)
       run: |
-        source venv/bin/activate
-        flake8 src/ --max-line-length=88 --extend-ignore=E203,E501 || echo "⚠️ flake8 issues found"
+        uv run flake8 src/ --max-line-length=88 --extend-ignore=E203,E501 || echo "⚠️ flake8 issues found"
 
     - name: Run black check (warning only)
       run: |
-        source venv/bin/activate
-        black --check src/ tests/ || echo "⚠️ black formatting issues found"
+        uv run black --check src/ tests/ || echo "⚠️ black formatting issues found"
 
     - name: Run isort check (warning only)
       run: |
-        source venv/bin/activate
-        isort --check-only src/ tests/ || echo "⚠️ isort issues found"
+        uv run isort --check-only src/ tests/ || echo "⚠️ isort issues found"
 
     - name: Run mypy (warning only)
       run: |
-        source venv/bin/activate
-        mypy src/ --ignore-missing-imports || echo "⚠️ mypy type issues found"
+        uv run mypy src/ --ignore-missing-imports || echo "⚠️ mypy type issues found"
 
   security:
     name: Security Scan
@@ -196,23 +176,24 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v6
 
-    - name: Set up Python
+    - name: Setup UV
+      uses: astral-sh/setup-uv@v6
+    - name: Set up Python ${{ env.python-version }}
       uses: actions/setup-python@v6
       with:
-        python-version: "3.10"
+        python-version: ${{ env.python-version }}
 
     - name: Install security tools
       run: |
-        python -m pip install --upgrade pip
-        pip install pip-audit bandit
+        uv add pip-audit bandit
 
     - name: Run pip-audit
       run: |
-        pip-audit
+        uv run pip-audit
 
     - name: Run bandit
       run: |
-        bandit -r src/ -ll
+        uv run bandit -r src/ -ll
 
   build:
     name: Build Package
@@ -226,16 +207,16 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Set up Python
+    - name: Setup UV
+      uses: astral-sh/setup-uv@v6
+    - name: Set up Python ${{ env.python-version }}
       uses: actions/setup-python@v6
       with:
-        python-version: "3.10"
+        python-version: ${{ env.python-version }}
 
     - name: Build package
       run: |
-        pip install build
-        python -m build
-
+        uv build
     - name: Upload artifact
       uses: actions/upload-artifact@v6
       with:
