@@ -237,13 +237,14 @@ if __name__ == "__main__":
     ]
     tickers_db = TickersRepository(db_path_dev, euronext_csv_categ=euronext_csv_category,
                                    euronext_csv_growth_access_path=euronext_csv_growth_access)
-    tickers_db.update_db()
-    tickers_df = tickers_db.fetch_all()
-    tickers_eur_df = tickers_df[tickers_df['market'].isin(["Crypto_EUR"])]
-    tickers_usd_df = tickers_df[tickers_df['market'].isin(["Crypto_USDT"])]
+    # tickers_db.update_db()
+    # tickers_df = tickers_db.fetch_all()
+    tickers = tickers_db.get_all_crypto_tickers()
+    # tickers_eur_df = tickers_df[tickers_df['market'].isin(["Crypto_EUR"])]
+    # tickers_usd_df = tickers_df[tickers_df['market'].isin(["Crypto_USDT"])]
     params_db = BestStrategyRepository(db_path_dev)
 
-    all_tickers = pd.concat([tickers_eur_df, tickers_usd_df])
+    # all_tickers = pd.concat([tickers_eur_df, tickers_usd_df])
     # Définir les plages de paramètres à tester
     param_grid = {
         'rsi_window': [7, 10], # [14,21]
@@ -262,7 +263,7 @@ if __name__ == "__main__":
     }
     max_workers = 14
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(run, t, param_grid, params_db): t for t in all_tickers['ticker'].tolist()}
+        futures = {executor.submit(run, t, param_grid, params_db): t for t in sorted(tickers)}
         for future in as_completed(futures):
             ticker = futures[future]
             try:
