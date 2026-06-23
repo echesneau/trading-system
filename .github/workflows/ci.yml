@@ -15,6 +15,10 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/setup-python
       - name: Run unit tests
         run: |
@@ -32,6 +36,10 @@ jobs:
       REAL_EMAIL_TO: ${{ secrets.REAL_EMAIL_TO }}
       GITHUB_SHA: ${{ github.sha }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/setup-python
       - name: Run tests
         run: |
@@ -49,6 +57,10 @@ jobs:
       REAL_EMAIL_TO: ${{ secrets.REAL_EMAIL_TO }}
       GITHUB_SHA: ${{ github.sha }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/setup-python
       - name: Run all tests with coverage
         run: |
