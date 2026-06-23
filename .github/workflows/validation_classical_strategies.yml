@@ -62,13 +62,7 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: pip install -e ".[dev]"
+      - uses: ./.github/actions/setup-python
 
       - name: Run validation
         run: python scripts/run_backtest_validator_crypto.py

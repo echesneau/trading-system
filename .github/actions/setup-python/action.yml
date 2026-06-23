@@ -1,0 +1,14 @@
+name: Setup Python
+runs:
+  using: composite
+  steps:
+    - name: Setup UV
+      uses: astral-sh/setup-uv@v6
+    - name: Setup Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ env.python-version }}
+        cache: uv
+    - name: Install dependencies
+      run: uv sync --extra dev --extra test
+      shell: bash
