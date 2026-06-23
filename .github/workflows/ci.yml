@@ -15,19 +15,7 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0  # Important pour setuptools-scm
-      - name: Setup UV
-        uses: astral-sh/setup-uv@v6
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-            python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install dependencies
-        run: |
-          uv sync --extra dev --extra test
+      - uses: ./.github/actions/setup-python
       - name: Run unit tests
         run: |
           uv run pytest tests/unit/ -v --no-cov
@@ -44,20 +32,7 @@ jobs:
       REAL_EMAIL_TO: ${{ secrets.REAL_EMAIL_TO }}
       GITHUB_SHA: ${{ github.sha }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0  # Important pour setuptools-scm
-          lfs: true
-      - name: Setup UV
-        uses: astral-sh/setup-uv@v6
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install dependencies
-        run: |
-          uv sync --extra dev --extra test
+      - uses: ./.github/actions/setup-python
       - name: Run tests
         run: |
           uv run pytest tests/integration/ -v  --no-cov
@@ -74,20 +49,7 @@ jobs:
       REAL_EMAIL_TO: ${{ secrets.REAL_EMAIL_TO }}
       GITHUB_SHA: ${{ github.sha }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0  # Important pour setuptools-scm
-          lfs: true
-      - name: Setup UV
-        uses: astral-sh/setup-uv@v6
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install dependencies
-        run: |
-          uv sync --extra dev --extra test
+      - uses: ./.github/actions/setup-python
       - name: Run all tests with coverage
         run: |
           uv run pytest tests/ -v --cov=trading_system --cov-report=xml --tb=short
