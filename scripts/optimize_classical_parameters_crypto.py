@@ -200,7 +200,7 @@ def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_p
         exchange_name="kraken",
         interval="1d",
         start_date="2025-09-01",
-        end_date="2026-06-01",
+        end_date="2026-06-10",
         limit=None)
 
     # Valider les meilleurs paramètres
