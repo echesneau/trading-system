@@ -10,7 +10,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
-## [0.7.0] - 2026-05-XX
+## [0.7.0] - 2026-06-28
 ### Modifié
 - mise à jour des paramètres optimaux pour les actions
 - mise à jour des paramètres optimaux pour les crypto
