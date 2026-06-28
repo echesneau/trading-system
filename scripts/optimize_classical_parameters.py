@@ -1,6 +1,7 @@
 # optimize_parameters.py
 import itertools
 import warnings
+import math
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -10,7 +11,7 @@ from trading_system.backtesting.engine import BacktestingEngine
 from trading_system.database.trading_params import BestStrategyRepository
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
-from trading_system.database import db_path, euronext_csv_category, euronext_csv_growth_access
+from trading_system.database import db_path_dev, euronext_csv_category, euronext_csv_growth_access
 from trading_system.database.tickers import TickersRepository
 warnings.filterwarnings("ignore")
 
@@ -50,6 +51,8 @@ def update_cache(cache, data, params):
     # Price volume trend
     if "price_volume_trend" in params and params['price_volume_trend'] and "Price_Volume_Trend" not in cache:
         cache["Price_Volume_Trend"] = data["Price_Volume_Trend"]
+    if "Daily_Return" not in cache:
+        cache["Daily_Return"] = data["Daily_Return"]
     return cache
 
 def backtest_wrapper(params, raw_data, initial_capital=10000, transaction_fee=0.005, cache={}):
@@ -113,68 +116,72 @@ def optimize_parameters_parallel(raw_data, param_grid, initial_capital=10000,
     # Générer toutes les combinaisons de paramètres
     keys = param_grid.keys()
     values = param_grid.values()
-    all_combinations = [dict(zip(keys, combination))
-                        for combination in itertools.product(*values)]
+    n_combinations = math.prod(len(v) for v in param_grid.values())
 
-    print(f"Nombre total de combinaisons à tester: {len(all_combinations)}")
+    print(f"Nombre total de combinaisons à tester: {n_combinations}")
     print()
 
     cache = {}
-    for params in all_combinations:
+    best_result = {
+        'params': {},
+        'sharpe_ratio': -np.inf,
+        'total_return': -np.inf,
+        'max_drawdown': np.inf,
+        'annualized_return': -np.inf,
+        'strategy_score': -np.inf,
+        'n_trades': 0
+    }
+    for combination  in itertools.product(*values):
+        params = dict(zip(keys, combination))
         result, cache = backtest_wrapper(params, raw_data, initial_capital, transaction_fee, cache=cache)
-        results.append(result)
+        if result['strategy_score'] > best_result['strategy_score']:
+            best_result = result
+    return best_result
 
-    return pd.DataFrame(results)
 
-
-def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_path)):
+def optimize_one(ticker: str, grid: dict, database = BestStrategyRepository(db_path_dev)):
     raw_data = load_yfinance_data(
         ticker=ticker,
         start_date="2010-01-01",
-        end_date="2024-01-01",
+        end_date="2024-12-31",
         interval="1d"
     )
-    results_df = optimize_parameters_parallel(
+    best_result = optimize_parameters_parallel(
         raw_data=raw_data,
         param_grid=grid,
         initial_capital=10000,
         transaction_fee=0.005  # None = utilise tous les coeurs disponibles
     )
-    # Trouver les meilleures combinaisons selon différentes métriques
-    best_sharpe = results_df.loc[results_df['sharpe_ratio'].idxmax()]
-    best_return = results_df.loc[results_df['total_return'].idxmax()]
-    best_drawdown = results_df.loc[results_df['max_drawdown'].idxmin()]
-    best_strategy = results_df.loc[results_df['strategy_score'].idxmax()]
     metadata = {
         "ticker": ticker,
         'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'params': best_strategy['params'],
+        'params': best_result['params'],
         'train_results': {
-            'sharpe_ratio': best_strategy['sharpe_ratio'],
-            'total_return': best_strategy['total_return'],
-            'max_drawdown': best_strategy['max_drawdown'],
-            "strategy_score": best_strategy['strategy_score'],
-            "annualized_return": best_strategy['annualized_return'],
+            'sharpe_ratio': best_result['sharpe_ratio'],
+            'total_return': best_result['total_return'],
+            'max_drawdown': best_result['max_drawdown'],
+            "strategy_score": best_result['strategy_score'],
+            "annualized_return": best_result['annualized_return'],
         }
     }
     print("Meilleur Strategie:")
-    print(f"Paramètres: {best_strategy['params']}")
-    print(f"Sharpe: {best_strategy['sharpe_ratio']:.2f}")
-    print(f"Total Return: {best_strategy['total_return']:.2%}")
-    print(f"Annualized Return: {best_strategy['annualized_return']:.2%}")
-    print(f"Strategy Score: {best_strategy['strategy_score']:.2f}")
+    print(f"Paramètres: {best_result['params']}")
+    print(f"Sharpe: {best_result['sharpe_ratio']:.2f}")
+    print(f"Total Return: {best_result['total_return']:.2%}")
+    print(f"Annualized Return: {best_result['annualized_return']:.2%}")
+    print(f"Strategy Score: {best_result['strategy_score']:.2f}")
 
     # Tester les meilleurs paramètres sur une période de validation différente
     validation_data = load_yfinance_data(
         ticker=ticker,
-        start_date="2024-01-01",
-        end_date="2026-02-01",
+        start_date="2025-01-01",
+        end_date="2026-06-01",
         interval="1d"
     )
 
     # Valider les meilleurs paramètres
-    data = calculate_indicators(validation_data, **best_strategy['params'])
-    best_strategy_engine = ClassicalStrategy(**best_strategy['params'])
+    data = calculate_indicators(validation_data, **best_result['params'])
+    best_strategy_engine = ClassicalStrategy(**best_result['params'])
     validation_engine = BacktestingEngine(
         strategy=best_strategy_engine,
         data=data,
@@ -200,38 +207,39 @@ def run(ticker, param_grid, db):
     optimize_one(ticker, grid=param_grid, database=db)
 
 if __name__ == "__main__":
-    tickers_db = TickersRepository(db_path, euronext_csv_categ=euronext_csv_category,
+    tickers_db = TickersRepository(db_path_dev, euronext_csv_categ=euronext_csv_category,
                                    euronext_csv_growth_access_path=euronext_csv_growth_access)
-    tickers_db.update_db()
-    tickers_df = tickers_db.fetch_all()
-    tickers_a_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_A"])]
-    tickers_b_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_B"])]
-    tickers_c_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_C"])]
-    params_db = BestStrategyRepository(db_path)
+    # tickers_db.update_db()
+    tickers = tickers_db.get_all_euronext_tickers()
+    # tickers_df = tickers_db.fetch_all()
+    # tickers_a_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_A"])]
+    # tickers_b_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_B"])]
+    # tickers_c_df = tickers_df[tickers_df['market'].isin(["Euronext_cat_C"])]
+    params_db = BestStrategyRepository(db_path_dev)
 
-    all_tickers = pd.concat([tickers_a_df, tickers_b_df, tickers_c_df])
+    # all_tickers = pd.concat([tickers_a_df, tickers_b_df, tickers_c_df])
     other_tickers = ['MT.AS']
     missing_tickers = ["STMPA.PA"]
 
     # Définir les plages de paramètres à tester
     param_grid = {
-        'rsi_window': [7, 10, 14, 21],
-        'rsi_buy': [25, 30, 35],
-        'rsi_sell': [65, 70, 75],
-        'macd_fast': [8, 12, 16, 20],
-        'macd_slow': [21, 26, 30, 34],
-        'macd_signal': [7, 9, 11, 13],
-        'bollinger_window': [10, 15, 20, 25],
-        'bollinger_std': [1, 1.5, 2.0],
-        # "adx_min": [None, 15, 20, 25],  # faible 15-20, forte 25-40
-        # "stock_min": [None, 20, 25],  # inf 25 environ
-        # "stock_max": [None, 75, 80],  # sup 75 environ
+        'rsi_window': [7, 10],
+        'rsi_buy': [None, 25, 35],
+        'rsi_sell': [None, 65, 75],
+        'macd_fast': [8, 16, 20],
+        'macd_slow': [21, 30, 34],
+        'macd_signal': [None, 7, 13],
+        'bollinger_window': [None, 10, 15, 20],
+        'bollinger_std': [1, 1.5],
+        "adx_min": [None, 15, 20],  # faible 15-20, forte 25-40
+        "stock_min": [None, 20, 25],  # inf 25 environ
+        "stock_max": [None, 75, 80],  # sup 75 environ
         # "atr_max": [None, 0.01, 0.03, 0.1],  # entre 0 et 0.05
-        # "stochastic_oscillator": [False, True],
+        "stochastic_oscillator": [False, True],
     }
-    max_workers = 6
+    max_workers = 14
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(run, t, param_grid, params_db): t for t in all_tickers['ticker'].tolist() }
+        futures = {executor.submit(run, t, param_grid, params_db): t for t in sorted(tickers) }
         for future in as_completed(futures):
             ticker = futures[future]
             try:

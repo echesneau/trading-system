@@ -32,12 +32,14 @@ class ModelTrainer:
         from trading_system.features import calculate_indicators
         # Applique les paramètres techniques
         tech_params = self.config.get('technical_params', {})
+        init_col = list(data.columns)
+
         processed_data = calculate_indicators(data, **tech_params)
 
         # Création de la target
         horizon = self.config['target_horizon']
         processed_data['Target'] = (processed_data['Close'].shift(-horizon) > processed_data['Close']).astype(int)
-        processed_col = [col for col in processed_data.columns if col not in data.columns]
+        processed_col = [col for col in processed_data.columns if col not in init_col]
         processed_data = processed_data.dropna(how="all",
                                                subset=processed_col)
 

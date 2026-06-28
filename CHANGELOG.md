@@ -10,6 +10,20 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## [0.7.0] - 2026-05-XX
+### Modifié
+- mise à jour des paramètres optimaux pour les actions
+- mise à jour des paramètres optimaux pour les crypto
+- nettoyage de la base de données pour supprimer les tickers inexistants
+- Improve performance of optimization scripts limiting RAM consumption
+- remplacement de safety par pip-audit
+- mise à jour des actions github
+### Ajouté
+- Récupération de tickers européens grâce à wikidata
+- Utilisation d'une base de données de dev pour tester les optimisations sans impacter la base de données de prod
+- script d'analyse des paramètres optimaux pour identifier les tendances
+
+
 ## [0.6.4] - 2026-05-18
 ### Modifié
 - renommage du ticker FORSE.PA par ALFOR.PA

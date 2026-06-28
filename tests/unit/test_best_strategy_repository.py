@@ -35,6 +35,22 @@ def test_upsert_updates_existing_row(repo_strategy, example_optim_results):
     assert len(df) == 1
     assert df.loc[0, "train_strategy_score"] == 0.99
 
+def test_delete_ticker(repo_strategy, example_optim_results):
+    example_optim_results_2 = example_optim_results.copy()
+    example_optim_results_2["ticker"] = "TOTO.PA"
+    repo_strategy.upsert(example_optim_results)
+    repo_strategy.delete_ticker("ACA.PA", confirm=False)
+    df = repo_strategy.fetch_all()
+    assert len(df) == 0
+
+    repo_strategy.upsert(example_optim_results)
+
+    repo_strategy.upsert(example_optim_results_2)
+    repo_strategy.delete_ticker("ACA.PA", confirm=False)
+    df = repo_strategy.fetch_all()
+    assert len(df) == 1
+    assert df.loc[0, "ticker"] == "TOTO.PA"
+
 def test_params_are_stored_as_json(repo_strategy, example_optim_results):
     repo_strategy.upsert(example_optim_results)
 
@@ -75,3 +91,31 @@ def test_schema_columns(repo_strategy, example_optim_results):
     }
 
     assert expected_columns.issubset(df.columns)
+
+def test_validate_existing_tickers(repo_strategy, repo_tickers, example_optim_results):
+    example_optim_results["ticker"] = "ACA.PA"
+    repo_strategy.upsert(example_optim_results)
+    example_optim_results_2 = example_optim_results.copy()
+    example_optim_results_2["ticker"] = "BTC/EUR"
+    repo_strategy.upsert(example_optim_results_2)
+    example_optim_results_3 = example_optim_results.copy()
+    example_optim_results_3["ticker"] = "TOTO.FAKE"
+    repo_strategy.upsert(example_optim_results_3)
+
+    repo_tickers.create_table()
+    repo_tickers.upsert(
+        ticker="ACA.PA",
+        company="Crédit Agricole",
+        market="Paris"
+    )
+    repo_tickers.upsert(
+        ticker="BTC/EUR",
+        company="BTC/EUR",
+        market="Crypto_EUR"
+    )
+
+    repo_strategy.validate_existing_tickers(repo_tickers, confirm=False)
+    df = repo_strategy.fetch_all()
+    assert len(df) == 2
+    for ticker in ['ACA.PA', 'BTC/EUR']:
+        assert ticker in df["ticker"].values

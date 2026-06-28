@@ -156,7 +156,7 @@ class BacktestingEngine:
         """Exécute le backtest optimisé avec numba et retourne les résultats."""
         prices = self.data["Close"].values
         signals = self.strategy.generate_signals(self.data).values
-        dates = self.data.index
+        dates = self.data.index.values
 
         portfolio_values, positions, trades = backtest_core(
             prices,
@@ -167,6 +167,16 @@ class BacktestingEngine:
             self.stop_loss if self.stop_loss else 0.0,
             self.take_profit if self.take_profit else 0.0,
         )
+        portfolio_values = np.array(portfolio_values)
+        positions = np.array(positions)
+        prices = np.array(prices)
+        trades = np.array(trades)
+        if trades.size > 0:
+            mask = trades[:, 0].astype(float) != 0
+            trades = trades[mask]
+            trades_dates = dates[mask]
+        else:
+            trades_dates = np.array([])
 
         portfolio_df = pd.DataFrame({
             "date": dates,
@@ -176,8 +186,8 @@ class BacktestingEngine:
         }, index=dates)
 
         trades_df = pd.DataFrame(trades, columns=["action", "price", "shares", "reason"])
-        trades_df['date'] = dates
-        trades_df = trades_df[trades_df["action"] != 0]
+        if trades_df.shape[0] > 0:
+            trades_df['date'] = trades_dates
 
         results = {
             "portfolio": portfolio_df,

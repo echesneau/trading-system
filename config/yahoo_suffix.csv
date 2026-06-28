@@ -1,0 +1,98 @@
+# Source : https://fr.aide.yahoo.com/kb/Places-boursi%C3%A8res-et-fournisseurs-de-donn%C3%A9es-dans-Yahoo-Finance-sln2310.html
+Pays,Marché ou indice,Suffixe,Délai,Fournisseur de données
+États-Unis d'Amérique,Blue Ocean ATS (BOATS),S.O.,Temps réel,ICE Data Services
+États-Unis d'Amérique,Indices CBOE,S.O.,15 min,ICE Data Services
+États-Unis d'Amérique,Chicago Board of Trade (CBOT),.CBT,10 min,ICE Data Services
+États-Unis d'Amérique,Chicago Mercantile Exchange (CME),.CME,10 min,ICE Data Services
+États-Unis d'Amérique,Indices Dow Jones,S.O.,Temps réel,ICE Data Services
+États-Unis d'Amérique,ICE Futures US,.NYB,30 min,ICE Data Services
+États-Unis d'Amérique,Service de données d’indices mondiaux du Nasdaq,S.O.,Temps réel,ICE Data Services
+États-Unis d'Amérique,Nasdaq Stock Exchange,S.O.,Temps réel,ICE Data Services
+États-Unis d'Amérique,New York Commodities Exchange (COMEX),.CMX,30 min,ICE Data Services
+États-Unis d'Amérique,New York Mercantile Exchange (NYMEX),.NYM,30 min,ICE Data Services
+États-Unis d'Amérique,Indices NYSE,S.O.,15 min,ICE Data Services
+États-Unis d'Amérique,Options Price Reporting Authority (OPRA),S.O.,15 min,ICE Data Services
+États-Unis d'Amérique,OTC Markets Group,S.O.,15 min,ICE Data Services
+États-Unis d'Amérique,Indices S & P,S.O.,Temps réel,ICE Data Services
+Argentine,Buenos Aires Stock Exchange (BYMA),.BA,30 min,ICE Data Services
+Autriche,Bourse de Vienne,.VI,15 min,ICE Data Services
+Australie,Australian Stock Exchange (ASX),.AX,20 min,ICE Data Services
+Australie,Cboe Australia,.XA,Temps réel,ICE Data Services
+Belgique,Euronext Bruxelles,.BR,15 min,ICE Data Services
+Brésil,Sao Paolo Stock Exchange (BOVESPA),.SA,15 min,ICE Data Services
+Canada,Canadian Securities Exchange,.CN,Temps réel,ICE Data Services
+Canada,CBOE Canada,.NE,Temps réel,ICE Data Services
+Canada,Toronto Stock Exchange (TSX),.TO,Temps réel,ICE Data Services
+Canada,TSX Venture Exchange (TSXV),.V,Temps réel,ICE Data Services
+Chili,Bourse de Santiago,.SN,15 min,ICE Data Services
+Chine,Bourse de Shanghai,.SS,30 min,ICE Data Services
+Chine,Bourse de Shenzhen,.SZ,30 min,ICE Data Services
+Colombie,Bourse de Colombie,.CL,20 min,ICE Data Services
+République tchèque,Bourse de Prague,.PR,20 min,ICE Data Services
+Danemark,Nasdaq OMX Copenhagen,.CO,Temps réel,ICE Data Services
+Égypte,Indice de la Bourse égyptienne (EGID),.CA,20 min,ICE Data Services
+Estonie,Nasdaq OMX Tallinn,.TL,Temps réel,ICE Data Services
+Europe,CBOE Europe,.XD,Temps réel,ICE Data Services
+Europe,Euronext,.NX,15 min,ICE Data Services
+Finlande,Nasdaq OMX Helsinki,.HE,Temps réel,ICE Data Services
+France,Euronext Paris,.PA,15 min,ICE Data Services
+Allemagne,Bourse de Berlin,.BE,15 min,ICE Data Services
+Allemagne,Bourse de Brême,.BM,15 min,ICE Data Services
+Allemagne,Bourse de Düsseldorf,.DU,15 min,ICE Data Services
+Allemagne,Bourse de Francfort,.F,15 min,ICE Data Services
+Allemagne,Bourse de Hambourg,.HM,15 min,ICE Data Services
+Allemagne,Bourse de Hanovre,.HA,15 min,ICE Data Services
+Allemagne,Bourse de Munich,.MU,15 min,ICE Data Services
+Allemagne,Bourse de Stuttgart,.SG,15 min,ICE Data Services
+Allemagne,Deutsche Boerse XETRA,.DE,15 min,ICE Data Services
+International,Indices perceptibles,.REGA,Temps réel,Culture de la tarification
+International,Cryptomonnaies,S.O.,Temps réel,Coinbase
+International,Cryptomonnaies,S.O.,Temps réel,CoinMarketCap
+International,Taux de change,=X,Temps réel,ICE Data Services
+International,Indices MSCI,S.O.,Temps réel,ICE Data Services
+Grèce,Athens Stock Exchange (ATHEX),.AT,15 min,ICE Data Services
+Hong Kong,Indices Hang Seng,S.O.,15 min,ICE Data Services
+Hong Kong,Bourse de Hong Kong (HKEX),.HK,15 min,ICE Data Services
+Hongrie,Bourse de Budapest,.BD,15 min,ICE Data Services
+Islande,Nasdaq OMX Iceland,.IC,Temps réel,ICE Data Services
+Inde,Bourse de Bombay,.BO,15 min,ICE Data Services
+Inde,Bourse Nationale d'Inde,.NS,Temps réel,ICE Data Services
+Indonésie,Indonesia Stock Exchange (IDX),.JK,10 min,ICE Data Services
+Irlande,Euronext Dublin,.IR,15 min,ICE Data Services
+Israël,Bourse de Tel Aviv,.TA,20 min,ICE Data Services
+Italie,EuroTLX,.TI,20 min,ICE Data Services
+Italie,Italian Stock Exchange,.MI,20 min,ICE Data Services
+Japon,Indices Nikkei,S.O.,30 min,ICE Data Services
+Japon,Tokyo Stock Exchange,.T,20 min,ICE Data Services
+Koweït,Boursa Kuwait,.KW,15 min,ICE Data Services
+Lettonie,Nasdaq OMX Riga,.RG,Temps réel,ICE Data Services
+Lituanie,Nasdaq OMX Vilnius,.VS,Temps réel,ICE Data Services
+Malaisie,Malaysian Stock Exchange,.KL,15 min,ICE Data Services
+Mexique,Mexico Stock Exchange (BMV),.MX,20 min,ICE Data Services
+Pays-Bas,Euronext Amsterdam,.AS,15 min,ICE Data Services
+Nouvelle-Zélande,New Zealand Stock Exchange (NZX),.NZ,20 min,ICE Data Services
+Norvège,Bourse d'Oslo,.OL,15 min,ICE Data Services
+Philippines,Indices de la place boursière des Philippines,.PS,15 min,ICE Data Services
+Pologne,Place boursière de Varsovie,.WA,15 min,ICE Data Services
+Portugal,Euronext Lisbonne,.LS,15 min,ICE Data Services
+Qatar,Qatar Stock Exchange,.QA,15 min,ICE Data Services
+Roumanie,Bourse de Bucarest,.RO,15 min,ICE Data Services
+Singapour,Singapore Stock Exchange (SGX),.SI,20 min,ICE Data Services
+Afrique du Sud,Bourse de Johannesbourg,.JO,15 min,ICE Data Services
+Corée du Sud,Bourse coréenne,.KS,20 min,ICE Data Services
+Corée du Sud,KOSDAQ,.KQ,20 min,ICE Data Services
+Espagne,Bourse de Madrid (BME),.MC,15 min,ICE Data Services
+Arabie saoudite,Saudi Stock Exchange (Tadawul),.SAU,15 min,ICE Data Services
+Suède,Nasdaq OMX Stockholm,.ST,Temps réel,ICE Data Services
+Suisse,Swiss Exchange (SIX),.SW,30 min,ICE Data Services
+Taïwan,Taiwan OTC Exchange,.TWO,20 min,ICE Data Services
+Taïwan,Taiwan Stock Exchange (TWSE),.TW,20 min,ICE Data Services
+Thaïlande,Stock Exchange of Thailand (SET),.BK,15 min,ICE Data Services
+Turquie,Borsa İstanbul,.IS,15 min,ICE Data Services
+Émirats arabes unis,Marché financier de Dubaï,.AE,15 min,ICE Data Services
+Royaume-Uni,Aquis Exchange AQSE,.AQ,15 min,ICE Data Services
+Royaume-Uni,CBOE Royaume-Uni,.XC,Temps réel,ICE Data Services
+Royaume-Uni,Bourse de Londres,.L,20 min,ICE Data Services
+Royaume-Uni,Bourse de Londres,.IL,20 min,ICE Data Services
+Venezuela,Bourse de Caracas,.CR,15 min,ICE Data Services
+Vietnam,Bourse de Ho Chi Minh-Ville,.VN,15 min,ICE Data Services

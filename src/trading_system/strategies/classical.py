@@ -38,6 +38,17 @@ class ClassicalStrategy(BaseStrategy):  # Hérite de BaseStrategy
         Returns:
             Series avec les signaux
         """
+        close = data['Close'].values
+        rsi = data['RSI'].values
+        macd = data['MACD'].values
+        macd_signal = data['MACD_Signal'].values
+        bb_lower = data['BB_Lower'].values
+        bb_upper = data['BB_Upper'].values
+        adx = data['ADX'].values
+        stochastic_k = data['Stochastic_%K'].values
+        stochastic_d = data['Stochastic_%D'].values
+        atr = data['ATR'].values
+        n = len(data)
         def cond_lt(arr, threshold, default=True):
             if threshold is None :
                 return np.full_like(arr, default, dtype=bool)
@@ -57,39 +68,37 @@ class ClassicalStrategy(BaseStrategy):  # Hérite de BaseStrategy
         def cond_stochastic_sell(k, d, stock_max, default=True):
             # Si k ou stock_max sont nan → retourne default
             if np.all(np.isnan(k)) or pd.isnull(stock_max):
-                return np.full_like(k, default, dtype=bool)
-
+                return np.full(n, default, dtype=bool)
             return (k < d) & (k > stock_max)
 
         buy = (
-                cond_lt(data['RSI'].values, self.rsi_buy, default=True) &
-                cond_gt(data['MACD'].values, data['MACD_Signal'].values, default=True) &
-                cond_lt(data['Close'].values, data['BB_Lower'].values, default=True) &
-                cond_gt(data["ADX"].values, self.adx_min, default=True) &
-                cond_gt(data["Stochastic_%K"].values, data["Stochastic_%D"].values, default=True) &
-                cond_lt(data["Stochastic_%K"], self.stock_min, default=True)
+                cond_lt(rsi, self.rsi_buy, default=True) &
+                cond_gt(macd, macd_signal, default=True) &
+                cond_lt(close, bb_lower, default=True) &
+                cond_gt(adx, self.adx_min, default=True) &
+                cond_gt(stochastic_k, stochastic_d, default=True) &
+                cond_lt(stochastic_k, self.stock_min, default=True)
         )
         sell = (
-                cond_gt(data['RSI'].values, self.rsi_sell, default=False) |
+                cond_gt(rsi, self.rsi_sell, default=False) |
                 (
-                        cond_lt(data['MACD'].values, data['MACD_Signal'].values, default=True) &
-                        cond_gt(data['Close'].values, data['BB_Upper'].values, default=True)
+                        cond_lt(macd, macd_signal, default=True) &
+                        cond_gt(close, bb_upper, default=True)
                 ) |
-                cond_stochastic_sell(data["Stochastic_%K"].values,
-                                     data["Stochastic_%D"].values,
+                cond_stochastic_sell(stochastic_k,
+                                     stochastic_d,
                                      self.stock_max,
                                      default=False
                                      )
                 |
-                cond_gt(data["ATR"].values / data["Close"].values, self.atr_max, default=False)
+                cond_gt(atr / close, self.atr_max, default=False)
         )
 
-        signals = np.zeros(len(data), dtype=np.int8)  # 0=HOLD, 1=BUY, -1=SELL
+        signals = np.zeros(n, dtype=np.int8)  # 0=HOLD, 1=BUY, -1=SELL
         signals[buy] = 1
         signals[sell] = -1
 
-        signals = pd.Series(signals, index=data.index)
-        return signals
+        return pd.Series(signals, index=data.index)
 
     def get_parameters(self) -> dict:
         """Retourne les paramètres actuels de la stratégie."""
