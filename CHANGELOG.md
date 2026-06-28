@@ -12,6 +12,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [0.7.0] - 2026-06-28
 ### Modifié
+- Non compatible avec python 3.12 et 3.13
 - mise à jour des paramètres optimaux pour les actions
 - mise à jour des paramètres optimaux pour les crypto
 - nettoyage de la base de données pour supprimer les tickers inexistants
