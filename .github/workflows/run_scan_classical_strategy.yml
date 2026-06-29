@@ -25,4 +25,4 @@ jobs:
     - uses: ./.github/actions/setup-python
 
     - name: Run validation
-      run: python scripts/run_classical_scan.py
+      run: uv run python scripts/run_classical_scan.py
