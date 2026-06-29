@@ -6,7 +6,7 @@ on:
   workflow_dispatch:      # Exécution manuelle
 
 jobs:
-  validate-classical-strategies:
+  dayly-scan-classical-strategies:
     runs-on: ubuntu-22.04
     env:
       REAL_EMAIL_SMTP_SERVER: ${{ secrets.REAL_EMAIL_SMTP_SERVER }}
