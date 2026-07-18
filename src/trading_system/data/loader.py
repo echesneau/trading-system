@@ -10,6 +10,8 @@ import logging
 import cachetools.func
 import time
 
+from yfinance.exceptions import YFPricesMissingError
+
 logger = logging.getLogger(__name__)
 
 
@@ -89,6 +91,10 @@ def load_yfinance_data(
 
         return data[list(required_cols)]
 
+    except DataLoadingError:
+        raise
+    except YFPricesMissingError as e:
+        raise DataLoadingError(f"Prices missing for {ticker}: {str(e)}")
     except Exception as e:
         logger.exception("Erreur de chargement")
         raise DataLoadingError(f"Erreur avec Yahoo Finance pour {ticker}: {str(e)}")
