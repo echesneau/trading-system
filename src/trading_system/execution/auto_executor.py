@@ -1,4 +1,5 @@
 import datetime as dt
+import random
 
 class AutoExecutor:
     """
@@ -28,7 +29,7 @@ class AutoExecutor:
         }
 
         # 1. Exécuter les BUY
-        for sig in report["buy_signals"]:
+        for sig in random.sample(report["buy_signals"], len(report["buy_signals"])):
             try:
                 result = self.execute_buy(sig)
                 executions["executed"].append(result)
@@ -36,7 +37,7 @@ class AutoExecutor:
                 executions["errors"].append({"signal": sig, "error": str(e)})
 
         # 2. Exécuter les SELL
-        for sig in report["sell_signals"]:
+        for sig in random.sample(report["sell_signals"], len(report["sell_signals"])):
             try:
                 result = self.execute_sell(sig)
                 executions["executed"].append(result)
