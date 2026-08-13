@@ -13,11 +13,12 @@ class KrakenBroker(BrokerBase):
     Gère les ordres au marché, stop-loss, balances et positions.
     """
 
-    def __init__(self, dry_run=True, base_currency="EUR", max_position_size=100):
+    def __init__(self, dry_run=True, base_currency="EUR", max_position_size=100, min_position_size=1):
         super().__init__(
             dry_run=dry_run,
             base_currency=base_currency,
-            max_position_size=max_position_size
+            max_position_size=max_position_size,
+            min_position_size=min_position_size
         )
 
         self.exchange = ccxt.kraken({

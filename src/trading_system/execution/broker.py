@@ -8,10 +8,11 @@ class BrokerBase(ABC):
     Cette classe définit le contrat minimal que chaque broker doit respecter.
     """
 
-    def __init__(self, dry_run=True, base_currency="EUR", max_position_size=100):
+    def __init__(self, dry_run=True, base_currency="EUR", max_position_size=100, min_position_size = 1):
         self.dry_run = dry_run
         self.base_currency = base_currency
         self.max_position_size = max_position_size
+        self.min_position_size = min_position_size
         self.logger = logging.getLogger(self.__class__.__name__)
         self.name = self.__class__.__name__
 
@@ -55,6 +56,8 @@ class BrokerBase(ABC):
         """
         balance = self.get_balance(self.base_currency)
         budget = min(self.max_position_size, balance)
+        if budget < self.min_position_size:
+            return 0
 
         if price <= 0:
             raise ValueError("Le prix doit être positif.")
