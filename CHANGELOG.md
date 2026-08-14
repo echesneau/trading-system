@@ -18,8 +18,9 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Ajout d'un max_retries pour les requêtes yfinance
 - Ajout d'un max_retries pour les requêtes ccxt
 
-## [0.7.0] - 2026-05-XX
+## [0.7.0] - 2026-06-28
 ### Modifié
+- Non compatible avec python 3.12 et 3.13
 - mise à jour des paramètres optimaux pour les actions
 - mise à jour des paramètres optimaux pour les crypto
 - nettoyage de la base de données pour supprimer les tickers inexistants
@@ -30,6 +31,19 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Récupération de tickers européens grâce à wikidata
 - Utilisation d'une base de données de dev pour tester les optimisations sans impacter la base de données de prod
 - script d'analyse des paramètres optimaux pour identifier les tendances
+
+
+## [0.6.4] - 2026-05-18
+### Modifié
+- renommage du ticker FORSE.PA par ALFOR.PA
+
+## [0.6.3] - 2026-05-18
+### Modifié
+- Suppression de Carmat (ALCAR.PA) de la liste des tickers : liquidation de la société
+
+## [0.6.2] - 2026-03-02
+### debug
+- modification du CI validation pour pouvoir push sur les deux jobs
 
 ## [0.6.1] - 2026-02-26 
 ### debug

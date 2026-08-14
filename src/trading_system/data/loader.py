@@ -11,6 +11,8 @@ import cachetools.func
 import time
 import random
 
+from yfinance.exceptions import YFPricesMissingError
+
 logger = logging.getLogger(__name__)
 
 
@@ -93,15 +95,24 @@ def load_yfinance_data(
 
             return data[list(required_cols)]
 
-        except Exception as e:
+        except DataLoadingError as e:
             last_error = e
             logger.warning(f"⚠️ Erreur Yahoo Finance (attempt {attempt}/{max_retries}): {e}")
             sleep_time = (2 ** attempt) + random.random()
             time.sleep(sleep_time)
 
+        except YFPricesMissingError as e:
+            last_error = e
+            logger.warning(f"⚠️ Erreur Yahoo Finance (attempt {attempt}/{max_retries}): {e}")
+            sleep_time = (2 ** attempt) + random.random()
+            time.sleep(sleep_time)
+        except Exception as e:
+            last_error = e
+            logger.warning(f"⚠️ Erreur Yahoo Finance (attempt {attempt}/{max_retries}): {e}")
+            sleep_time = (2 ** attempt) + random.random()
+            time.sleep(sleep_time)
     logger.exception("❌ Erreur de chargement finale")
     raise DataLoadingError(f"Erreur avec Yahoo Finance pour {ticker} après {max_retries} tentatives : {last_error}")
-
 
 @cachetools.func.ttl_cache(maxsize=10, ttl=3600)
 def load_kraken_data(

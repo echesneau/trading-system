@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 
+from yfinance.exceptions import YFPricesMissingError
 
-from trading_system.data.loader import load_yfinance_data
+from trading_system.data.loader import load_yfinance_data, DataLoadingError
 from trading_system.database.tickers import TickersRepository
 from trading_system.strategies.classical import ClassicalStrategy
 from trading_system.features.technical import calculate_indicators
@@ -45,20 +46,28 @@ if __name__ == "__main__":
         print(f"Validating {row['ticker']}...")
         ticker = row['ticker']
         params = row['params_json']
-        raw_data = load_yfinance_data(
-        ticker=ticker,
-        start_date=start_date,
-        end_date=end_date,
-        interval="1d")
-        data = calculate_indicators(raw_data, **params)
-        strategy = ClassicalStrategy(**params)
-        engine = BacktestingEngine(
-            strategy=strategy,
-            data=data,
-            initial_capital=initial_capital,
-            transaction_fee=transaction_fee,
-            position_size=1
-        )
-        result = engine.run()
-        valid = is_valid(result)
+        try:
+            raw_data = load_yfinance_data(
+            ticker=ticker,
+            start_date=start_date,
+            end_date=end_date,
+            interval="1d")
+            data = calculate_indicators(raw_data, **params)
+            strategy = ClassicalStrategy(**params)
+            engine = BacktestingEngine(
+                strategy=strategy,
+                data=data,
+                initial_capital=initial_capital,
+                transaction_fee=transaction_fee,
+                position_size=1
+            )
+            result = engine.run()
+            valid = is_valid(result)
+        except ValueError as e:
+            valid = {'valid': False, 'reason': "Not enough data"}
+        except DataLoadingError as e:
+            valid = {'valid': False, 'reason': str(e)}
+        except YFPricesMissingError as e:
+            valid = {'valid': False, 'reason': str(e)}
         validators_params.upsert(ticker, valid['valid'], valid['reason'])
+
