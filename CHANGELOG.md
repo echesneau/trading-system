@@ -10,6 +10,11 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## HEAD - 2026-05-XX
+### Ajouté
+- Ajout d'un Broker pour Kraken 
+- Ajout d'un AutoExecutor pour exécuter automatiquement les signaux de trading sur Kraken
+
 ## [0.7.0] - 2026-05-XX
 ### Modifié
 - mise à jour des paramètres optimaux pour les actions

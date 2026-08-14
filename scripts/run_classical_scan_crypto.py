@@ -1,6 +1,8 @@
 import os
 import json
 
+from execution.auto_executor import AutoExecutor
+from execution.kraken_broker import KrakenBroker
 from trading_system.notifications.email_sender import EmailSender
 from trading_system.notifications.reporter import SignalReporter
 from trading_system.strategies.classical import ClassicalStrategy
@@ -30,6 +32,7 @@ email_sender = EmailSender(
 
 if __name__ == "__main__":
     print("🔎 Début du scan quotidien...")
+    # Chargement DB
     tickers_db = TickersRepository(db_path)
     params_db = BestStrategyRepository(db_path)
     validators_db = StrategyValidationRepository(validator_db_path)
@@ -40,13 +43,18 @@ if __name__ == "__main__":
     valid_tickers = valid_tickers[valid_tickers['valid']]['ticker'].tolist()
     config = {ticker: params_db.fetch_one(ticker)["params_json"]
               for ticker in valid_tickers}
+    # Automatic Executor
+    broker = KrakenBroker(dry_run=False, base_currency="EUR", max_position_size=3, min_position_size=1)
+    executor = AutoExecutor(broker, risk_manager=0.15)
     # Générer le rapport
     reporter = SignalReporter(strategy=ClassicalStrategy, data_loader=load_ccxt_data)
     report = reporter.generate_daily_report(list(config.keys()), config, max_window_range=100)
-    html_report = reporter.format_report_to_html(report)
+    # html_report = reporter.format_report_to_html(report)
+    executions_report = executor.execute_from_report(report)
+    html_report = executor.format_execution_report(report, executions_report)
     success = email_sender.send_email(
         to_emails=TO_EMAILS,
-        subject="Rapport Trading Quotidien Stratégie Classique",
+        subject="Rapport Trading Quotidien Crypto Stratégie Classique",
         html_body=html_report
     )
     if success:
