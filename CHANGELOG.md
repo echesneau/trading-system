@@ -14,6 +14,9 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Ajouté
 - Ajout d'un Broker pour Kraken 
 - Ajout d'un AutoExecutor pour exécuter automatiquement les signaux de trading sur Kraken
+- Ajout d'un max_retries pour les requêtes wikidata
+- Ajout d'un max_retries pour les requêtes yfinance
+- Ajout d'un max_retries pour les requêtes ccxt
 
 ## [0.7.0] - 2026-05-XX
 ### Modifié

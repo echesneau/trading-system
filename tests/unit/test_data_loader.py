@@ -30,7 +30,7 @@ def test_load_yfinance_data_empty_data():
         mock_download.return_value = pd.DataFrame()
 
         with pytest.raises(DataLoadingError) as excinfo:
-            load_yfinance_data("INVALID.TICKER", start_date="2023-01-01")
+            load_yfinance_data("INVALID.TICKER", start_date="2023-01-01", max_retries=1)
 
         assert "Aucune donnée" in str(excinfo.value)
 
@@ -41,23 +41,23 @@ def test_load_yfinance_data_api_failure():
     # Cas 1: Exception générique
     with patch('yfinance.download', side_effect=Exception("Mocked API failure")):
         with pytest.raises(DataLoadingError) as excinfo:
-            load_yfinance_data("AIR.PA", "2023-01-01")
+            load_yfinance_data("AIR.PA", "2023-01-01", max_retries=1)
         assert "Erreur avec Yahoo Finance" in str(excinfo.value)
 
     # Cas 2: Erreur réseau spécifique
     with patch('yfinance.download', side_effect=ConnectionError("Timeout")):
         with pytest.raises(DataLoadingError) as excinfo:
-            load_yfinance_data("AIR.PA", "2023-01-01")
+            load_yfinance_data("AIR.PA", "2023-01-01", max_retries=1)
         assert "Timeout" in str(excinfo.value)
 
     # Cas 3: Erreur de valeur
     with patch('yfinance.download', side_effect=ValueError("Invalid parameter")):
         with pytest.raises(DataLoadingError) as excinfo:
-            load_yfinance_data("AIR.PA", "2023-01-01")
+            load_yfinance_data("AIR.PA", "2023-01-01", max_retries=1)
         assert "Invalid parameter" in str(excinfo.value)
 
 
 def test_load_yfinance_data_invalid_ticker():
     """Test la validation du ticker"""
     with pytest.raises(DataLoadingError):
-        load_yfinance_data("", start_date="2023-01-01")  # Ticker vide
+        load_yfinance_data("", start_date="2023-01-01", max_retries=1)  # Ticker vide

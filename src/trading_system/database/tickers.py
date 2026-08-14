@@ -6,7 +6,7 @@ from pathlib import Path
 import requests
 from trading_system.database.utils import (sparql_to_dataframe, convert_exhange_wikidata_to_yahoo, add_yahoo_suffix,
                                            check_crypto, check_yahoo)
-from trading_system.database import db_path, config_path
+from trading_system.data.wikidata import wikidata_query
 
 
 class TickersRepository:
@@ -238,13 +238,8 @@ class TickersRepository:
         }
         ORDER BY ?countryLabel
         """
-        r = requests.get(
-            self.wikidata_endpoint,
-            params={"query": query, "format": "json"},
-            headers=headers,
-            timeout=180
-        )
-        result_df = sparql_to_dataframe(r.json())
+        r = wikidata_query(query, self.wikidata_endpoint)
+        result_df = sparql_to_dataframe(r)
         return result_df
 
     def _get_all_european_stock_exchange_wikidata_code(self):
@@ -306,13 +301,9 @@ class TickersRepository:
         }}
         ORDER BY ?exchangeLabel ?companyLabel
         """
-        r = requests.get(
-            self.wikidata_endpoint,
-            params={"query": query, "format": "json"},
-            headers=headers,
-            timeout=180
-        )
-        df = sparql_to_dataframe(r.json())
+        data = wikidata_query(query, self.wikidata_endpoint)
+
+        df = sparql_to_dataframe(data)
         # Rename exchangeLabel
         df = convert_exhange_wikidata_to_yahoo(df)
         # remove rows where yahoo market is NULL

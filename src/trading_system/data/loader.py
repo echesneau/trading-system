@@ -9,6 +9,7 @@ from typing import Optional, Union, Dict
 import logging
 import cachetools.func
 import time
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,7 @@ def load_yfinance_data(
         end_date: Optional[Union[str, pd.Timestamp]] = None,
         interval: str = "1d",
         progress: bool = False,
+        max_retries: int = 5,
         **kwargs
 ) -> pd.DataFrame:
     """
@@ -58,40 +60,48 @@ def load_yfinance_data(
     Raises:
         DataLoadingError: Si le chargement échoue
     """
-    try:
-        logger.info(f"Chargement {ticker} du {start_date} au {end_date}")
+    last_error = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            logger.info(f"Chargement {ticker} du {start_date} au {end_date}")
 
-        # Validation du ticker
-        if not isinstance(ticker, str) or "." not in ticker:
-            raise DataLoadingError(f"Format de ticker invalide: {ticker}")
+            # Validation du ticker
+            if not isinstance(ticker, str) or "." not in ticker:
+                raise DataLoadingError(f"Format de ticker invalide: {ticker}")
 
-        # Téléchargement
-        data = yf.download(
-            tickers=ticker,
-            start=pd.to_datetime(start_date),
-            end=pd.to_datetime(end_date) if end_date else None,
-            interval=interval,
-            progress=progress,
-            group_by='ticker',  # Important pour la cohérence
-            **kwargs
-        )
-        # 1. Vérification des données vides en premier
-        if data.empty:
-            raise DataLoadingError(f"Aucune donnée disponible pour {ticker}")
-        # Normalisation des colonnes
-        data = _normalize_columns(data, ticker)
+            # Téléchargement
+            data = yf.download(
+                tickers=ticker,
+                start=pd.to_datetime(start_date),
+                end=pd.to_datetime(end_date) if end_date else None,
+                interval=interval,
+                progress=progress,
+                group_by='ticker',  # Important pour la cohérence
+                **kwargs
+            )
+            # 1. Vérification des données vides en premier
+            if data.empty:
+                raise DataLoadingError(f"Aucune donnée disponible pour {ticker}")
+            # Normalisation des colonnes
+            data = _normalize_columns(data, ticker)
 
-        # Validation
-        required_cols = {"Open", "High", "Low", "Close", "Volume"}
-        missing_cols = required_cols - set(data.columns)
-        if missing_cols:
-            raise DataLoadingError(f"Colonnes manquantes: {missing_cols}")
+            # Validation
+            required_cols = {"Open", "High", "Low", "Close", "Volume"}
+            missing_cols = required_cols - set(data.columns)
+            if missing_cols:
+                raise DataLoadingError(f"Colonnes manquantes: {missing_cols}")
 
-        return data[list(required_cols)]
+            return data[list(required_cols)]
 
-    except Exception as e:
-        logger.exception("Erreur de chargement")
-        raise DataLoadingError(f"Erreur avec Yahoo Finance pour {ticker}: {str(e)}")
+        except Exception as e:
+            last_error = e
+            logger.warning(f"⚠️ Erreur Yahoo Finance (attempt {attempt}/{max_retries}): {e}")
+            sleep_time = (2 ** attempt) + random.random()
+            time.sleep(sleep_time)
+
+    logger.exception("❌ Erreur de chargement finale")
+    raise DataLoadingError(f"Erreur avec Yahoo Finance pour {ticker} après {max_retries} tentatives : {last_error}")
+
 
 @cachetools.func.ttl_cache(maxsize=10, ttl=3600)
 def load_kraken_data(
@@ -165,8 +175,6 @@ def load_kraken_data(
     return pd.concat(all_data).sort_index()
 
 
-
-
 def load_multiple_tickers(
         tickers: list,  # Format: {"AIR.PA": "Airbus"}
         **kwargs
@@ -213,7 +221,8 @@ def load_ccxt_data(
     start_date: Optional[Union[str, pd.Timestamp]] = None,
     end_date: Optional[Union[str, pd.Timestamp]] = None,
     limit = None,
-    pause: float = 0.2
+    pause: float = 0.2,
+        max_empty_retries = 3
 ) -> pd.DataFrame:
     """
     Charge les données OHLCV depuis un exchange via ccxt.
@@ -241,10 +250,15 @@ def load_ccxt_data(
     all_data = []
     last_since = None
 
+    empty_retry_count = 0
     while True:
         ohlcv = exchange.fetch_ohlcv(pair, timeframe=interval, since=since_ts, limit=limit)
         if not ohlcv:
-            break
+            empty_retry_count += 1
+            if empty_retry_count >= max_empty_retries:
+                break
+            time.sleep(1 + empty_retry_count * 0.5)
+            continue
 
         df = pd.DataFrame(ohlcv, columns=["time","Open","High","Low","Close","Volume"])
         df["time"] = pd.to_datetime(df["time"], unit="ms")
@@ -254,7 +268,11 @@ def load_ccxt_data(
             df = df[df["time"] <= pd.to_datetime(end_date)]
 
         if df.empty:
-            break
+            empty_retry_count += 1
+            if empty_retry_count >= max_empty_retries:
+                break
+            time.sleep(1 + empty_retry_count * 0.5)
+            continue
 
         all_data.append(df)
 
