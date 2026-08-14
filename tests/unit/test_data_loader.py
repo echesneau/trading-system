@@ -30,7 +30,7 @@ def test_load_yfinance_data_empty_data():
         mock_download.return_value = pd.DataFrame()
 
         with pytest.raises(DataLoadingError) as excinfo:
-            load_yfinance_data("INVALID.TICKER", start_date="2023-01-01")
+            load_yfinance_data("INVALID.TICKER", start_date="2023-01-01", max_retries=1)
 
         assert "Aucune donnée" in str(excinfo.value)
 

@@ -221,7 +221,8 @@ def load_ccxt_data(
     start_date: Optional[Union[str, pd.Timestamp]] = None,
     end_date: Optional[Union[str, pd.Timestamp]] = None,
     limit = None,
-    pause: float = 0.2
+    pause: float = 0.2,
+        max_empty_retries = 3
 ) -> pd.DataFrame:
     """
     Charge les données OHLCV depuis un exchange via ccxt.
@@ -249,10 +250,15 @@ def load_ccxt_data(
     all_data = []
     last_since = None
 
+    empty_retry_count = 0
     while True:
         ohlcv = exchange.fetch_ohlcv(pair, timeframe=interval, since=since_ts, limit=limit)
         if not ohlcv:
-            break
+            empty_retry_count += 1
+            if empty_retry_count >= max_empty_retries:
+                break
+            time.sleep(1 + empty_retry_count * 0.5)
+            continue
 
         df = pd.DataFrame(ohlcv, columns=["time","Open","High","Low","Close","Volume"])
         df["time"] = pd.to_datetime(df["time"], unit="ms")
@@ -262,7 +268,11 @@ def load_ccxt_data(
             df = df[df["time"] <= pd.to_datetime(end_date)]
 
         if df.empty:
-            break
+            empty_retry_count += 1
+            if empty_retry_count >= max_empty_retries:
+                break
+            time.sleep(1 + empty_retry_count * 0.5)
+            continue
 
         all_data.append(df)
 
