@@ -14,6 +14,8 @@ jobs:
       REAL_EMAIL_LOGIN: ${{ secrets.REAL_EMAIL_LOGIN }}
       REAL_EMAIL_PASSWORD: ${{ secrets.REAL_EMAIL_PASSWORD }}
       REAL_EMAIL_TO_PROD: ${{ secrets.REAL_EMAIL_TO_PROD }}
+      KRAKEN_API_KEY: ${{ secrets.KRAKEN_API_KEY }}
+      KRAKEN_API_SECRET: ${{ secrets.KRAKEN_API_SECRET }}
       GITHUB_SHA: ${{ github.sha }}
     steps:
     - name: Checkout code

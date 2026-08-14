@@ -10,6 +10,14 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## HEAD - 2026-05-XX
+### Ajouté
+- Ajout d'un Broker pour Kraken 
+- Ajout d'un AutoExecutor pour exécuter automatiquement les signaux de trading sur Kraken
+- Ajout d'un max_retries pour les requêtes wikidata
+- Ajout d'un max_retries pour les requêtes yfinance
+- Ajout d'un max_retries pour les requêtes ccxt
+
 ## [0.7.0] - 2026-06-28
 ### Modifié
 - Non compatible avec python 3.12 et 3.13
