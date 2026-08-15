@@ -1,8 +1,8 @@
 import os
 import json
 
-from execution.auto_executor import AutoExecutor
-from execution.kraken_broker import KrakenBroker
+from trading_system.execution.auto_executor import AutoExecutor
+from trading_system.execution.kraken_broker import KrakenBroker
 from trading_system.notifications.email_sender import EmailSender
 from trading_system.notifications.reporter import SignalReporter
 from trading_system.strategies.classical import ClassicalStrategy
