@@ -145,14 +145,18 @@ class AutoExecutor:
                 ticker = sig["ticker"]
                 price = sig["price"]
                 date = sig["date"].strftime('%Y-%m-%d')
-                order_id = exec_index[ticker]["order"].get("id", "N/A")
-
+                # order_id = exec_index[ticker]["order"].get("id", "N/A")
                 html += f"""
-                <li>
-                    <strong>{ticker}</strong> — Prix: {price:.2f} — Date: {date}<br>
-                    ✔ Ordre exécuté (ID: {order_id})
-                </li>
-                """
+                                <li>
+                                    <strong>{ticker}</strong> — Prix: {price:.2f} — Date: {date}<br>
+                                </li>
+                                """
+                # html += f"""
+                # <li>
+                #     <strong>{ticker}</strong> — Prix: {price:.2f} — Date: {date}<br>
+                #     ✔ Ordre exécuté (ID: {order_id})
+                # </li>
+                # """
             html += "</ul>"
         else:
             html += "<p>Aucun ordre exécuté.</p>"
