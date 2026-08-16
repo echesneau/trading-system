@@ -40,7 +40,8 @@ class AutoExecutor:
         for sig in random.sample(report["sell_signals"], len(report["sell_signals"])):
             try:
                 result = self.execute_sell(sig)
-                executions["executed"].append(result)
+                if result is not None:
+                    executions["executed"].append(result)
             except Exception as e:
                 executions["errors"].append({"signal": sig, "error": str(e)})
 
@@ -54,21 +55,23 @@ class AutoExecutor:
         ticker = sig['ticker']
         price = self.broker.get_price(ticker)
         amount = self.compute_buy_amount(ticker, price=price)
+        if amount > 0:
+            order = self.broker.place_market_order(ticker, "buy", amount)
 
-        order = self.broker.place_market_order(ticker, "buy", amount)
+            # Stop-loss automatique si risk manager
+            if not self.risk_manager is None and 0 < self.risk_manager < 1:
+                sl_price = price * (1 - self.risk_manager)
+                self.broker.place_stop_loss(ticker, amount, sl_price)
 
-        # Stop-loss automatique si risk manager
-        if not self.risk_manager is None and 0 < self.risk_manager < 1:
-            sl_price = price * (1 - self.risk_manager)
-            self.broker.place_stop_loss(ticker, amount, sl_price)
-
-        return {
-            "type": "BUY",
-            "ticker": sig["ticker"],
-            "symbol": ticker,
-            "amount": amount,
-            "order": order
-        }
+            return {
+                "type": "BUY",
+                "ticker": sig["ticker"],
+                "symbol": ticker,
+                "amount": amount,
+                "order": order
+            }
+        else:
+            raise ValueError(f"Déjà présent dans le portefeuille")
 
     def execute_sell(self, sig):
         """
@@ -81,16 +84,17 @@ class AutoExecutor:
             self.broker.cancel_order(order)
 
         amount = self.compute_sell_amount(sig["ticker"])
-
-        order = self.broker.place_market_order(ticker, "sell", amount)
-
-        return {
-            "type": "SELL",
-            "ticker": sig["ticker"],
-            "symbol": ticker,
-            "amount": amount,
-            "order": order
-        }
+        if amount > 0:
+            order = self.broker.place_market_order(ticker, "sell", amount)
+            return {
+                "type": "SELL",
+                "ticker": sig["ticker"],
+                "symbol": ticker,
+                "amount": amount,
+                "order": order
+            }
+        else:
+            return None
 
     def compute_buy_amount(self, symbol, price=None):
         """
@@ -100,7 +104,13 @@ class AutoExecutor:
         if price is None:
             price = self.broker.get_price(symbol)
         qtt = self.broker.compute_order_amount(price)
-        return qtt
+        # check if ticker in balance
+        ticker = symbol.split("/")[0]
+        qtt_balance = self.broker.get_balance(ticker)
+        if qtt < qtt_balance:
+            return 0
+        else:
+            return qtt - qtt_balance
 
     def compute_sell_amount(self, ticker):
         """
@@ -144,11 +154,14 @@ class AutoExecutor:
             for sig in executed_signals:
                 ticker = sig["ticker"]
                 price = sig["price"]
+                exec_tmp = exec_index[ticker]
+                amount = exec_tmp["amount"]
+                type_order = exec_tmp["type"]
                 date = sig["date"].strftime('%Y-%m-%d')
                 # order_id = exec_index[ticker]["order"].get("id", "N/A")
                 html += f"""
                                 <li>
-                                    <strong>{ticker}</strong> — Prix: {price:.2f} — Date: {date}<br>
+                                    <strong>{type_order} {ticker}</strong> — Prix: {price:.2f} — Quantity: {amount} — Date: {date}<br>
                                 </li>
                                 """
                 # html += f"""

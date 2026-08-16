@@ -64,7 +64,7 @@ class KrakenBroker(BrokerBase):
         ohlcv = self.exchange.fetch_ohlcv(ticker, timeframe="1m", limit=10)
         df = pd.DataFrame(ohlcv, columns=["time", "Open", "High", "Low", "Close", "Volume"])
         df["time"] = pd.to_datetime(df["time"], unit="ms")
-        return df.iloc[-1]
+        return df.iloc[-1]["Close"]
 
     # ----------------------------------------------------------------------
     # ORDRES
@@ -87,16 +87,17 @@ class KrakenBroker(BrokerBase):
                 symbol=symbol,
                 type="market",
                 side=side,
-                amount=amount
+                amount=amount,
+                params={"validate": False}
             )
             self.log_order(f"Ordre exécuté: {order}")
             return order
         except InvalidOrder as e:
             self.log_order(f"Erreur market order: {e}")
-            return None
+            raise InvalidOrder(e)
         except InsufficientFunds as e:
             self.log_order(f"Erreur market order: {e}")
-            return None
+            raise InsufficientFunds(e)
 
     def place_stop_loss(self, symbol, amount, stop_price,limit_price=None):
         """
@@ -127,16 +128,17 @@ class KrakenBroker(BrokerBase):
                 price=limit_price,
                 params={
                     "stopPrice": stop_price,
+                    "validate": False
                 }
             )
             self.log_order(f"Stop-loss placé: {order}")
             return order
         except InvalidOrder as e:
             self.log_order(f"Erreur stop-loss: {e}")
-            return None
+            raise InvalidOrder(e)
         except InsufficientFunds as e:
             self.log_order(f"Erreur stop-loss: {e}")
-            return None
+            raise InsufficientFunds(e)
 
     def cancel_order(self, order_id: str):
         """
