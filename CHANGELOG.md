@@ -10,6 +10,10 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Documentation des API internes
 - Exemples d'utilisation pour chaque module
 
+## [0.8.2] - 2026-08-16
+### Debug
+- Debug format_execution_report du AutoExecutor 
+
 ## [0.8.1] - 2026-08-15
 ### Debug
 - Debug d'un import dans le script run_classical_scan_crypto.py qui empêchait l'exécution du script  
