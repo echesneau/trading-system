@@ -43,6 +43,7 @@ class AutoExecutor:
         for sig in random.sample(report["sell_signals"], len(report["sell_signals"])):
             if not sig['ticker'].endswith("EUR"):
                 executions["executed"].append({"signal": sig, "error": "Transaction en € uniquement."})
+            else:
                 try:
                     result = self.execute_sell(sig)
                     if result is not None:
