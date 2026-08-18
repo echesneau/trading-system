@@ -106,7 +106,7 @@ def test_stop_loss(monkeypatch):
     order = broker.place_stop_loss("BTC/EUR", 0.01, 25000)
 
     assert order["type"] == "stop-loss-limit"
-    assert order["params"]["stopPrice"] == 25000
+    assert order["params"]["price2"] == 25000 * 0.999
 
 def test_get_open_positions(monkeypatch):
     fake = FakeExchange()
