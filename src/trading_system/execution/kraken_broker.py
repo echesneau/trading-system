@@ -125,9 +125,9 @@ class KrakenBroker(BrokerBase):
                 type="stop-loss-limit",
                 side="sell",
                 amount=amount,
-                price=limit_price,
+                price=stop_price,
                 params={
-                    "stopPrice": stop_price,
+                    "price2": limit_price,
                     "trigger": "last",
                     "validate": False
                 }

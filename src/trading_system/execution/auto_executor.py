@@ -67,7 +67,7 @@ class AutoExecutor:
             # Stop-loss automatique si risk manager
             if not self.risk_manager is None and 0 < self.risk_manager < 1:
                 sl_price = price * (1 - self.risk_manager)
-                self.broker.place_stop_loss(ticker, amount, sl_price)
+                sl_order = self.broker.place_stop_loss(ticker, amount, sl_price)
 
             return {
                 "type": "BUY",

@@ -105,7 +105,7 @@ def test_stop_loss(monkeypatch):
 
     order = broker.place_stop_loss("BTC/EUR", 0.01, 25000)
 
-    assert order["type"] == "limit"
+    assert order["type"] == "stop-loss-limit"
     assert order["params"]["stopPrice"] == 25000
 
 def test_get_open_positions(monkeypatch):
