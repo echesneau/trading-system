@@ -122,12 +122,13 @@ class KrakenBroker(BrokerBase):
         try:
             order = self.exchange.create_order(
                 symbol=symbol,
-                type="limit",
+                type="stop-loss-limit",
                 side="sell",
                 amount=amount,
                 price=limit_price,
                 params={
                     "stopPrice": stop_price,
+                    "trigger": "last",
                     "validate": False
                 }
             )
