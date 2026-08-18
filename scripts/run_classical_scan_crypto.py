@@ -44,7 +44,7 @@ if __name__ == "__main__":
     config = {ticker: params_db.fetch_one(ticker)["params_json"]
               for ticker in valid_tickers}
     # Automatic Executor
-    broker = KrakenBroker(dry_run=False, base_currency="EUR", max_position_size=3, min_position_size=1)
+    broker = KrakenBroker(dry_run=False, base_currency="EUR", max_position_size=5, min_position_size=3)
     executor = AutoExecutor(broker, risk_manager=0.15)
     # Générer le rapport
     reporter = SignalReporter(strategy=ClassicalStrategy, data_loader=load_ccxt_data)

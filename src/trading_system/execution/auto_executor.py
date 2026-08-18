@@ -30,20 +30,26 @@ class AutoExecutor:
 
         # 1. Exécuter les BUY
         for sig in random.sample(report["buy_signals"], len(report["buy_signals"])):
-            try:
-                result = self.execute_buy(sig)
-                executions["executed"].append(result)
-            except Exception as e:
-                executions["errors"].append({"signal": sig, "error": str(e)})
+            if not sig['ticker'].endswith("EUR"):
+                executions["executed"].append({"signal": sig, "error": "Transaction en € uniquement."})
+            else:
+                try:
+                    result = self.execute_buy(sig)
+                    executions["executed"].append(result)
+                except Exception as e:
+                    executions["errors"].append({"signal": sig, "error": str(e)})
 
         # 2. Exécuter les SELL
         for sig in random.sample(report["sell_signals"], len(report["sell_signals"])):
-            try:
-                result = self.execute_sell(sig)
-                if result is not None:
-                    executions["executed"].append(result)
-            except Exception as e:
-                executions["errors"].append({"signal": sig, "error": str(e)})
+            if not sig['ticker'].endswith("EUR"):
+                executions["executed"].append({"signal": sig, "error": "Transaction en € uniquement."})
+            else:
+                try:
+                    result = self.execute_sell(sig)
+                    if result is not None:
+                        executions["executed"].append(result)
+                except Exception as e:
+                    executions["errors"].append({"signal": sig, "error": str(e)})
 
         return executions
 

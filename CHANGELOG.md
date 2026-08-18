@@ -14,6 +14,11 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Debug
 - debug du place_stop_loss de KrakenBroker
 
+## [0.8.3] - 2026-08-17
+### Modifié
+- Executer uniquement les signaux en EUR
+- augmenter le montant max par position.
+
 ## [0.8.2] - 2026-08-16
 ### Debug
 - Debug format_execution_report du AutoExecutor 
