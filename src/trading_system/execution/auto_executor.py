@@ -76,8 +76,10 @@ class AutoExecutor:
                 "amount": amount,
                 "order": order
             }
+        elif amount == 0:
+            raise ValueError("Fonds insuffisants")
         else:
-            raise ValueError(f"Déjà présent dans le portefeuille")
+            raise ValueError("Déjà présent dans le portefeuille")
 
     def execute_sell(self, sig):
         """
@@ -110,11 +112,13 @@ class AutoExecutor:
         if price is None:
             price = self.broker.get_price(symbol)
         qtt = self.broker.compute_order_amount(price)
+        if qtt == 0:
+            return 0
         # check if ticker in balance
         ticker = symbol.split("/")[0]
         qtt_balance = self.broker.get_balance(ticker)
         if qtt < qtt_balance:
-            return 0
+            return -1
         else:
             return qtt - qtt_balance
 
