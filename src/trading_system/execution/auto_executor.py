@@ -31,7 +31,7 @@ class AutoExecutor:
         # 1. Exécuter les BUY
         for sig in random.sample(report["buy_signals"], len(report["buy_signals"])):
             if not sig['ticker'].endswith("EUR"):
-                executions["executed"].append({"signal": sig, "error": "Transaction en € uniquement."})
+                executions["errors"].append({"signal": sig, "error": "Transaction en € uniquement."})
             else:
                 try:
                     result = self.execute_buy(sig)
@@ -42,7 +42,7 @@ class AutoExecutor:
         # 2. Exécuter les SELL
         for sig in random.sample(report["sell_signals"], len(report["sell_signals"])):
             if not sig['ticker'].endswith("EUR"):
-                executions["executed"].append({"signal": sig, "error": "Transaction en € uniquement."})
+                executions["errors"].append({"signal": sig, "error": "Transaction en € uniquement."})
             else:
                 try:
                     result = self.execute_sell(sig)
