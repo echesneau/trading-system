@@ -54,7 +54,7 @@ def test_kraken_cancel_order():
     broker = KrakenBroker(dry_run=False)
     actual_price = broker.get_price("ADA/EUR")
     price_order = actual_price / 10
-    qtt = 2 / price_order
+    qtt = 1 / price_order
     order = broker.exchange.create_order(
         symbol="ADA/EUR",
         type="limit",
