@@ -28,18 +28,7 @@ class AutoExecutor:
             "errors": []
         }
 
-        # 1. Exécuter les BUY
-        for sig in random.sample(report["buy_signals"], len(report["buy_signals"])):
-            if not sig['ticker'].endswith("EUR"):
-                executions["errors"].append({"signal": sig, "error": "Transaction en € uniquement."})
-            else:
-                try:
-                    result = self.execute_buy(sig)
-                    executions["executed"].append(result)
-                except Exception as e:
-                    executions["errors"].append({"signal": sig, "error": str(e)})
-
-        # 2. Exécuter les SELL
+        # 1. Exécuter les SELL
         for sig in random.sample(report["sell_signals"], len(report["sell_signals"])):
             if not sig['ticker'].endswith("EUR"):
                 executions["errors"].append({"signal": sig, "error": "Transaction en € uniquement."})
@@ -48,6 +37,17 @@ class AutoExecutor:
                     result = self.execute_sell(sig)
                     if result is not None:
                         executions["executed"].append(result)
+                except Exception as e:
+                    executions["errors"].append({"signal": sig, "error": str(e)})
+
+        # 2. Exécuter les BUY
+        for sig in random.sample(report["buy_signals"], len(report["buy_signals"])):
+            if not sig['ticker'].endswith("EUR"):
+                executions["errors"].append({"signal": sig, "error": "Transaction en € uniquement."})
+            else:
+                try:
+                    result = self.execute_buy(sig)
+                    executions["executed"].append(result)
                 except Exception as e:
                     executions["errors"].append({"signal": sig, "error": str(e)})
 
@@ -76,8 +76,10 @@ class AutoExecutor:
                 "amount": amount,
                 "order": order
             }
+        elif amount == 0:
+            raise ValueError("Fonds insuffisants")
         else:
-            raise ValueError(f"Déjà présent dans le portefeuille")
+            raise ValueError("Déjà présent dans le portefeuille")
 
     def execute_sell(self, sig):
         """
@@ -110,11 +112,13 @@ class AutoExecutor:
         if price is None:
             price = self.broker.get_price(symbol)
         qtt = self.broker.compute_order_amount(price)
+        if qtt == 0:
+            return 0
         # check if ticker in balance
         ticker = symbol.split("/")[0]
         qtt_balance = self.broker.get_balance(ticker)
         if qtt < qtt_balance:
-            return 0
+            return -1
         else:
             return qtt - qtt_balance
 

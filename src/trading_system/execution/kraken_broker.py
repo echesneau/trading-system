@@ -105,9 +105,17 @@ class KrakenBroker(BrokerBase):
         stop_price : prix de déclenchement
         limit_price : prix limite (obligatoire pour Kraken)
         """
+        # S'assurer que les marchés Kraken sont chargés
+        self.exchange.load_markets()
+
         if limit_price is None:
             # Par défaut, on place un prix limite légèrement sous le stop
             limit_price = stop_price * 0.999
+
+            # Formatage selon la précision Kraken
+            stop_price = float(self.exchange.price_to_precision(symbol, stop_price))
+            limit_price = float(self.exchange.price_to_precision(symbol, limit_price))
+
         self.log_order(f"Stop-loss demandé: SELL {amount} {symbol} @ {stop_price}, limit={limit_price}")
 
         if self.is_dry_run():

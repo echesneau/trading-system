@@ -13,6 +13,7 @@ et ce projet adhère à [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## HEAD - 2026-08-XX
 ### Debug
 - debug du place_stop_loss de KrakenBroker
+- meilleure remontée des Erreurs sur les fonds insuffisants
 
 ## [0.8.3] - 2026-08-17
 ### Modifié
