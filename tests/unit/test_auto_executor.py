@@ -87,8 +87,8 @@ def test_execute_from_report():
     executions = executor.execute_from_report(report)
 
     assert len(executions["executed"]) == 2
-    assert broker.market_orders[0]["side"] == "buy"
-    assert broker.market_orders[1]["side"] == "sell"
+    assert broker.market_orders[1]["side"] == "buy" # Sell first
+    assert broker.market_orders[0]["side"] == "sell"
 
 def test_compute_buy_amount():
     broker = FakeBroker()

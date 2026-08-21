@@ -33,6 +33,12 @@ class FakeExchange:
         self.cancelled.append(order_id)
         return {"id": order_id, "status": "canceled"}
 
+    def load_markets(self):
+        return None
+
+    def price_to_precision(self, symbol, price):
+        return price
+
 def test_initialization(monkeypatch):
     fake = FakeExchange()
     monkeypatch.setattr("ccxt.kraken", lambda config: fake)
